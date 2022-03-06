@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 5: Writing a library: working with JSON data</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 5: Writing a library: working with JSON
+data</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#a-whirlwind-tour-of-json"><span
+class="toc-section-number">1</span> A whirlwind tour of JSON</a></li>
+<li><a href="#representing-json-data-in-haskell"><span
+class="toc-section-number">2</span> Representing JSON data in
+Haskell</a></li>
+<li><a href="#the-anatomy-of-a-haskell-module"><span
+class="toc-section-number">3</span> The anatomy of a Haskell
+module</a></li>
+<li><a href="#compiling-haskell-source"><span
+class="toc-section-number">4</span> Compiling Haskell source</a></li>
+<li><a href="#generating-a-haskell-program-and-importing-modules"><span
+class="toc-section-number">5</span> Generating a Haskell program, and
+importing modules</a></li>
+<li><a href="#printing-json-data"><span
+class="toc-section-number">6</span> Printing JSON data</a></li>
+<li><a href="#type-inference-is-a-double-edged-sword"><span
+class="toc-section-number">7</span> Type inference is a double-edged
+sword</a></li>
+<li><a href="#a-more-general-look-at-rendering"><span
+class="toc-section-number">8</span> A more general look at
+rendering</a></li>
+<li><a href="#developing-haskell-code-without-going-nuts"><span
+class="toc-section-number">9</span> Developing Haskell code without
+going nuts</a></li>
+<li><a href="#pretty-printing-a-string"><span
+class="toc-section-number">10</span> Pretty printing a string</a></li>
+<li><a href="#arrays-and-objects-and-the-module-header"><span
+class="toc-section-number">11</span> Arrays and objects, and the module
+header</a></li>
+<li><a href="#writing-a-module-header"><span
+class="toc-section-number">12</span> Writing a module header</a></li>
+<li><a href="#fleshing-out-the-pretty-printing-library"><span
+class="toc-section-number">13</span> Fleshing out the pretty printing
+library</a>
+<ul>
+<li><a href="#compact-rendering"><span
+class="toc-section-number">13.1</span> Compact rendering</a></li>
+<li><a href="#true-pretty-printing"><span
+class="toc-section-number">13.2</span> True pretty printing</a></li>
+<li><a href="#following-the-pretty-printer"><span
+class="toc-section-number">13.3</span> Following the pretty
+printer</a></li>
+<li><a href="#exercises"><span class="toc-section-number">13.4</span>
+Exercises</a></li>
+</ul></li>
+<li><a href="#creating-a-package"><span
+class="toc-section-number">14</span> Creating a package</a>
+<ul>
+<li><a href="#writing-a-package-description"><span
+class="toc-section-number">14.1</span> Writing a package
+description</a></li>
+<li><a href="#ghcs-package-manager"><span
+class="toc-section-number">14.2</span> GHC's package manager</a></li>
+<li><a href="#setting-up-building-and-installing"><span
+class="toc-section-number">14.3</span> Setting up, building, and
+installing</a></li>
+</ul></li>
+<li><a href="#practical-pointers-and-further-reading"><span
+class="toc-section-number">15</span> Practical pointers and further
+reading</a></li>
+<li><a href="#footnotes"><span class="toc-section-number">16</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<h1 data-number="1" id="a-whirlwind-tour-of-json"><span
+class="header-section-number">1</span> A whirlwind tour of JSON</h1>
+<p>In this chapter, we'll develop a small, but complete, Haskell
+library. Our library will manipulate and serialize data in a popular
+form known as JSON.</p>
+<p>The JSON (JavaScript Object Notation) language is a small, simple
+representation for storing and transmitting structured data, for example
+over a network connection. It is most commonly used to transfer data
+from a web service to a browser-based JavaScript application. The JSON
+format is described at <a href="http://www.json.org/">www.json.org</a>,
+and in greater detail by <a
+href="http://www.ietf.org/rfc/rfc4627.txt">RFC 4627</a>.</p>
+<p>JSON supports four basic types of value: strings, numbers, booleans,
+and a special value named <code>null</code>.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;a string&quot;</span> <span class="dv">12345</span> true</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">null</span></span></code></pre></div>
+<p>The language provides two compound types: an <em>array</em> is an
+ordered sequence of values, and an <em>object</em> is an unordered
+collection of name/value pairs. The names in an object are always
+strings; the values in an object or array can be of any type.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>[<span class="op">-</span><span class="fl">3.14</span>, true, <span class="fu">null</span>, <span class="st">&quot;a string&quot;</span>]</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>      {<span class="st">&quot;numbers&quot;</span><span class="op">:</span> [<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>], <span class="st">&quot;useful&quot;</span><span class="op">:</span> false}</span></code></pre></div>
+<h1 data-number="2" id="representing-json-data-in-haskell"><span
+class="header-section-number">2</span> Representing JSON data in
+Haskell</h1>
+<p>To work with JSON data in Haskell, we use an algebraic data type to
+represent the range of possible JSON types.</p>
+<div class="captioned-content">
+<div class="caption">
+SimpleJSON.hs
+</div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">JValue</span> <span class="ot">=</span> <span class="dt">JString</span> <span class="dt">String</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="dt">JNumber</span> <span class="dt">Double</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="dt">JBool</span> <span class="dt">Bool</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="dt">JNull</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="dt">JObject</span> [(<span class="dt">String</span>, <span class="dt">JValue</span>)]</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="dt">JArray</span> [<span class="dt">JValue</span>]</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>              <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>For each JSON type, we supply a distinct value constructor. Some of
+these constructors have parameters: if we want to construct a JSON
+string, we must provide a <code>String</code> value as an argument to
+the <code>JString</code> constructor.</p>
+<p>To start experimenting with this code, save the file
+<code>SimpleJSON.hs</code> in your editor, switch to a <code>ghci</code>
+window, and load the file into <code>ghci</code>.</p>
+<pre class="screen"><code>ghci&gt; :load SimpleJSON
+[1 of 1] Compiling SimpleJSON       ( SimpleJSON.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; JString &quot;foo&quot;
+JString &quot;foo&quot;
+ghci&gt; JNumber 2.7
+JNumber 2.7
+ghci&gt; :type JBool True
+JBool True :: JValue
+</code></pre>
+<p>We can see how to use a constructor to take a normal Haskell value
+and turn it into a <code>JValue</code>. To do the reverse, we use
+pattern matching. Here's a function that we can add to
+<code>SimpleJSON.hs</code> that will extract a string from a JSON value
+for us. If the JSON value actually contains a string, our function will
+wrap the string with the <code>Just</code> constructor. Otherwise, it
+will return <code>Nothing</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+SimpleJSON.hs
+</div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ot">getString ::</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">String</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>getString (<span class="dt">JString</span> s) <span class="ot">=</span> <span class="dt">Just</span> s</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>getString _           <span class="ot">=</span> <span class="dt">Nothing</span></span></code></pre></div>
+</div>
+<p>When we save the modified source file, we can reload it in
+<code>ghci</code> and try the new definition. (The <code>:reload</code>
+command remembers the last source file we loaded, so we do not need to
+name it explicitly.)</p>
+<pre class="screen"><code>ghci&gt; :reload
+Ok, one module loaded.
+ghci&gt; getString (JString &quot;hello&quot;)
+Just &quot;hello&quot;
+ghci&gt; getString (JNumber 3)
+Nothing
+</code></pre>
+<p>A few more accessor functions, and we've got a small body of code to
+work with.</p>
+<div class="captioned-content">
+<div class="caption">
+SimpleJSON.hs
+</div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ot">getInt ::</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">Int</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>getInt (<span class="dt">JNumber</span> n) <span class="ot">=</span> <span class="dt">Just</span> (<span class="fu">truncate</span> n)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>getInt _           <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ot">getDouble ::</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">Double</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>getDouble (<span class="dt">JNumber</span> n) <span class="ot">=</span> <span class="dt">Just</span> n</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>getDouble _           <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="ot">getBool ::</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">Bool</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>getBool (<span class="dt">JBool</span> b) <span class="ot">=</span> <span class="dt">Just</span> b</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>getBool _         <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="ot">getObject ::</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> [(<span class="dt">String</span>, <span class="dt">JValue</span>)]</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>getObject (<span class="dt">JObject</span> o) <span class="ot">=</span> <span class="dt">Just</span> o</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>getObject _           <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="ot">getArray ::</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> [<span class="dt">JValue</span>]</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>getArray (<span class="dt">JArray</span> a) <span class="ot">=</span> <span class="dt">Just</span> a</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>getArray _          <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="ot">isNull ::</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>isNull v <span class="ot">=</span> v <span class="op">==</span> <span class="dt">JNull</span></span></code></pre></div>
+</div>
+<p>The <code>truncate</code> function turns a floating point or rational
+number into an integer by dropping the digits after the decimal
+point.</p>
+<pre class="screen"><code>ghci&gt; truncate 5.8
+5
+ghci&gt; :module +Data.Ratio
+ghci&gt; truncate (22 % 7)
+3
+</code></pre>
+<h1 data-number="3" id="the-anatomy-of-a-haskell-module"><span
+class="header-section-number">3</span> The anatomy of a Haskell
+module</h1>
+<p>A Haskell source file contains a definition of a single
+<em>module</em>. A module lets us determine which names inside the
+module are accessible from other modules.</p>
+<p>A source file begins with a <em>module declaration</em>. This must
+precede all other definitions in the source file.</p>
+<div class="captioned-content">
+<div class="caption">
+SimpleJSON.hs
+</div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">SimpleJSON</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    ( <span class="dt">JValue</span>(<span class="op">..</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    , getString</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    , getInt</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    , getDouble</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    , getBool</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    , getObject</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    , getArray</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    , isNull</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    ) <span class="kw">where</span></span></code></pre></div>
+</div>
+<p>The word <code>module</code> is reserved. It is followed by the name
+of the module, which must begin with a capital letter. A source file
+must have the same <em>base name</em> (the component before the suffix)
+as the name of the module it contains. This is why our file
+<code>SimpleJSON.hs</code> contains a module named
+<code>SimpleJSON</code>.</p>
+<p>Following the module name is a list of <em>exports</em>, enclosed in
+parentheses. The <code>where</code> keyword indicates that the body of
+the module follows.</p>
+<p>The list of exports indicates which names in this module are visible
+to other modules. This lets us keep private code hidden from the outside
+world. The special notation <code>(..)</code> that follows the name
+<code>JValue</code> indicates that we are exporting both the type and
+all of its constructors.</p>
+<p>It might seem strange that we can export a type's name (i.e. its type
+constructor), but not its value constructors. The ability to do this is
+important: it lets us hide the details of a type from its users, making
+the type <em>abstract</em>. If we cannot see a type's value
+constructors, we cannot pattern match against a value of that type, nor
+can we construct a new value of that type. Later in this chapter, we'll
+discuss some situations in which we might want to make a type
+abstract.</p>
+<p>If we omit the exports (and the parentheses that enclose them) from a
+module declaration, every name in the module will be exported.</p>
+<div class="captioned-content">
+<div class="caption">
+Exporting.hs
+</div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">ExportEverything</span> <span class="kw">where</span></span></code></pre></div>
+</div>
+<p>To export no names at all (which is rarely useful), we write an empty
+export list using a pair of parentheses.</p>
+<div class="captioned-content">
+<div class="caption">
+Exporting.hs
+</div>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">ExportNothing</span> () <span class="kw">where</span></span></code></pre></div>
+</div>
+<h1 data-number="4" id="compiling-haskell-source"><span
+class="header-section-number">4</span> Compiling Haskell source</h1>
+<p>In addition to the <code>ghci</code> interpreter, the GHC
+distribution includes a compiler, <code>ghc</code>, that generates
+native code. If you are already familiar with a command line compiler
+such as <code>gcc</code> or <code>cl</code> (the C++ compiler component
+of Microsoft's Visual Studio), you'll immediately be at home with
+<code>ghc</code>.</p>
+<p>To compile a source file, we first open a terminal or command prompt
+window, then invoke <code>ghc</code> with the name of the source file to
+compile.</p>
+<pre class="screen"><code>ghc -c SimpleJSON.hs
+</code></pre>
+<p>The <code>-c</code> option tells <code>ghc</code> to only generate
+object code. If we were to omit the <code>-c</code> option, the compiler
+would attempt to generate a complete executable. That would fail,
+because we haven't written a <code>main</code> function, which GHC calls
+to start the execution of a standalone program.</p>
+<p>After <code>ghc</code> completes, if we list the contents of the
+directory, it should contain two new files: <code>SimpleJSON.hi</code>
+and <code>SimpleJSON.o</code>. The former is an <em>interface file</em>,
+in which <code>ghc</code> stores information about the names exported
+from our module in machine-readable form. The latter is an <em>object
+file</em>, which contains the generated machine code.</p>
+<h1 data-number="5"
+id="generating-a-haskell-program-and-importing-modules"><span
+class="header-section-number">5</span> Generating a Haskell program, and
+importing modules</h1>
+<p>Now that we've successfully compiled our minimal library, we'll write
+a tiny program to exercise it. Create the following file in your text
+editor, and save it as <code>Main.hs</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Main.hs
+</div>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">SimpleJSON</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> <span class="fu">print</span> (<span class="dt">JObject</span> [(<span class="st">&quot;foo&quot;</span>, <span class="dt">JNumber</span> <span class="dv">1</span>), (<span class="st">&quot;bar&quot;</span>, <span class="dt">JBool</span> <span class="dt">False</span>)])</span></code></pre></div>
+</div>
+<p>Notice the <code>import</code> directive that follows the module
+declaration. This indicates that we want to take all of the names that
+are exported from the <code>SimpleJSON</code> module, and make them
+available in our module. Any <code>import</code> directives must appear
+in a group at the beginning of a module. They must appear after the
+module declaration, but before all other code. We cannot, for example,
+scatter them throughout a source file.</p>
+<p>Our choice of naming for the source file and function is deliberate.
+To create an executable, <code>ghc</code> expects a module named
+<code>Main</code> that contains a function named <code>main</code>. The
+<code>main</code> function is the one that will be called when we run
+the program once we've built it.</p>
+<pre class="screen"><code>ghc -o simple Main.hs
+</code></pre>
+<p>This time around, we're omitting the <code>-c</code> option when we
+invoke <code>ghc</code>, so it will attempt to generate an executable.
+The process of generating an executable is called <em>linking</em>. As
+our command line suggests, <code>ghc</code> is perfectly able to both
+compile source files and link an executable in a single invocation.</p>
+<p>We pass <code>ghc</code> a new option, <code>-o</code>, which takes
+one argument: this is the name of the executable that <code>ghc</code>
+should create<a href="#fn1" class="footnote-ref" id="fnref1"
+role="doc-noteref"><sup>1</sup></a>. Here, we've decided to name the
+program <code>simple</code>. On Windows, the program will have the
+suffix <code>.exe</code>, but on Unix variants there will not be a
+suffix.</p>
+<p>Finally, we supply the name of our new source file,
+<code>Main.hs</code>. If <code>ghc</code> notices that it has already
+compiled a source file into an object file, it will only recompile the
+source file if we've modified it.</p>
+<p>Once <code>ghc</code> has finished compiling and linking our
+<code>simple</code> program, we can run it from the command line.</p>
+<h1 data-number="6" id="printing-json-data"><span
+class="header-section-number">6</span> Printing JSON data</h1>
+<p>Now that we have a Haskell representation for JSON's types, we'd like
+to be able to take Haskell values and render them as JSON data.</p>
+<p>There are a few ways we could go about this. Perhaps the most direct
+would be to write a rendering function that prints a value in JSON form.
+Once we're done, we'll explore some more interesting approaches.</p>
+<div class="captioned-content">
+<div class="caption">
+PutJSON.hs
+</div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">PutJSON</span> <span class="kw">where</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span> (intercalate)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">SimpleJSON</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="ot">renderJValue ::</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>renderJValue (<span class="dt">JString</span> s)   <span class="ot">=</span> <span class="fu">show</span> s</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>renderJValue (<span class="dt">JNumber</span> n)   <span class="ot">=</span> <span class="fu">show</span> n</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>renderJValue (<span class="dt">JBool</span> <span class="dt">True</span>)  <span class="ot">=</span> <span class="st">&quot;true&quot;</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>renderJValue (<span class="dt">JBool</span> <span class="dt">False</span>) <span class="ot">=</span> <span class="st">&quot;false&quot;</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>renderJValue <span class="dt">JNull</span>         <span class="ot">=</span> <span class="st">&quot;null&quot;</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>renderJValue (<span class="dt">JObject</span> o) <span class="ot">=</span> <span class="st">&quot;{&quot;</span> <span class="op">++</span> pairs o <span class="op">++</span> <span class="st">&quot;}&quot;</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> pairs []         <span class="ot">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>        pairs ps         <span class="ot">=</span> intercalate <span class="st">&quot;, &quot;</span> (<span class="fu">map</span> renderPair ps)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>        renderPair (k,v) <span class="ot">=</span> <span class="fu">show</span> k <span class="op">++</span> <span class="st">&quot;: &quot;</span> <span class="op">++</span> renderJValue v</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>renderJValue (<span class="dt">JArray</span> a) <span class="ot">=</span> <span class="st">&quot;[&quot;</span> <span class="op">++</span> values a <span class="op">++</span> <span class="st">&quot;]&quot;</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> values [] <span class="ot">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>        values vs <span class="ot">=</span> intercalate <span class="st">&quot;, &quot;</span> (<span class="fu">map</span> renderJValue vs)</span></code></pre></div>
+</div>
+<p>Good Haskell style involves separating pure code from code that
+performs I/O. Our <code>renderJValue</code> function has no interaction
+with the outside world, but we still need to be able to print a
+<code>JValue</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+PutJSON.hs
+</div>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ot">putJValue ::</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>putJValue v <span class="ot">=</span> <span class="fu">putStrLn</span> (renderJValue v)</span></code></pre></div>
+</div>
+<p>Printing a JSON value is now easy.</p>
+<p>Why should we separate the rendering code from the code that actually
+prints a value? This gives us flexibility. For instance, if we wanted to
+compress the data before writing it out, and we intermixed rendering
+with printing, it would be much more difficult to adapt our code to that
+change in circumstances.</p>
+<p>This idea of separating pure from impure code is powerful, and
+pervasive in Haskell code. Several Haskell compression libraries exist,
+all of which have simple interfaces: a compression function accepts an
+uncompressed string and returns a compressed string. We can use function
+composition to render JSON data to a string, then compress to another
+string, postponing any decision on how to actually display or transmit
+the data.</p>
+<h1 data-number="7" id="type-inference-is-a-double-edged-sword"><span
+class="header-section-number">7</span> Type inference is a double-edged
+sword</h1>
+<p>A Haskell compiler's ability to infer types is powerful and valuable.
+Early on, you'll probably be faced by a strong temptation to take
+advantage of type inference by omitting as many type declarations as
+possible: let's simply make the compiler figure the whole lot out!</p>
+<p>Skimping on explicit type information has a downside, one that
+disproportionately affects new Haskell programmer. As a new Haskell
+programmer, we're extremely likely to write code that will fail to
+compile due to straightforward type errors.</p>
+<p>When we omit explicit type information, we force the compiler to
+figure out our intentions. It will infer types that are logical and
+consistent, but perhaps not at all what we meant. If we and the compiler
+unknowingly disagree about what is going on, it will naturally take us
+longer to find the source of our problem.</p>
+<p>Suppose, for instance, that we write a function that we believe
+returns a <code>String</code>, but we don't write a type signature for
+it.</p>
+<div class="captioned-content">
+<div class="caption">
+Trouble.hs
+</div>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Char</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>upcaseFirst (c<span class="op">:</span>cs) <span class="ot">=</span> <span class="fu">toUpper</span> c <span class="co">-- forgot &quot;:cs&quot; here</span></span></code></pre></div>
+</div>
+<p>Here, we want to upper-case the first character of a word, but we've
+forgotten to append the rest of the word onto the result. We think our
+function's type is <code>String -&gt; String</code>, but the compiler
+will correctly infer its type as <code>String -&gt; Char</code>. Let's
+say we then try to use this function somewhere else.</p>
+<div class="captioned-content">
+<div class="caption">
+Trouble.hs
+</div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ot">camelCase ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>camelCase xs <span class="ot">=</span> <span class="fu">concat</span> (<span class="fu">map</span> upcaseFirst (<span class="fu">words</span> xs))</span></code></pre></div>
+</div>
+<p>When we try to compile this code or load it into <code>ghci</code>,
+we won't necessarily get an obvious error message.</p>
+<pre class="screen"><code>ghci&gt; :load Trouble
+[1 of 1] Compiling Main             ( Trouble.hs, interpreted )
+
+Trouble.hs:6:24: error:
+    • Couldn&#39;t match type ‘Char’ with ‘[Char]’
+      Expected type: [[Char]]
+        Actual type: [Char]
+    • In the first argument of ‘concat’, namely
+        ‘(map upcaseFirst (words xs))’
+      In the expression: concat (map upcaseFirst (words xs))
+      In an equation for ‘camelCase’:
+          camelCase xs = concat (map upcaseFirst (words xs))
+  |
+6 | camelCase xs = concat (map upcaseFirst (words xs))
+  |                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+Failed, no modules loaded.
+</code></pre>
+<p>Notice that the error is reported where we <em>use</em> the
+<code>upcaseFirst</code> function. If we're erroneously convinced that
+our definition and type for <code>upcaseFirst</code> are correct, we may
+end up staring at the wrong piece of code for quite a while, until
+enlightenment strikes.</p>
+<p>Every time we write a type signature, we remove a degree of freedom
+from the type inference engine. This reduces the likelihood of
+divergence between our understanding of our code and the compiler's.
+Type declarations also act as shorthand for ourselves as readers of our
+own code, making it easier for us to develop a sense of what must be
+going on.</p>
+<p>This is not to say that we need to pepper every tiny fragment of code
+with a type declaration. It is, however, usually good form to add a
+signature to every top-level definition in our code. It's best to start
+out fairly aggressive with explicit type signatures, and slowly ease
+back as your mental model of how type checking works becomes more
+accurate.</p>
+<div class="TIP">
+<p>Explicit types, undefined values, and error</p>
+<p>The special value <code>undefined</code> will happily type-check no
+matter where we use it, as will an expression like
+<code>error "argh!"</code>. It is especially important that we write
+type signatures when we use these. Suppose we use <code>undefined</code>
+or <code>error "write me"</code> to act as a placeholder in the body of
+a top-level definition. If we omit a type signature, we may be able to
+use the value we have defined in places where a correctly typed version
+would be rejected by the compiler. This can easily lead us astray.</p>
+</div>
+<h1 data-number="8" id="a-more-general-look-at-rendering"><span
+class="header-section-number">8</span> A more general look at
+rendering</h1>
+<p>Our JSON rendering code is narrowly tailored to the exact needs of
+our data types and the JSON formatting conventions. The output it
+produces can be unfriendly to human eyes. We will now look at rendering
+as a more generic task: how can we build a library that is useful for
+rendering data in a variety of situations?</p>
+<p>We would like to produce output that is suitable either for human
+consumption (e.g. for debugging) or for machine processing. Libraries
+that perform this job are referred to as <em>pretty printers</em>. There
+already exist several Haskell pretty printing libraries. We are creating
+one of our own not to replace them, but for the many useful insights we
+will gain into both library design and functional programming
+techniques.</p>
+<p>We will call our generic pretty printing module
+<code>Prettify</code>, so our code will go into a source file named
+<code>Prettify.hs</code>.</p>
+<div class="NOTE">
+<p>Naming</p>
+<p>In our <code>Prettify</code> module, we will base our names on those
+used by several established Haskell pretty printing libraries. This will
+give us a degree of compatibility with existing mature libraries.</p>
+</div>
+<p>To make sure that <code>Prettify</code> meets practical needs, we
+write a new JSON renderer that uses the <code>Prettify</code> API. After
+we're done, we'll go back and fill in the details of the
+<code>Prettify</code> module.</p>
+<p>Instead of rendering straight to a string, our <code>Prettify</code>
+module will use an abstract type that we'll call <code>Doc</code>. By
+basing our generic rendering library on an abstract type, we can choose
+an implementation that is flexible and efficient. If we decide to change
+the underlying code, our users will not be able to tell.</p>
+<p>We will name our new JSON rendering module
+<code>PrettyJSON.hs</code>, and retain the name
+<code>renderJValue</code> for the rendering function. Rendering one of
+the basic JSON values is straightforward.</p>
+<div class="captioned-content">
+<div class="caption">
+PrettyJSON.hs
+</div>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ot">renderJValue ::</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>renderJValue (<span class="dt">JBool</span> <span class="dt">True</span>)  <span class="ot">=</span> text <span class="st">&quot;true&quot;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>renderJValue (<span class="dt">JBool</span> <span class="dt">False</span>) <span class="ot">=</span> text <span class="st">&quot;false&quot;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>renderJValue <span class="dt">JNull</span>         <span class="ot">=</span> text <span class="st">&quot;null&quot;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>renderJValue (<span class="dt">JNumber</span> num) <span class="ot">=</span> double num</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>renderJValue (<span class="dt">JString</span> str) <span class="ot">=</span> string str</span></code></pre></div>
+</div>
+<p>The <code>text</code>, <code>double</code>, and <code>string</code>
+functions will be provided by our <code>Prettify</code> module.</p>
+<h1 data-number="9"
+id="developing-haskell-code-without-going-nuts"><span
+class="header-section-number">9</span> Developing Haskell code without
+going nuts</h1>
+<p>Early on, as we come to grips with Haskell development, we have so
+many new, unfamiliar concepts to keep track of at one time that it can
+be a challenge to write code that compiles at all.</p>
+<p>As we write our first substantial body of code, it's a <em>huge</em>
+help to pause every few minutes and try to compile what we've produced
+so far. Because Haskell is so strongly typed, if our code compiles
+cleanly, we're assuring ourselves that we're not wandering too far off
+into the programming weeds.</p>
+<p>One useful technique for quickly developing the skeleton of a program
+is to write placeholder, or <em>stub</em> versions of types and
+functions. For instance, we mentioned above that our
+<code>string</code>, <code>text</code> and <code>double</code> functions
+would be provided by our <code>Prettify</code> module. If we don't
+provide definitions for those functions or the <code>Doc</code> type,
+our attempts to "compile early, compile often" with our JSON renderer
+will fail, as the compiler won't know anything about those functions. To
+avoid this problem, we write stub code that doesn't do anything.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">SimpleJSON</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Doc</span> <span class="ot">=</span> <span class="dt">ToBeDefined</span> <span class="kw">deriving</span> (<span class="dt">Show</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="ot">string ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>string str <span class="ot">=</span> <span class="fu">undefined</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="ot">text ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>text str <span class="ot">=</span> <span class="fu">undefined</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="ot">double ::</span> <span class="dt">Double</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>double num <span class="ot">=</span> <span class="fu">undefined</span></span></code></pre></div>
+</div>
+<p>The special value <code>undefined</code> has the type <code>a</code>,
+so it always type-checks, no matter where we use it. If we attempt to
+evaluate it, it will cause our program to crash.</p>
+<pre class="screen"><code>ghci&gt; :type undefined
+undefined :: a
+ghci&gt; undefined
+CallStack (from HasCallStack):
+  error, called at libraries/base/GHC/Err.hs:79:14 in base:GHC.Err
+  undefined, called at &lt;interactive&gt;:2:1 in interactive:Ghci1
+ghci&gt; :type double
+double :: Double -&gt; Doc
+ghci&gt; double 3.14
+*** Exception: Prelude.undefined
+CallStack (from HasCallStack):
+  error, called at libraries/base/GHC/Err.hs:79:14 in base:GHC.Err
+  undefined, called at PrettyStub.hs:11:14 in main:Main
+</code></pre>
+<p>Even though we can't yet run our stubbed code, the compiler's type
+checker will ensure that our program is sensibly typed.</p>
+<h1 data-number="10" id="pretty-printing-a-string"><span
+class="header-section-number">10</span> Pretty printing a string</h1>
+<p>When we must pretty print a string value, JSON has moderately
+involved escaping rules that we must follow. At the highest level, a
+string is just a series of characters wrapped in quotes.</p>
+<div class="captioned-content">
+<div class="caption">
+PrettyJSON.hs
+</div>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ot">string ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>string <span class="ot">=</span> enclose <span class="ch">&#39;&quot;&#39;</span> <span class="ch">&#39;&quot;&#39;</span> <span class="op">.</span> hcat <span class="op">.</span> <span class="fu">map</span> oneChar</span></code></pre></div>
+</div>
+<div class="NOTE">
+<p>Point-free style</p>
+<p>This style of writing a definition exclusively as a composition of
+other functions is called <em>point-free style</em>. The use of the word
+"point" is not related to the "<code>.</code>" character used for
+function composition. The term <em>point</em> is roughly synonymous (in
+Haskell) with <em>value</em>, so a <em>point-free</em> expression makes
+no mention of the values that it operates on.</p>
+<p>Contrast the point-free definition of <code>string</code> above with
+this "pointy" version, which uses a variable <code>s</code> to refer to
+the value on which it operates.</p>
+<div class="captioned-content">
+<div class="caption">
+PrettyJSON.hs
+</div>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ot">pointyString ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>pointyString s <span class="ot">=</span> enclose <span class="ch">&#39;&quot;&#39;</span> <span class="ch">&#39;&quot;&#39;</span> (hcat (<span class="fu">map</span> oneChar s))</span></code></pre></div>
+</div>
+</div>
+<p>The <code>enclose</code> function simply wraps a <code>Doc</code>
+value with an opening and closing character.</p>
+<div class="captioned-content">
+<div class="caption">
+PrettyJSON.hs
+</div>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ot">enclose ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>enclose left right x <span class="ot">=</span> char left <span class="op">&lt;&gt;</span> x <span class="op">&lt;&gt;</span> char right</span></code></pre></div>
+</div>
+<p>We provide a <code>(&lt;&gt;)</code> function in our pretty printing
+library. It appends two <code>Doc</code> values, so it's the
+<code>Doc</code> equivalent of <code>(++)</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ot">(&lt;&gt;) ::</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>a <span class="op">&lt;&gt;</span> b <span class="ot">=</span> <span class="fu">undefined</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="ot">char ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>char c <span class="ot">=</span> <span class="fu">undefined</span></span></code></pre></div>
+</div>
+<p>Our pretty printing library also provides <code>hcat</code>, which
+concatenates multiple <code>Doc</code> values into one: it's the
+analogue of <code>concat</code> for lists.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ot">hcat ::</span> [<span class="dt">Doc</span>] <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>hcat xs <span class="ot">=</span> <span class="fu">undefined</span></span></code></pre></div>
+</div>
+<p>Our <code>string</code> function applies the <code>oneChar</code>
+function to every character in a string, concatenates the lot, and
+encloses the result in quotes. The <code>oneChar</code> function escapes
+or renders an individual character.</p>
+<div class="captioned-content">
+<div class="caption">
+PrettyJSON.hs
+</div>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ot">oneChar ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>oneChar c <span class="ot">=</span> <span class="kw">case</span> <span class="fu">lookup</span> c simpleEscapes <span class="kw">of</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>              <span class="dt">Just</span> r <span class="ot">-&gt;</span> text r</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>              <span class="dt">Nothing</span> <span class="op">|</span> mustEscape c <span class="ot">-&gt;</span> hexEscape c</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>                      <span class="op">|</span> <span class="fu">otherwise</span>    <span class="ot">-&gt;</span> char c</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> mustEscape c <span class="ot">=</span> c <span class="op">&lt;</span> <span class="ch">&#39; &#39;</span> <span class="op">||</span> c <span class="op">==</span> <span class="ch">&#39;\x7f&#39;</span> <span class="op">||</span> c <span class="op">&gt;</span> <span class="ch">&#39;\xff&#39;</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="ot">simpleEscapes ::</span> [(<span class="dt">Char</span>, <span class="dt">String</span>)]</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>simpleEscapes <span class="ot">=</span> <span class="fu">zipWith</span> ch <span class="st">&quot;\b\n\f\r\t\\\&quot;/&quot;</span> <span class="st">&quot;bnfrt\\\&quot;/&quot;</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> ch a b <span class="ot">=</span> (a, [<span class="ch">&#39;\\&#39;</span>,b])</span></code></pre></div>
+</div>
+<p>The <code>simpleEscapes</code> value is a list of pairs. We call a
+list of pairs an <em>association list</em>, or <em>alist</em> for short.
+Each element of our alist associates a character with its escaped
+representation.</p>
+<pre class="screen"><code>ghci&gt; take 4 simpleEscapes
+[(&#39;\b&#39;,&quot;\\b&quot;),(&#39;\n&#39;,&quot;\\n&quot;),(&#39;\f&#39;,&quot;\\f&quot;),(&#39;\r&#39;,&quot;\\r&quot;)]
+</code></pre>
+<p>Our <code>case</code> expression attempts to see if our character has
+a match in this alist. If we find the match, we emit it, otherwise we
+might need to escape the character in a more complicated way. If so, we
+perform this escaping. Only if neither kind of escaping is required do
+we emit the plain character. To be conservative, the only unescaped
+characters we emit are printable ASCII characters.</p>
+<p>The more complicated escaping involves turning a character into the
+string "<code>\u</code>" followed by a four-character sequence of
+hexadecimal digits representing the numeric value of the Unicode
+character.</p>
+<div class="captioned-content">
+<div class="caption">
+PrettyJSON.hs
+</div>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ot">smallHex ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>smallHex x  <span class="ot">=</span> text <span class="st">&quot;\\u&quot;</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>           <span class="op">&lt;&gt;</span> text (<span class="fu">replicate</span> (<span class="dv">4</span> <span class="op">-</span> <span class="fu">length</span> h) <span class="ch">&#39;0&#39;</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>           <span class="op">&lt;&gt;</span> text h</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> h <span class="ot">=</span> showHex x <span class="st">&quot;&quot;</span></span></code></pre></div>
+</div>
+<p>The <code>showHex</code> function comes from the <code>Numeric</code>
+library (you will need to import this at the beginning of
+<code>Prettify.hs</code>), and returns a hexadecimal representation of a
+number.</p>
+<pre class="screen"><code>ghci&gt; showHex 114111 &quot;&quot;
+&quot;1bdbf&quot;
+</code></pre>
+<p>The <code>replicate</code> function is provided by the
+<code>Prelude</code>, and builds a fixed-length repeating list of its
+argument.</p>
+<pre class="screen"><code>ghci&gt; replicate 5 &quot;foo&quot;
+[&quot;foo&quot;,&quot;foo&quot;,&quot;foo&quot;,&quot;foo&quot;,&quot;foo&quot;]
+</code></pre>
+<p>There's a wrinkle: the four-digit encoding that <code>smallHex</code>
+provides can only represent Unicode characters up to
+<code>0xffff</code>. Valid Unicode characters can range up to
+<code>0x10ffff</code>. To properly represent a character above
+<code>0xffff</code> in a JSON string, we follow some complicated rules
+to split it into two. This gives us an opportunity to perform some
+bit-level manipulation of Haskell numbers.</p>
+<div class="captioned-content">
+<div class="caption">
+PrettyJSON.hs
+</div>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ot">astral ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>astral n <span class="ot">=</span> smallHex (a <span class="op">+</span> <span class="bn">0xd800</span>) <span class="op">&lt;&gt;</span> smallHex (b <span class="op">+</span> <span class="bn">0xdc00</span>)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> a <span class="ot">=</span> (n <span class="ot">`shiftR`</span> <span class="dv">10</span>) <span class="op">.&amp;.</span> <span class="bn">0x3ff</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>          b <span class="ot">=</span> n <span class="op">.&amp;.</span> <span class="bn">0x3ff</span></span></code></pre></div>
+</div>
+<p>The <code>shiftR</code> function comes from the
+<code>Data.Bits</code> module, and shifts a number to the right. The
+<code>(.&amp;.)</code> function, also from <code>Data.Bits</code>,
+performs a bit-level <em>and</em> of two values.</p>
+<pre class="screen"><code>ghci&gt; 0x10000 `shiftR` 4   :: Int
+4096
+ghci&gt; 7 .&amp;. 2   :: Int
+2
+</code></pre>
+<p>Now that we've written <code>smallHex</code> and <code>astral</code>,
+we can provide a definition for <code>hexEscape</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+PrettyJSON.hs
+</div>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ot">hexEscape ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>hexEscape c <span class="op">|</span> d <span class="op">&lt;</span> <span class="bn">0x10000</span> <span class="ot">=</span> smallHex d</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="fu">otherwise</span>   <span class="ot">=</span> astral (d <span class="op">-</span> <span class="bn">0x10000</span>)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> d <span class="ot">=</span> <span class="fu">ord</span> c</span></code></pre></div>
+</div>
+<h1 data-number="11" id="arrays-and-objects-and-the-module-header"><span
+class="header-section-number">11</span> Arrays and objects, and the
+module header</h1>
+<p>Compared to strings, pretty printing arrays and objects is a snap. We
+already know that the two are visually similar: each starts with an
+opening character, followed by a series of values separated with commas,
+followed by a closing character. Let's write a function that captures
+the common structure of arrays and objects.</p>
+<div class="captioned-content">
+<div class="caption">
+PrettyJSON.hs
+</div>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ot">series ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Doc</span>) <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>series open close item <span class="ot">=</span> enclose open close</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>                       <span class="op">.</span> fsep <span class="op">.</span> punctuate (char <span class="ch">&#39;,&#39;</span>) <span class="op">.</span> <span class="fu">map</span> item</span></code></pre></div>
+</div>
+<p>We'll start by interpreting this function's type. It takes an opening
+and closing character, then a function that knows how to pretty print a
+value of some unknown type <code>a</code>, followed by a list of values
+of type <code>a</code>, and it returns a value of type
+<code>Doc</code>.</p>
+<p>Notice that although our type signature mentions four parameters, we
+have only listed three in the definition of the function. We are simply
+following the same rule that lets us simplify a definition like
+<code>myLength xs = length xs</code> to
+<code>myLength = length</code>.</p>
+<p>We have already written <code>enclose</code>, which wraps a
+<code>Doc</code> value in opening and closing characters. The
+<code>fsep</code> function will live in our <code>Prettify</code>
+module. It combines a list of <code>Doc</code> values into one, possibly
+wrapping lines if the output will not fit on a single line.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fsep ::</span> [<span class="dt">Doc</span>] <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>fsep xs <span class="ot">=</span> <span class="fu">undefined</span></span></code></pre></div>
+</div>
+<p>By now, you should be able to define your own stubs in
+<code>Prettify.hs</code>, by following the examples we have supplied. We
+will not explicitly define any more stubs.</p>
+<p>The <code>punctuate</code> function will also live in our
+<code>Prettify</code> module, and we can define it in terms of functions
+for which we've already written stubs.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb38"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="ot">punctuate ::</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> [<span class="dt">Doc</span>] <span class="ot">-&gt;</span> [<span class="dt">Doc</span>]</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>punctuate _ []       <span class="ot">=</span> []</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>punctuate _ [d]      <span class="ot">=</span> [d]</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>punctuate p (d <span class="op">:</span> ds) <span class="ot">=</span> (d <span class="op">&lt;&gt;</span> p) <span class="op">:</span> punctuate p ds</span></code></pre></div>
+</div>
+<p>With this definition of <code>series</code>, pretty printing an array
+is entirely straightforward. We add this equation to the end of the
+block we've already written for our <code>renderJValue</code>
+function.</p>
+<div class="captioned-content">
+<div class="caption">
+PrettyJSON.hs
+</div>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>renderJValue (<span class="dt">JArray</span> ary) <span class="ot">=</span> series <span class="ch">&#39;[&#39;</span> <span class="ch">&#39;]&#39;</span> renderJValue ary</span></code></pre></div>
+</div>
+<p>To pretty print an object, we need to do only a little more work: for
+each element, we have both a name and a value to deal with.</p>
+<div class="captioned-content">
+<div class="caption">
+PrettyJSON.hs
+</div>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>renderJValue (<span class="dt">JObject</span> obj) <span class="ot">=</span> series <span class="ch">&#39;{&#39;</span> <span class="ch">&#39;}&#39;</span> field obj</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> field (name,val) <span class="ot">=</span> string name</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>                          <span class="op">&lt;&gt;</span> text <span class="st">&quot;: &quot;</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>                          <span class="op">&lt;&gt;</span> renderJValue val</span></code></pre></div>
+</div>
+<h1 data-number="12" id="writing-a-module-header"><span
+class="header-section-number">12</span> Writing a module header</h1>
+<p>Now that we have written the bulk of our <code>PrettyJSON.hs</code>
+file, we must go back to the top and add a module declaration.</p>
+<div class="captioned-content">
+<div class="caption">
+PrettyJSON.hs
+</div>
+<div class="sourceCode" id="cb41"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">PrettyJSON</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    ( renderJValue</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    ) <span class="kw">where</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Numeric</span> (showHex)</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Char</span> (ord)</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Bits</span> (shiftR, (.&amp;.))</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">SimpleJSON</span> (<span class="dt">JValue</span>(..))</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Prettify</span></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>    (<span class="dt">Doc</span></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>    , (<span class="op">&lt;&gt;</span>)</span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>    , char</span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>    , double</span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>    , fsep</span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>    , hcat</span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a>    , punctuate</span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>    , text</span>
+<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a>    , compact)</span></code></pre></div>
+</div>
+<p>We export just one name from this module: <code>renderJValue</code>,
+our JSON rendering function. The other definitions in the module exist
+purely to support <code>renderJValue</code>, so there's no reason to
+make them visible to other modules.</p>
+<p>Regarding imports, the <code>Numeric</code> and
+<code>Data.Bits</code> modules are distributed with GHC. We've already
+written the <code>SimpleJSON</code> module, and filled our
+<code>Prettify</code> module with skeletal definitions. Notice that
+there's no difference in the way we import standard modules from those
+we've written ourselves.</p>
+<p>With each <code>import</code> directive, we explicitly list each of
+the names we want to bring into our module's namespace. This is not
+required: if we omit the list of names, all of the names exported from a
+module will be available to us. However, it's generally a good idea to
+write an explicit import list.</p>
+<ul>
+<li>An explicit list makes it clear which names we're importing from
+where. This will make it easier for a reader to look up documentation if
+they encounter an unfamiliar function.</li>
+<li>Occasionally, a library maintainer will remove or rename a function.
+If a function disappears from a third party module that we use, any
+resulting compilation error is likely to happen long after we've written
+the module. The explicit list of imported names can act as a reminder to
+ourselves of where we had been importing the missing name from, which
+will help us to pinpoint the problem more quickly.</li>
+<li>It can also occur that someone will add a name to a module that is
+identical to a name already in our own code. If we don't use an explicit
+import list, we'll end up with the same name in our module twice. If we
+use that name, GHC will report an error due to the ambiguity. An
+explicit list lets us avoid the possibility of accidentally importing an
+unexpected new name.</li>
+</ul>
+<p>This idea of using explicit imports is a guideline that usually makes
+sense, not a hard-and-fast rule. Occasionally, we'll need so many names
+from a module that listing each one becomes messy. In other cases, a
+module might be so widely used that a moderately experienced Haskell
+programmer will probably know which names come from that module.</p>
+<h1 data-number="13" id="fleshing-out-the-pretty-printing-library"><span
+class="header-section-number">13</span> Fleshing out the pretty printing
+library</h1>
+<p>In our <code>Prettify</code> module, we represent our
+<code>Doc</code> type as an algebraic data type.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb42"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Doc</span> <span class="ot">=</span> <span class="dt">Empty</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>         <span class="op">|</span> <span class="dt">Char</span> <span class="dt">Char</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>         <span class="op">|</span> <span class="dt">Text</span> <span class="dt">String</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>         <span class="op">|</span> <span class="dt">Line</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>         <span class="op">|</span> <span class="dt">Concat</span> <span class="dt">Doc</span> <span class="dt">Doc</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>         <span class="op">|</span> <span class="dt">Union</span> <span class="dt">Doc</span> <span class="dt">Doc</span></span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>           <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>)</span></code></pre></div>
+</div>
+<p>Observe that the <code>Doc</code> type is actually a tree. The
+<code>Concat</code> and <code>Union</code> constructors create an
+internal node from two other <code>Doc</code> values, while the
+<code>Empty</code> and other simple constructors build leaves.</p>
+<p>In the header of our module, we will export the name of the type, but
+not any of its constructors: this will prevent modules that use the
+<code>Doc</code> type from creating and pattern matching against
+<code>Doc</code> values.</p>
+<p>Instead, to create a <code>Doc</code>, a user of the
+<code>Prettify</code> module will call a function that we provide. Here
+are the simple construction functions. As we add real definitions, we
+must replace any stubbed versions already in the
+<code>Prettify.hs</code> source file.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ot">empty ::</span> <span class="dt">Doc</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>empty <span class="ot">=</span> <span class="dt">Empty</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="ot">char ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>char c <span class="ot">=</span> <span class="dt">Char</span> c</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a><span class="ot">text ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>text <span class="st">&quot;&quot;</span> <span class="ot">=</span> <span class="dt">Empty</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>text s  <span class="ot">=</span> <span class="dt">Text</span> s</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a><span class="ot">double ::</span> <span class="dt">Double</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>double d <span class="ot">=</span> text (<span class="fu">show</span> d)</span></code></pre></div>
+</div>
+<p>The <code>Line</code> constructor represents a line break. The
+<code>line</code> function creates <em>hard</em> line breaks, which
+always appear in the pretty printer's output. Sometimes we'll want a
+<em>soft</em> line break, which is only used if a line is too wide to
+fit in a window or page. We'll introduce a <code>softline</code>
+function shortly.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ot">line ::</span> <span class="dt">Doc</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>line <span class="ot">=</span> <span class="dt">Line</span></span></code></pre></div>
+</div>
+<p>Almost as simple as the basic constructors is the
+<code>(&lt;&gt;)</code> function, which concatenates two
+<code>Doc</code> values.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="ot">(&lt;&gt;) ::</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Empty</span> <span class="op">&lt;&gt;</span> y <span class="ot">=</span> y</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">&lt;&gt;</span> <span class="dt">Empty</span> <span class="ot">=</span> x</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>x <span class="op">&lt;&gt;</span> y <span class="ot">=</span> x <span class="ot">`Concat`</span> y</span></code></pre></div>
+</div>
+<p>We pattern match against <code>Empty</code> so that concatenating a
+<code>Doc</code> value with <code>Empty</code> on the left or right will
+have no effect. This keeps us from bloating the tree with useless
+values.</p>
+<pre class="screen"><code>ghci&gt; text &quot;foo&quot; &lt;&gt; text &quot;bar&quot;
+Concat (Text &quot;foo&quot;) (Text &quot;bar&quot;)
+ghci&gt; text &quot;foo&quot; &lt;&gt; empty
+Text &quot;foo&quot;
+ghci&gt; empty &lt;&gt; text &quot;bar&quot;
+Text &quot;bar&quot;
+</code></pre>
+<div class="TIP">
+<p>A mathematical moment</p>
+<p>If we briefly put on our mathematical hats, we can say that
+<code>Empty</code> is the identity under concatenation, since nothing
+happens if we concatenate a <code>Doc</code> value with
+<code>Empty</code>. In a similar vein, 0 is the identity for adding
+numbers, and 1 is the identity for multiplying them. Taking the
+mathematical perspective has useful practical consequences, as we will
+see in a number of places throughout this book.</p>
+</div>
+<p>Our <code>hcat</code> and <code>fsep</code> functions concatenate a
+list of <code>Doc</code> values into one. In <a
+href="4-functional-programming.org::*Exercises">the section called
+"Exercises"</a> could define concatenation for lists using
+<code>foldr</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Concat.hs
+</div>
+<div class="sourceCode" id="cb47"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">concat</span><span class="ot"> ::</span> [[a]] <span class="ot">-&gt;</span> [a]</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">concat</span> <span class="ot">=</span> <span class="fu">foldr</span> (<span class="op">++</span>) []</span></code></pre></div>
+</div>
+<p>Since <code>(&lt;&gt;)</code> is analogous to <code>(++)</code>, and
+<code>empty</code> to <code>[]</code>, we can see how we might write
+<code>hcat</code> and <code>fsep</code> as folds, too.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb48"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="ot">hcat ::</span> [<span class="dt">Doc</span>] <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>hcat <span class="ot">=</span> fold (<span class="op">&lt;&gt;</span>)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="ot">fold ::</span> (<span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span>) <span class="ot">-&gt;</span> [<span class="dt">Doc</span>] <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>fold f <span class="ot">=</span> <span class="fu">foldr</span> f empty</span></code></pre></div>
+</div>
+<p>The definition of <code>fsep</code> depends on several other
+functions.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb49"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fsep ::</span> [<span class="dt">Doc</span>] <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>fsep <span class="ot">=</span> fold (<span class="op">&lt;/&gt;</span>)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="ot">(&lt;/&gt;) ::</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">&lt;/&gt;</span> y <span class="ot">=</span> x <span class="op">&lt;&gt;</span> softline <span class="op">&lt;&gt;</span> y</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a><span class="ot">softline ::</span> <span class="dt">Doc</span></span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>softline <span class="ot">=</span> <span class="fu">group</span> line</span></code></pre></div>
+</div>
+<p>These take a little explaining. The <code>softline</code> function
+should insert a newline if the current line has become too wide, or a
+space otherwise. How can we do this if our <code>Doc</code> type doesn't
+contain any information about rendering? Our answer is that every time
+we encounter a soft newline, we maintain <em>two</em> alternative
+representations of the document, using the <code>Union</code>
+constructor.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb50"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">group</span><span class="ot"> ::</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">group</span> x <span class="ot">=</span> flatten x <span class="ot">`Union`</span> x</span></code></pre></div>
+</div>
+<p>Our <code>flatten</code> function replaces a <code>Line</code> with a
+space, turning two lines into one longer line.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb51"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="ot">flatten ::</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>flatten (x <span class="ot">`Concat`</span> y) <span class="ot">=</span> flatten x <span class="ot">`Concat`</span> flatten y</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>flatten <span class="dt">Line</span>           <span class="ot">=</span> <span class="dt">Char</span> <span class="ch">&#39; &#39;</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>flatten (x <span class="ot">`Union`</span> _)  <span class="ot">=</span> flatten x</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>flatten other          <span class="ot">=</span> other</span></code></pre></div>
+</div>
+<p>Notice that we always call <code>flatten</code> on the left element
+of a <code>Union</code>: the left of each <code>Union</code> is always
+the same width (in characters) as, or wider than, the right. We'll be
+making use of this property in our rendering functions below.</p>
+<h2 data-number="13.1" id="compact-rendering"><span
+class="header-section-number">13.1</span> Compact rendering</h2>
+<p>We frequently need to use a representation for a piece of data that
+contains as few characters as possible. For example, if we're sending
+JSON data over a network connection, there's no sense in laying it out
+nicely: the software on the far end won't care whether the data is
+pretty or not, and the added white space needed to make the layout look
+good would add a lot of overhead.</p>
+<p>For these cases, and because it's a simple piece of code to start
+with, we provide a bare-bones compact rendering function.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb52"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="ot">compact ::</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>compact x <span class="ot">=</span> transform [x]</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> transform [] <span class="ot">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>          transform (d<span class="op">:</span>ds) <span class="ot">=</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>              <span class="kw">case</span> d <span class="kw">of</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>                <span class="dt">Empty</span>        <span class="ot">-&gt;</span> transform ds</span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>                <span class="dt">Char</span> c       <span class="ot">-&gt;</span> c <span class="op">:</span> transform ds</span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>                <span class="dt">Text</span> s       <span class="ot">-&gt;</span> s <span class="op">++</span> transform ds</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>                <span class="dt">Line</span>         <span class="ot">-&gt;</span> <span class="ch">&#39;\n&#39;</span> <span class="op">:</span> transform ds</span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>                a <span class="ot">`Concat`</span> b <span class="ot">-&gt;</span> transform (a<span class="op">:</span>b<span class="op">:</span>ds)</span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>                _ <span class="ot">`Union`</span> b  <span class="ot">-&gt;</span> transform (b<span class="op">:</span>ds)</span></code></pre></div>
+</div>
+<p>The <code>compact</code> function wraps its argument in a list, and
+applies the <code>transform</code> helper function to it. The
+<code>transform</code> function treats its argument as a stack of items
+to process, where the first element of the list is the top of the
+stack.</p>
+<p>The <code>transform</code> function's <code>(d:ds)</code> pattern
+breaks the stack into its head, <code>d</code>, and the remainder,
+<code>ds</code>. In our <code>case</code> expression, the first several
+branches recurse on <code>ds</code>, consuming one item from the stack
+for each recursive application. The last two branches add items in front
+of <code>ds</code>: the <code>Concat</code> branch adds both elements to
+the stack, while the <code>Union</code> branch ignores its left element,
+on which we called <code>flatten</code>, and adds its right element to
+the stack.</p>
+<p>We have now fleshed out enough of our original skeletal definitions
+that we can try out our <code>compact</code> function in
+<code>ghci</code>.</p>
+<pre class="screen"><code>ghci&gt; let value = renderJValue (JObject [(&quot;f&quot;, JNumber 1), (&quot;q&quot;, JBool True)])
+ghci&gt; :type value
+value :: Doc
+ghci&gt; putStrLn (compact value)
+{&quot;f&quot;: 1.0,
+&quot;q&quot;: true
+}
+</code></pre>
+<p>To better understand how the code works, let's look at a simpler
+example in more detail.</p>
+<pre class="screen"><code>ghci&gt; char &#39;f&#39; &lt;&gt; text &quot;oo&quot;
+Concat (Char &#39;f&#39;) (Text &quot;oo&quot;)
+ghci&gt; compact (char &#39;f&#39; &lt;&gt; text &quot;oo&quot;)
+&quot;foo&quot;
+</code></pre>
+<p>When we apply <code>compact</code>, it turns its argument into a list
+and applies <code>transform</code>.</p>
+<ul>
+<li><p>The <code>transform</code> function receives a one-item list,
+which matches the <code>(d:ds)</code> pattern. Thus <code>d</code> is
+the value <code>Concat (Char 'f')
+ (Text "oo")</code>, and <code>ds</code> is the empty list,
+<code>[]</code>.</p>
+<p>Since <code>d</code>'s constructor is <code>Concat</code>, the
+<code>Concat</code> pattern matches in the <code>case</code> expression.
+On the right hand side, we add <code>Char 'f'</code> and
+<code>Text "oo"</code> to the stack, and apply <code>transform</code>
+recursively.</p>
+<ul>
+<li><p>The <code>transform</code> function receives a two-item list,
+again matching the <code>(d:ds)</code> pattern. The variable
+<code>d</code> is bound to <code>Char 'f'</code>, and <code>ds</code> to
+<code>[Text "oo"]</code>.</p>
+<p>The <code>case</code> expression matches in the <code>Char</code>
+branch. On the right hand side, we use <code>(:)</code> to construct a
+list whose head is <code>'f'</code>, and whose body is the result of a
+recursive application of <code>transform</code>.</p>
+<ul>
+<li><p>The recursive invocation receives a one-item list. The variable
+<code>d</code> is bound to <code>Text "oo"</code>, and <code>ds</code>
+to <code>[]</code>.</p>
+<p>The <code>case</code> expression matches in the <code>Text</code>
+branch. On the right hand side, we use <code>(++)</code> to concatenate
+<code>"oo"</code> with the result of a recursive application of
+<code>transform</code>.</p>
+<ul>
+<li>In the final invocation, <code>transform</code> is invoked with an
+empty list, and returns an empty string.</li>
+</ul></li>
+<li><p>The result is <code>"oo" ++ ""</code>.</p></li>
+</ul></li>
+<li><p>The result is <code>'f' : "oo" ++ ""</code>.</p></li>
+</ul></li>
+</ul>
+<h2 data-number="13.2" id="true-pretty-printing"><span
+class="header-section-number">13.2</span> True pretty printing</h2>
+<p>While our <code>compact</code> function is useful for
+machine-to-machine communication, its result is not always easy for a
+human to follow: there's very little information on each line. To
+generate more readable output, we'll write another function,
+<code>pretty</code>. Compared to <code>compact</code>,
+<code>pretty</code> takes one extra argument: the maximum width of a
+line, in columns. (We're assuming that our typeface is of fixed
+width.)</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb55"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="ot">pretty ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">String</span></span></code></pre></div>
+</div>
+<p>To be more precise, this <code>Int</code> parameter controls the
+behaviour of <code>pretty</code> when it encounters a
+<code>softline</code>. Only at a <code>softline</code> does
+<code>pretty</code> have the option of either continuing the current
+line or beginning a new line. Elsewhere, we must strictly follow the
+directives set out by the person using our pretty printing
+functions.</p>
+<p>Here's the core of our implementation</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb56"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>pretty width x <span class="ot">=</span> best <span class="dv">0</span> [x]</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> best col (d<span class="op">:</span>ds) <span class="ot">=</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>              <span class="kw">case</span> d <span class="kw">of</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>                <span class="dt">Empty</span>        <span class="ot">-&gt;</span> best col ds</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>                <span class="dt">Char</span> c       <span class="ot">-&gt;</span> c <span class="op">:</span>  best (col <span class="op">+</span> <span class="dv">1</span>) ds</span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>                <span class="dt">Text</span> s       <span class="ot">-&gt;</span> s <span class="op">++</span> best (col <span class="op">+</span> <span class="fu">length</span> s) ds</span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>                <span class="dt">Line</span>         <span class="ot">-&gt;</span> <span class="ch">&#39;\n&#39;</span> <span class="op">:</span> best <span class="dv">0</span> ds</span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>                a <span class="ot">`Concat`</span> b <span class="ot">-&gt;</span> best col (a<span class="op">:</span>b<span class="op">:</span>ds)</span>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>                a <span class="ot">`Union`</span> b  <span class="ot">-&gt;</span> nicest col (best col (a<span class="op">:</span>ds))</span>
+<span id="cb56-10"><a href="#cb56-10" aria-hidden="true" tabindex="-1"></a>                                           (best col (b<span class="op">:</span>ds))</span>
+<span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a>          best _ _ <span class="ot">=</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb56-12"><a href="#cb56-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-13"><a href="#cb56-13" aria-hidden="true" tabindex="-1"></a>          nicest col a b <span class="op">|</span> (width <span class="op">-</span> least) <span class="ot">`fits`</span> a <span class="ot">=</span> a</span>
+<span id="cb56-14"><a href="#cb56-14" aria-hidden="true" tabindex="-1"></a>                         <span class="op">|</span> <span class="fu">otherwise</span>                <span class="ot">=</span> b</span>
+<span id="cb56-15"><a href="#cb56-15" aria-hidden="true" tabindex="-1"></a>                         <span class="kw">where</span> least <span class="ot">=</span> <span class="fu">min</span> width col</span></code></pre></div>
+</div>
+<p>Our <code>best</code> helper function takes two arguments: the number
+of columns emitted so far on the current line, and the list of remaining
+<code>Doc</code> values to process.</p>
+<p>In the simple cases, <code>best</code> updates the <code>col</code>
+variable in straightforward ways as it consumes the input. Even the
+<code>Concat</code> case is obvious: we push the two concatenated
+components onto our stack/list, and don't touch <code>col</code>.</p>
+<p>The interesting case involves the <code>Union</code> constructor.
+Recall that we applied <code>flatten</code> to the left element, and did
+nothing to the right. Also, remember that <code>flatten</code> replaces
+newlines with spaces. Therefore, our job is to see which (if either) of
+the two layouts, the
+<code>flatten~ed one or the original, will fit into our
+~width</code> restriction.</p>
+<p>To do this, we write a small helper that determines whether a single
+line of a rendered <code>Doc</code> value will fit into a given number
+of columns.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb57"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fits ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>w <span class="ot">`fits`</span> _ <span class="op">|</span> w <span class="op">&lt;</span> <span class="dv">0</span> <span class="ot">=</span> <span class="dt">False</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>w <span class="ot">`fits`</span> <span class="st">&quot;&quot;</span>        <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>w <span class="ot">`fits`</span> (<span class="ch">&#39;\n&#39;</span><span class="op">:</span>_)  <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>w <span class="ot">`fits`</span> (c<span class="op">:</span>cs)    <span class="ot">=</span> (w <span class="op">-</span> <span class="dv">1</span>) <span class="ot">`fits`</span> cs</span></code></pre></div>
+</div>
+<h2 data-number="13.3" id="following-the-pretty-printer"><span
+class="header-section-number">13.3</span> Following the pretty
+printer</h2>
+<p>In order to understand how this code works, let's first consider a
+simple <code>Doc</code> value.</p>
+<pre class="screen"><code>ghci&gt; empty &lt;/&gt; char &#39;a&#39;
+Concat (Union (Char &#39; &#39;) Line) (Char &#39;a&#39;)
+</code></pre>
+<p>We'll apply <code>pretty 2</code> on this value. When we first apply
+<code>best</code>, the value of <code>col</code> is zero. It matches the
+<code>Concat</code> case, pushes the values
+<code>Union (Char ' ') Line</code> and <code>Char 'a'</code> onto the
+stack, and applies itself recursively. In the recursive application, it
+matches on <code>Union (Char ' ') Line</code>.</p>
+<p>At this point, we're going to ignore Haskell's usual order of
+evaluation. This keeps our explanation of what's going on simple,
+without changing the end result. We now have two subexpressions,
+<code>best 0 [Char ' ', Char 'a']</code> and
+<code>best 0 [Line, Char 'a']</code>. The first evaluates to
+<code>" a"</code>, and the second to <code>"\na"</code>. We then
+substitute these into the outer expression to give <code>nicest 0 " a"
+"\na"</code>.</p>
+<p>To figure out what the result of <code>nicest</code> is here, we do a
+little substitution. The values of <code>width</code> and
+<code>col</code> are 0 and 2, respectively, so <code>least</code> is 0,
+and <code>width - least</code> is 2. We quickly evaluate
+<code>2 `fits` " a"</code> in <code>ghci</code>.</p>
+<pre class="screen"><code>ghci&gt; 2 `fits` &quot; a&quot;
+True
+</code></pre>
+<p>Since this evaluates to <code>True</code>, the result of
+<code>nicest</code> here is <code>"
+a"</code>.</p>
+<p>If we apply our <code>pretty</code> function to the same JSON data as
+earlier, we can see that it produces different output depending on the
+width that we give it.</p>
+<pre class="screen"><code>ghci&gt; putStrLn (pretty 10 value)
+{&quot;f&quot;: 1.0,
+&quot;q&quot;: true
+}
+ghci&gt; putStrLn (pretty 20 value)
+{&quot;f&quot;: 1.0, &quot;q&quot;: true
+}
+ghci&gt; putStrLn (pretty 30 value)
+{&quot;f&quot;: 1.0, &quot;q&quot;: true }
+</code></pre>
+<h2 data-number="13.4" id="exercises"><span
+class="header-section-number">13.4</span> Exercises</h2>
+<p>Our current pretty printer is spartan, so that it will fit within our
+space constraints, but there are a number of useful improvements we can
+make.</p>
+<ol>
+<li><p>Write a function, <code>fill</code>, with the following type
+signature.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb61"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fill ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span></code></pre></div>
+</div>
+<p>It should add spaces to a document until it is the given number of
+columns wide. If it is already wider than this value, it should add no
+spaces.</p></li>
+<li><p>Our pretty printer does not take <em>nesting</em> into account.
+Whenever we open parentheses, braces, or brackets, any lines that follow
+should be indented so that they are aligned with the opening character
+until aa matching closing character is encountered.</p>
+<p>Add support for nesting, with a controllable amount of
+indentation.</p>
+<div class="captioned-content">
+<div class="caption">
+Prettify.hs
+</div>
+<div class="sourceCode" id="cb62"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="ot">nest ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span></code></pre></div>
+</div></li>
+</ol>
+<h1 data-number="14" id="creating-a-package"><span
+class="header-section-number">14</span> Creating a package</h1>
+<p>The Haskell community has built a standard set of tools, named Cabal,
+that help with building, installing, and distributing software. Cabal
+organises software as a <em>package</em>. A package contains one
+library, and possibly several executable programs.</p>
+<h2 data-number="14.1" id="writing-a-package-description"><span
+class="header-section-number">14.1</span> Writing a package
+description</h2>
+<p>To do anything with a package, Cabal needs a description of it. This
+is contained in a text file whose name ends with the suffix
+<code>.cabal</code>. This file belongs in the top-level directory of
+your project. It has a simple format, which we'll describe below.</p>
+<p>A Cabal package must have a name. Usually, the name of the package
+matches the name of the <code>.cabal</code> file. We'll call our package
+<code>mypretty</code>, so our file is <code>mypretty.cabal</code>.
+Often, the directory that contains a <code>.cabal</code> file will have
+the same name as the package, e.g. <code>mypretty</code>.</p>
+<p>A package description begins with a series of global properties,
+which apply to every library and executable in the package.</p>
+<div class="sourceCode" id="cb63"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>name<span class="op">:</span>    mypretty</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>version<span class="op">:</span> <span class="fl">0.1</span></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- This is a comment. It stretches to the end of the line.</span></span></code></pre></div>
+<p>Package names must be unique. If you create and install a package
+that has the same name as a package already present on your system, GHC
+will become very confused.</p>
+<p>The global properties include a substantial amount of information
+that is intended for human readers, not Cabal itself.</p>
+<div class="sourceCode" id="cb64"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>synopsis<span class="op">:</span>    <span class="dt">My</span> pretty printing library, with <span class="dt">JSON</span> support</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>description<span class="op">:</span> <span class="dt">A</span> simple pretty printing library that illustrates how to</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>             develop a <span class="dt">Haskell</span> library<span class="op">.</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>author<span class="op">:</span>      <span class="dt">Real</span> <span class="dt">World</span> <span class="dt">Haskell</span></span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>maintainer<span class="op">:</span>  nobody<span class="op">@</span>realworldhaskell<span class="op">.</span>org</span></code></pre></div>
+<p>As the <code>description</code> field indicates, a field can span
+multiple lines, provided they're indented.</p>
+<p>Also included in the global properties is license information. Most
+Haskell packages are licensed under the BSD license, which Cabal calls
+<code>BSD3</code><a href="#fn2" class="footnote-ref" id="fnref2"
+role="doc-noteref"><sup>2</sup></a>. (Obviously, you're free to choose
+whatever license you think is appropriate.) The optional
+<code>license-file</code> field lets us specify the name of a file that
+contains the exact text of our package's licensing terms.</p>
+<p>The features supported by successive versions of Cabal evolve over
+time, so it's wise to indicate what versions of Cabal we expect to be
+compatible with. The features we are describing are supported by
+versions 1.2 and higher of Cabal.</p>
+<div class="sourceCode" id="cb65"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>cabal<span class="op">-</span>version<span class="op">:</span> <span class="op">&gt;=</span> <span class="fl">1.2</span></span></code></pre></div>
+<p>To describe an individual library within a package, we write a
+<em>library</em> section. The use of indentation here is significant:
+the contents of a section must be indented.</p>
+<div class="sourceCode" id="cb66"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>library</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>  exposed<span class="op">-</span>modules<span class="op">:</span> <span class="dt">Prettify</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">PrettyJSON</span></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">SimpleJSON</span></span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>  build<span class="op">-</span>depends<span class="op">:</span>   base <span class="op">&gt;=</span> <span class="fl">2.0</span></span></code></pre></div>
+<p>The <code>exposed-modules</code> field contains a list of modules
+that should be available to users of this package. An optional field,
+<code>other-modules</code>, contains a list of <em>internal</em>
+modules. These are required for this library to function, but will not
+be visible to users.</p>
+<p>The <code>build-depends</code> field contains a comma-separated list
+of packages that our library requires to build. For each package, we can
+optionally specify the range of versions with which this library is
+known to work. The <code>base</code> package contains many of the core
+Haskell modules, such as the Prelude, so it's effectively always
+required.</p>
+<div class="TIP">
+<p>Figuring out build dependencies</p>
+<p>We don't have to guess or do any research to establish which packages
+we depend on. If we try to build our package without a
+<code>build-depends</code> field, compilation will fail with a useful
+error message. Here's an example where we commented out the dependency
+on the <code>base</code> package.</p>
+<pre class="screen"><code>$ runghc Setup build
+Preprocessing library mypretty-0.1...
+Building mypretty-0.1...
+
+PrettyJSON.hs:8:7:
+    Could not find module `Data.Bits&#39;:
+      it is a member of package base, which is hidden
+</code></pre>
+<p>The error message makes it clear that we need to add the
+<code>base</code> package, even though <code>base</code> is already
+installed. Forcing us to be explicit about every package we need has a
+practical benefit: a command line tool named <code>cabal-install</code>
+will automatically download, build, and install a package and all of the
+packages it depends on.</p>
+</div>
+<h2 data-number="14.2" id="ghcs-package-manager"><span
+class="header-section-number">14.2</span> GHC's package manager</h2>
+<p>GHC includes a simple package manager that tracks which packages are
+installed, and what the versions of those packages are. A command line
+tool named <code>ghc-pkg</code> lets us work with its package
+databases.</p>
+<p>We say <em>databases</em> because GHC distinguishes between
+<em>system-wide</em> packages, which are available to every user, and
+<em>per-user</em> packages, which are only visible to the current user.
+The per-user database lets us avoid the need for administrative
+privileges to install packages.</p>
+<p>The <code>ghc-pkg</code> command provides subcommands to address
+different tasks. Most of the time, we'll only need two of them. The
+<code>ghc-pkg
+list</code> command lets us see what packages are installed. When we
+want to uninstall a package, <code>ghc-pkg unregister</code> tells GHC
+that we won't be using a particular package any longer. (We will have to
+manually delete the installed files ourselves.)</p>
+<h2 data-number="14.3" id="setting-up-building-and-installing"><span
+class="header-section-number">14.3</span> Setting up, building, and
+installing</h2>
+<p>In addition to a <code>.cabal</code> file, a package must contain a
+<em>setup</em> file. This allows Cabal's build process to be heavily
+customised, if a package needs it. The simplest setup file looks like
+this.</p>
+<div class="captioned-content">
+<div class="caption">
+Setup.hs
+</div>
+<div class="sourceCode" id="cb68"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Distribution.Simple</span></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> defaultMain</span></code></pre></div>
+</div>
+<p>We save this file under the name <code>Setup.hs</code>.</p>
+<p>Once we have the <code>.cabal</code> and <code>Setup.hs</code> files
+written, we have three steps left.</p>
+<p>To instruct Cabal how to build and where to install a package, we run
+a simple command.</p>
+<pre class="screen"><code>$ runghc Setup configure
+</code></pre>
+<p>This ensures that the packages we need are available, and stores
+settings to be used later by other Cabal commands.</p>
+<p>If we do not provide any arguments to <code>configure</code>, Cabal
+will install our package in the system-wide package database. To install
+it into our home directory and our personal package database, we must
+provide a little more information.</p>
+<pre class="screen"><code>$ runghc Setup configure --prefix=$HOME --user
+</code></pre>
+<p>Following the <code>configure</code> step, we build the package.</p>
+<pre class="screen"><code>$ runghc Setup build
+</code></pre>
+<p>If this succeeds, we can install the package. We don't need to
+indicate where to install to: Cabal will use the settings we provided in
+the <code>configure</code> step. It will install to our own directory
+and update GHC's per-user package database.</p>
+<pre class="screen"><code>$ runghc Setup install
+</code></pre>
+<h1 data-number="15" id="practical-pointers-and-further-reading"><span
+class="header-section-number">15</span> Practical pointers and further
+reading</h1>
+<p>GHC already bundles a pretty printing library,
+<code>Text.PrettyPrint.HughesPJ</code>. It provides the same basic API
+as our example, but a much richer and more useful set of pretty printing
+functions. We recommend using it, rather than writing your own.</p>
+<p>The design of the <code>HughesPJ</code> pretty printer was introduced
+by John Hughes in [<a href="bibliography.org::Hughes95">Hughes95</a>].
+The library was subsequently improved by Simon Peyton Jones, hence the
+name. Hughes's paper is long, but well worth reading for his discussion
+of how to design a library in Haskell.</p>
+<p>In this chapter, our pretty printing library is based on a simpler
+system described by Philip Wadler in [<a
+href="bibliography.org::Wadler98">Wadler98</a>]. His library was
+extended by Daan Leijen; this version is available for download from
+Hackage as <code>wl-pprint</code>. If you use the <code>cabal</code>
+command line tool, you can download, build, and install it in one step
+with <code>cabal install wl-pprint</code>.</p>
+<h1 data-number="16" id="footnotes"><span
+class="header-section-number">16</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>Memory aid: <code>-o</code> stands
+for "output" or "object file".<a href="#fnref1" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>The "3" in <code>BSD3</code> refers
+to the number of clauses in the license. An older version of the BSD
+license contained 4 clauses, but it is no longer used.<a href="#fnref2"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

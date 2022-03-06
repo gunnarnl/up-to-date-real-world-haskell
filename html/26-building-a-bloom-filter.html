@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 26. Advanced library design: building a Bloom filter</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 26. Advanced library design: building a Bloom
+filter</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#introducing-the-bloom-filter"><span
+class="toc-section-number">1</span> Introducing the Bloom
+filter</a></li>
+<li><a href="#use-cases-and-package-layout"><span
+class="toc-section-number">2</span> Use cases and package
+layout</a></li>
+<li><a href="#basic-design"><span class="toc-section-number">3</span>
+Basic design</a>
+<ul>
+<li><a href="#unboxing-lifting-and-bottom"><span
+class="toc-section-number">3.1</span> Unboxing, lifting, and
+bottom</a></li>
+</ul></li>
+<li><a href="#the-st-monad"><span class="toc-section-number">4</span>
+The <code>ST</code> monad</a></li>
+<li><a href="#designing-an-api-for-qualified-import"><span
+class="toc-section-number">5</span> Designing an API for qualified
+import</a></li>
+<li><a href="#creating-a-mutable-bloom-filter"><span
+class="toc-section-number">6</span> Creating a mutable Bloom
+filter</a></li>
+<li><a href="#the-immutable-api"><span
+class="toc-section-number">7</span> The immutable API</a></li>
+<li><a href="#creating-a-friendly-interface"><span
+class="toc-section-number">8</span> Creating a friendly interface</a>
+<ul>
+<li><a href="#re-exporting-names-for-convenience"><span
+class="toc-section-number">8.1</span> Re-exporting names for
+convenience</a></li>
+<li><a href="#hashing-values"><span
+class="toc-section-number">8.2</span> Hashing values</a></li>
+<li><a href="#turning-two-hashes-into-many"><span
+class="toc-section-number">8.3</span> Turning two hashes into
+many</a></li>
+<li><a href="#implementing-the-easy-creation-function"><span
+class="toc-section-number">8.4</span> Implementing the easy creation
+function</a></li>
+</ul></li>
+<li><a href="#creating-a-cabal-package"><span
+class="toc-section-number">9</span> Creating a Cabal package</a>
+<ul>
+<li><a href="#dealing-with-different-build-setups"><span
+class="toc-section-number">9.1</span> Dealing with different build
+setups</a></li>
+<li><a href="#compilation-options-and-interfacing-to-c"><span
+class="toc-section-number">9.2</span> Compilation options, and
+interfacing to C</a></li>
+</ul></li>
+<li><a href="#testing-with-quickcheck"><span
+class="toc-section-number">10</span> Testing with QuickCheck</a>
+<ul>
+<li><a href="#polymorphic-testing"><span
+class="toc-section-number">10.1</span> Polymorphic testing</a></li>
+<li><a href="#writing-arbitrary-instances-for-bytestrings"><span
+class="toc-section-number">10.2</span> Writing Arbitrary instances for
+<code>ByteStrings</code></a></li>
+<li><a href="#are-suggested-sizes-correct"><span
+class="toc-section-number">10.3</span> Are suggested sizes
+correct?</a></li>
+</ul></li>
+<li><a href="#performance-analysis-and-tuning"><span
+class="toc-section-number">11</span> Performance analysis and tuning</a>
+<ul>
+<li><a href="#profile-driven-performance-tuning"><span
+class="toc-section-number">11.1</span> Profile-driven performance
+tuning</a></li>
+</ul></li>
+<li><a href="#exercises"><span class="toc-section-number">12</span>
+Exercises</a></li>
+<li><a href="#footnotes"><span class="toc-section-number">13</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<h1 data-number="1" id="introducing-the-bloom-filter"><span
+class="header-section-number">1</span> Introducing the Bloom filter</h1>
+<p>A Bloom filter is a set-like data structure that is highly efficient
+in its use of space. It only supports two operations: insertion and
+membership querying. Unlike a normal set data structure, a Bloom filter
+can give incorrect answers. If we query it to see whether an element
+that we have inserted is present, it will answer affirmatively. If we
+query for an element that we have <em>not</em> inserted, it
+<em>might</em> incorrectly claim that the element is present.</p>
+<p>For many applications, a low rate of false positives is tolerable.
+For instance, the job of a network traffic shaper is to throttle bulk
+transfers (e.g. BitTorrent) so that interactive sessions (such as
+<code>ssh</code> sessions or games) see good response times. A traffic
+shaper might use a Bloom filter to determine whether a packet belonging
+to a particular session is bulk or interactive. If it misidentifies one
+in ten thousand bulk packets as interactive and fails to throttle it,
+nobody will notice.</p>
+<p>The attraction of a Bloom filter is its space efficiency. If we want
+to build a spell checker, and have a dictionary of half a million words,
+a set data structure might consume 20 megabytes of space. A Bloom
+filter, in contrast, would consume about half a megabyte, at the cost of
+missing perhaps 1% of misspelled words.</p>
+<p>Behind the scenes, a Bloom filter is remarkably simple. It consists
+of a bit array and a handful of hash functions. We'll use <em>k</em> for
+the number of hash functions. If we want to insert a value into the
+Bloom filter, we compute <em>k</em> hashes of the value, and turn on
+those bits in the bit array. If we want to see whether a value is
+present, we compute <em>k</em> hashes, and check all of those bits in
+the array to see if they are turned on.</p>
+<p>To see how this works, let's say we want to insert the strings
+<code>"foo"</code> and <code>"bar"</code> into a Bloom filter that is 8
+bits wide, and we have two hash functions.</p>
+<ol>
+<li>Compute the two hashes of <code>"foo"</code>, and get the values
+<code>1</code> and</li>
+</ol>
+<p><code>6</code>. 2. Set bits <code>1</code> and <code>6</code> in the
+bit array. 3. Compute the two hashes of <code>"bar"</code>, and get the
+values <code>6</code> and <code>3</code>. 4. Set bits <code>6</code> and
+<code>3</code> in the bit array.</p>
+<p>This example should make it clear why we cannot remove an element
+from a Bloom filter: both <code>"foo"</code> and <code>"bar"</code>
+resulted in bit <code>6</code> being set.</p>
+<p>Suppose we now want to query the Bloom filter, to see whether the
+values <code>"quux"</code> and <code>"baz"</code> are present.</p>
+<ol>
+<li>Compute the two hashes of <code>"quux"</code>, and get the values
+<code>4</code> and</li>
+</ol>
+<p><code>0</code>. 2. Check bit <code>4</code> in the bit array. It is
+not set, so <code>"quux"</code> cannot be present. We do not need to
+check bit <code>0</code>. 3. Compute the two hashes of
+<code>"baz"</code>, and get the values <code>1</code> and
+<code>3</code>. 4. Check bit <code>1</code> in the bit array. It is set,
+as is bit <code>3</code>, so we say that <code>"baz"</code> is present
+even though it is not. We have reported a false positive.</p>
+<p>For a survey of some of the uses of Bloom filters in networking, see
+[<a href="bibliography.org::Broder02">Broder02</a>].</p>
+<h1 data-number="2" id="use-cases-and-package-layout"><span
+class="header-section-number">2</span> Use cases and package layout</h1>
+<p>Not all users of Bloom filters have the same needs. In some cases, it
+suffices to create a Bloom filter in one pass, and only query it
+afterwards. For other applications, we may need to continue to update
+the Bloom filter after we create it. To accommodate these needs, we will
+design our library with mutable and immutable APIs.</p>
+<p>We will segregate the mutable and immutable APIs that we publish by
+placing them in different modules: <code>BloomFilter</code> for the
+immutable code, and <code>BloomFilter.Mutable</code> for the mutable
+code.</p>
+<p>In addition, we will create several "helper" modules that won't
+provide parts of the public API, but will keep the internal code
+cleaner.</p>
+<p>Finally, we will ask the user of our API to provide a function that
+can generate a number of hashes of an element. This function will have
+the type <code>a -&gt; [Word32]</code>. We will use all of the hashes
+that this function returns, so the list must not be infinite!</p>
+<h1 data-number="3" id="basic-design"><span
+class="header-section-number">3</span> Basic design</h1>
+<p>The data structure that we use for our Haskell Bloom filter is a
+direct translation of the simple description we gave earlier: a bit
+array and a function that computes hashes.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Internal.hs
+</div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">BloomFilter.Internal</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    (</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Bloom</span>(<span class="op">..</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    , <span class="dt">MutBloom</span>(<span class="op">..</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    ) <span class="kw">where</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Array.ST</span> (<span class="dt">STUArray</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Array.Unboxed</span> (<span class="dt">UArray</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Word</span> (<span class="dt">Word32</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Bloom</span> a <span class="ot">=</span> <span class="dt">B</span> {</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ot">      blmHash  ::</span> (a <span class="ot">-&gt;</span> [<span class="dt">Word32</span>])</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    ,<span class="ot"> blmArray ::</span> <span class="dt">UArray</span> <span class="dt">Word32</span> <span class="dt">Bool</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div>
+</div>
+<p>When we create our Cabal package, we will not be exporting this
+<code>BoomFilter.Internal</code> module. It exists purely to let us
+control the visibility of names. We will import
+<code>BoomFilter.Internal</code> into both the mutable and immutable
+modules, but we will re-export from each module only the type that is
+relevant to that module's API.</p>
+<h2 data-number="3.1" id="unboxing-lifting-and-bottom"><span
+class="header-section-number">3.1</span> Unboxing, lifting, and
+bottom</h2>
+<p>Unlike other Haskell arrays, a <code>UArray</code> contains
+<em>unboxed</em> values.</p>
+<p>For a normal Haskell type, a value can be either fully evaluated, an
+unevaluated thunk, or the special value ⊥, pronounced (and sometimes
+written) "bottom". The value ⊥ is a placeholder for a computation that
+does not succeed. Such a computation could take any of several forms. It
+could be an infinite loop; an application of <code>error</code>; or the
+special value <code>undefined</code>.</p>
+<p>A type that can contain ⊥ is referred to as <em>lifted</em>. All
+normal Haskell types are lifted. In practice, this means that we can
+always write <code>error "eek!"</code> or <code>undefined</code> in
+place of a normal expression.</p>
+<p>This ability to store thunks or ⊥ comes with a performance cost: it
+adds an extra layer of indirection. To see why we need this indirection,
+consider the <code>Word32</code> type. A value of this type is a full 32
+bits wide, so on a 32-bit system, there is no way to directly encode the
+value ⊥ within 32 bits. The runtime system has to maintain, and check,
+some extra data to track whether the value is ⊥ or not.</p>
+<p>An unboxed value does away with this indirection. In doing so, it
+gains performance, but sacrifices the ability to represent a thunk or ⊥.
+Since it can be denser than a normal Haskell array, an array of unboxed
+values is an excellent choice for numeric data and bits.</p>
+<div class="NOTE">
+<p>Boxing and lifting</p>
+<p>The counterpart of an unboxed type is a <em>boxed</em> type, which
+uses indirection. All lifted types are boxed, but a few low-level boxed
+types are not lifted. For instance, GHC's runtime system has a low-level
+array type for which it uses boxing (i.e. it maintains a pointer to the
+array). If it has a reference to such an array, it knows that the array
+must exist, so it does not need to account for the possibility of ⊥.
+This array type is thus boxed, but not lifted. Boxed but unlifted types
+only show up at the lowest level of runtime hacking. We will never
+encounter them in normal use.</p>
+</div>
+<p>GHC implements a <code>UArray</code> of <code>Bool</code> values by
+packing eight array elements into each byte, so this type is perfect for
+our needs.</p>
+<h1 data-number="4" id="the-st-monad"><span
+class="header-section-number">4</span> The <code>ST</code> monad</h1>
+<p>Back in <a
+href="12-barcode-recognition.org::*Modifying array elements">the section
+called "Modifying array elements"</a> mentioned that modifying an
+immutable array is prohibitively expensive, as it requires copying the
+entire array. Using a <code>UArray</code> does not change this, so what
+can we do to reduce the cost to bearable levels?</p>
+<p>In an imperative language, we would simply modify the elements of the
+array in place; this will be our approach in Haskell, too.</p>
+<p>Haskell provides a special monad, named <code>ST</code><a href="#fn1"
+class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>,
+which lets us work safely with mutable state. Compared to the
+<code>State</code> monad, it has some powerful added capabilities.</p>
+<ul>
+<li>We can <em>thaw</em> an immutable array to give a mutable array;
+modify the mutable array in place; and <em>freeze</em> a new immutable
+array when we are done.</li>
+<li>We have the ability to use <em>mutable references</em>. This lets us
+implement data structures that we can modify after construction, as in
+an imperative language. This ability is vital for some imperative data
+structures and algorithms, for which similarly efficient purely
+functional alternatives have not yet been discovered.</li>
+</ul>
+<p>The <code>IO</code> monad also provides these capabilities. The major
+difference between the two is that the <code>ST</code> monad is
+intentionally designed so that we can <em>escape</em> from it back into
+pure Haskell code. We enter the <code>ST</code> monad via the execution
+function <code>runST</code>, in the same way as for most other Haskell
+monads (except <code>IO</code>, of course), and we escape by returning
+from <code>runST</code>.</p>
+<p>When we apply a monad's execution function, we expect it to behave
+repeatably: given the same body and arguments, we must get the same
+results every time. This also applies to <code>runST</code>. To achieve
+this repeatability, the <code>ST</code> monad is more restrictive than
+the <code>IO</code> monad. We cannot read or write files, create global
+variables, or fork threads. Indeed, although we can create and work with
+mutable references and arrays, the type system prevents them from
+escaping to the caller of <code>runST</code>. A mutable array must be
+frozen into an immutable array before we can return it, and a mutable
+reference cannot escape at all.</p>
+<h1 data-number="5" id="designing-an-api-for-qualified-import"><span
+class="header-section-number">5</span> Designing an API for qualified
+import</h1>
+<p>The public interfaces that we provide for working with Bloom filters
+are worth a little discussion.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Mutable.hs
+</div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">BloomFilter.Mutable</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    (</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>      <span class="dt">MutBloom</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    , <span class="fu">elem</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    , <span class="fu">notElem</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    , insert</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    , <span class="fu">length</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    , new</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    ) <span class="kw">where</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span> (liftM)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad.ST</span> (<span class="dt">ST</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Array.MArray</span> (getBounds, newArray, readArray, writeArray)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Word</span> (<span class="dt">Word32</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Prelude</span> <span class="kw">hiding</span> (elem, length, notElem)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">BloomFilter.Internal</span> (<span class="dt">MutBloom</span>(..))</span></code></pre></div>
+</div>
+<p>We export several names that clash with names exported by the
+Prelude. This is deliberate: we expect users of our modules to import
+them with qualified names. This reduces the burden on the memory of our
+users, as they should already be familiar with the Prelude's
+<code>elem</code>, <code>notElem</code>, and <code>length</code>
+functions.</p>
+<p>When we use a module written in this style, we might often import it
+with a single-letter prefix, for instance as <code>import qualified
+BloomFilter.Mutable as M</code>. This would allow us to write
+<code>M.length</code>, which stays compact and readable.</p>
+<p>Alternatively, we could import the module unqualified, and import the
+Prelude while hiding the clashing names with <code>import Prelude
+hiding (length)</code>. This is much less useful, as it gives a reader
+skimming the code no local cue that they are <em>not</em> actually
+seeing the Prelude's <code>length</code>.</p>
+<p>Of course, we seem to be violating this precept in our own module's
+header: we import the Prelude, and hide some of the names it exports.
+There is a practical reason for this. We define a function named
+<code>length</code>. If we export this from our module without first
+hiding the Prelude's <code>length</code>, the compiler will complain
+that it cannot tell whether to export our version of <code>length</code>
+or the Prelude's.</p>
+<p>While we could export the fully qualified name
+<code>BloomFilter.Mutable.length</code> to eliminate the ambiguity, that
+seems uglier in this case. This decision has no consequences for someone
+using our module, just for ourselves as the authors of what ought to be
+a "black box", so there is little chance of confusion here.</p>
+<h1 data-number="6" id="creating-a-mutable-bloom-filter"><span
+class="header-section-number">6</span> Creating a mutable Bloom
+filter</h1>
+<p>We put type declaration for our mutable Bloom filter in the
+<code>BoomFilter.Internal</code> module, along with the immutable Bloom
+type.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Internal.hs
+</div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">MutBloom</span> s a <span class="ot">=</span> <span class="dt">MB</span> {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ot">      mutHash ::</span> (a <span class="ot">-&gt;</span> [<span class="dt">Word32</span>])</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    ,<span class="ot"> mutArray ::</span> <span class="dt">STUArray</span> s <span class="dt">Word32</span> <span class="dt">Bool</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div>
+</div>
+<p>The <code>STUArray</code> type gives us a mutable unboxed array that
+we can work with in the <code>ST</code> monad. To create an
+<code>STUArray</code>, we use the <code>newArray</code> function. The
+<code>new</code> function belongs in the
+<code>BloomFilter.Mutable</code> function.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Mutable.hs
+</div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">new ::</span> (a <span class="ot">-&gt;</span> [<span class="dt">Word32</span>]) <span class="ot">-&gt;</span> <span class="dt">Word32</span> <span class="ot">-&gt;</span> <span class="dt">ST</span> s (<span class="dt">MutBloom</span> s a)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>new hash numBits <span class="ot">=</span> <span class="dt">MB</span> hash <span class="ot">`liftM`</span> newArray (<span class="dv">0</span>,numBits<span class="op">-</span><span class="dv">1</span>) <span class="dt">False</span></span></code></pre></div>
+</div>
+<p>Most of the methods of <code>STUArray</code> are actually
+implementations of the <code>MArray</code> type class, which is defined
+in the <code>Data.Array.MArray</code> module.</p>
+<p>Our <code>length</code> function is slightly complicated by two
+factors. We are relying on our bit array's record of its own bounds, and
+an <code>MArray</code> instance's <code>getBounds</code> function has a
+monadic type. We also have to add one to the answer, as the upper bound
+of the array is one less than its actual length.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Mutable.hs
+</div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span><span class="ot"> ::</span> <span class="dt">MutBloom</span> s a <span class="ot">-&gt;</span> <span class="dt">ST</span> s <span class="dt">Word32</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span> filt <span class="ot">=</span> (<span class="fu">succ</span> <span class="op">.</span> <span class="fu">snd</span>) <span class="ot">`liftM`</span> getBounds (mutArray filt)</span></code></pre></div>
+</div>
+<p>To add an element to the Bloom filter, we set all of the bits
+indicated by the hash function. We use the <code>mod</code> function to
+ensure that all of the hashes stay within the bounds of our array, and
+isolate our code that computes offsets into the bit array in one
+function.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Mutable.hs
+</div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ot">insert ::</span> <span class="dt">MutBloom</span> s a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">ST</span> s ()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>insert filt elt <span class="ot">=</span> indices filt elt <span class="op">&gt;&gt;=</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">mapM_</span> (\bit <span class="ot">-&gt;</span> writeArray (mutArray filt) bit <span class="dt">True</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ot">indices ::</span> <span class="dt">MutBloom</span> s a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">ST</span> s [<span class="dt">Word32</span>]</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>indices filt elt <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  modulus <span class="ot">&lt;-</span> <span class="fu">length</span> filt</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> <span class="op">$</span> <span class="fu">map</span> (<span class="ot">`mod`</span> modulus) (mutHash filt elt)</span></code></pre></div>
+</div>
+<p>Testing for membership is no more difficult. If every bit indicated
+by the hash function is set, we consider an element to be present in the
+Bloom filter.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Mutable.hs
+</div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">elem</span>,<span class="ot"> notElem ::</span> a <span class="ot">-&gt;</span> <span class="dt">MutBloom</span> s a <span class="ot">-&gt;</span> <span class="dt">ST</span> s <span class="dt">Bool</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">elem</span> elt filt <span class="ot">=</span> indices filt elt <span class="op">&gt;&gt;=</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                allM (readArray (mutArray filt))</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">notElem</span> elt filt <span class="ot">=</span> <span class="fu">not</span> <span class="ot">`liftM`</span> <span class="fu">elem</span> elt filt</span></code></pre></div>
+</div>
+<p>We need to write a small supporting function: a monadic version of
+<code>all</code>, which we will call <code>allM</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Mutable.hs
+</div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">allM ::</span> <span class="dt">Monad</span> m <span class="ot">=&gt;</span> (a <span class="ot">-&gt;</span> m <span class="dt">Bool</span>) <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> m <span class="dt">Bool</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>allM p (x<span class="op">:</span>xs) <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  ok <span class="ot">&lt;-</span> p x</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">if</span> ok</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">then</span> allM p xs</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">else</span> <span class="fu">return</span> <span class="dt">False</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>allM _ [] <span class="ot">=</span> <span class="fu">return</span> <span class="dt">True</span></span></code></pre></div>
+</div>
+<h1 data-number="7" id="the-immutable-api"><span
+class="header-section-number">7</span> The immutable API</h1>
+<p>Our interface to the immutable Bloom filter has the same structure as
+the mutable API.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter.hs
+</div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">BloomFilter</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    (</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Bloom</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    , <span class="fu">length</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    , <span class="fu">elem</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    , <span class="fu">notElem</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    , fromList</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    ) <span class="kw">where</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">BloomFilter.Internal</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">BloomFilter.Mutable</span> (insert, new)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Array.ST</span> (runSTUArray)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Array.IArray</span> ((!), bounds)</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Word</span> (<span class="dt">Word32</span>)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Prelude</span> <span class="kw">hiding</span> (elem, length, notElem)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span><span class="ot"> ::</span> <span class="dt">Bloom</span> a <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span> <span class="ot">=</span> <span class="fu">fromIntegral</span> <span class="op">.</span> len</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="ot">len ::</span> <span class="dt">Bloom</span> a <span class="ot">-&gt;</span> <span class="dt">Word32</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>len <span class="ot">=</span> <span class="fu">succ</span> <span class="op">.</span> <span class="fu">snd</span> <span class="op">.</span> bounds <span class="op">.</span> blmArray</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="fu">elem</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">Bloom</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>elt <span class="ot">`elem`</span> filt   <span class="ot">=</span> <span class="fu">all</span> test (blmHash filt elt)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> test hash <span class="ot">=</span> blmArray filt <span class="op">!</span> (hash <span class="ot">`mod`</span> len filt)</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="fu">notElem</span><span class="ot"> ::</span> a <span class="ot">-&gt;</span> <span class="dt">Bloom</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>elt <span class="ot">`notElem`</span> filt <span class="ot">=</span> <span class="fu">not</span> (elt <span class="ot">`elem`</span> filt)</span></code></pre></div>
+</div>
+<p>We provide an easy-to-use means to create an immutable Bloom filter,
+via a <code>fromList</code> function. This hides the <code>ST</code>
+monad from our users, so that they only see the immutable type.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter.hs
+</div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fromList ::</span> (a <span class="ot">-&gt;</span> [<span class="dt">Word32</span>])    <span class="co">-- family of hash functions to use</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>         <span class="ot">-&gt;</span> <span class="dt">Word32</span>             <span class="co">-- number of bits in filter</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>         <span class="ot">-&gt;</span> [a]                <span class="co">-- values to populate with</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>         <span class="ot">-&gt;</span> <span class="dt">Bloom</span> a</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>fromList hash numBits values <span class="ot">=</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">B</span> hash <span class="op">.</span> runSTUArray <span class="op">$</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>      <span class="kw">do</span> mb <span class="ot">&lt;-</span> new hash numBits</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>         <span class="fu">mapM_</span> (insert mb) values</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>         <span class="fu">return</span> (mutArray mb)</span></code></pre></div>
+</div>
+<p>The key to this function is <code>runSTUArray</code>. We mentioned
+earlier that in order to return an immutable array from the
+<code>ST</code> monad, we must freeze a mutable array. The
+<code>runSTUArray</code> function combines execution with freezing.
+Given an action that returns an <code>STUArray</code>, it executes the
+action using <code>runST</code>; freezes the <code>STUArray</code> that
+it returns; and returns that as a <code>UArray</code>.</p>
+<p>The <code>MArray</code> type class provides a <code>freeze</code>
+function that we could use instead, but <code>runSTUArray</code> is both
+more convenient and more efficient. The efficiency lies in the fact that
+<code>freeze</code> must copy the underlying data from the
+<code>STUArray</code> to the new <code>UArray</code>, to ensure that
+subsequent modifications of the <code>STUArray</code> cannot affect the
+contents of the <code>UArray</code>. Thanks to the type system,
+<code>runSTUArray</code> can guarantee that an <code>STUArray</code> is
+no longer accessible when it uses it to create a <code>UArray</code>. It
+can thus share the underlying contents between the two arrays, avoiding
+the copy.</p>
+<h1 data-number="8" id="creating-a-friendly-interface"><span
+class="header-section-number">8</span> Creating a friendly
+interface</h1>
+<p>Although our immutable Bloom filter API is straightforward to use
+once we have created a Bloom value, the <code>fromList</code> function
+leaves some important decisions unresolved. We still have to choose a
+function that can generate many hash values, and determine what the
+capacity of a Bloom filter should be.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Easy.hs
+</div>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ot">easyList ::</span> (<span class="dt">Hashable</span> a)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>         <span class="ot">=&gt;</span> <span class="dt">Double</span>        <span class="co">-- false positive rate (between 0 and 1)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>         <span class="ot">-&gt;</span> [a]           <span class="co">-- values to populate the filter with</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>         <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">String</span> (<span class="dt">B.Bloom</span> a)</span></code></pre></div>
+</div>
+<p>Here is a possible "friendlier" way to create a Bloom filter. It
+leaves responsibility for hashing values in the hands of a type class,
+Hashable. It lets us configure the Bloom filter based on a parameter
+that is easier to understand, namely the rate of false positives that we
+are willing to tolerate. And it chooses the size of the filter for us,
+based on the desired false positive rate and the number of elements in
+the input list.</p>
+<p>This function will of course not always be usable: for example, it
+will fail if the length of the input list is too long. However, its
+simplicity rounds out the other interfaces we provide. It lets us
+provide our users with a range of control over creation, from entirely
+imperative to completely declarative.</p>
+<h2 data-number="8.1" id="re-exporting-names-for-convenience"><span
+class="header-section-number">8.1</span> Re-exporting names for
+convenience</h2>
+<p>In the export list for our module, we re-export some names from the
+base <code>BloomFilter</code> module. This allows casual users to import
+only the <code>BloomFilter.Easy</code> module, and have access to all of
+the types and functions they are likely to need.</p>
+<p>If we import both <code>BloomFilter.Easy</code> and
+<code>BloomFilter</code>, you might wonder what will happen if we try to
+use a name exported by both. We already know that if we import
+<code>BloomFilter</code> unqualified and try to use <code>length</code>,
+GHC will issue an error about ambiguity, because the Prelude also makes
+the name <code>length</code> available.</p>
+<p>The Haskell standard requires an implementation to be able to tell
+when several names refer to the same "thing". For instance, the Bloom
+type is exported by <code>BloomFilter</code> and
+<code>BloomFilter.Easy</code>. If we import both modules and try to use
+Bloom, GHC will be able to see that the Bloom re-exported from
+<code>BloomFilter.Easy</code> is the same as the one exported from
+<code>BloomFilter</code>, and it will not report an ambiguity.</p>
+<h2 data-number="8.2" id="hashing-values"><span
+class="header-section-number">8.2</span> Hashing values</h2>
+<p>A Bloom filter depends on fast, high-quality hashes for good
+performance and a low false positive rate. It is surprisingly difficult
+to write a general purpose hash function that has both of these
+properties.</p>
+<p>Luckily for us, a fellow named Bob Jenkins developed some hash
+functions that have exactly these properties, and he placed the code in
+the public domain at <a
+href="http://burtleburtle.net/bob/hash/doobs.html">http://burtleburtle.net/bob/hash/doobs.html</a><a
+href="#fn2" class="footnote-ref" id="fnref2"
+role="doc-noteref"><sup>2</sup></a>. He wrote his hash functions in C,
+so we can easily use the FFI to create bindings to them. The specific
+source file that we need from that site is named <a
+href="http://burtleburtle.net/bob/c/lookup3.c"><code>lookup3.c</code></a>.
+We create a <code>cbits</code> directory and download it to there.</p>
+<div class="NOTE">
+<p>A little editing</p>
+<p>On line 36 of the copy of <code>lookup3.c</code> that you just
+downloaded, there is a macro named <code>SELF_TEST</code> defined. To
+use this source file as a library, you <em>must</em> delete this line or
+comment it out. If you forget to do so, the <code>main</code> function
+defined near the bottom of the file will supersede the <code>main</code>
+of any Haskell program you link this library against.</p>
+</div>
+<p>There remains one hitch: we will frequently need seven or even ten
+hash functions. We really don't want to scrape together that many
+different functions, and fortunately we do not need to: in most cases,
+we can get away with just two. We will see how shortly. The Jenkins hash
+library includes two functions, <code>hashword2</code> and
+<code>hashlittle2</code>, that compute two hash values. Here is a C
+header file that describes the APIs of these two functions. We save this
+to <code>cbits/lookup3.h</code>.</p>
+<div class="sourceCode" id="cb12" data-org-language="C"><pre
+class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* save this file as lookup3.h */</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef _lookup3_h</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define _lookup3_h</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdint.h&gt;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;sys/types.h&gt;</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">/* only accepts uint32_t aligned arrays of uint32_t */</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> hashword2<span class="op">(</span><span class="dt">const</span> <span class="dt">uint32_t</span> <span class="op">*</span>key<span class="op">,</span>  <span class="co">/* array of uint32_t */</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>           <span class="dt">size_t</span> length<span class="op">,</span>        <span class="co">/* number of uint32_t values */</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>           <span class="dt">uint32_t</span> <span class="op">*</span>pc<span class="op">,</span>         <span class="co">/* in: seed1, out: hash1 */</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>           <span class="dt">uint32_t</span> <span class="op">*</span>pb<span class="op">);</span>        <span class="co">/* in: seed2, out: hash2 */</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">/* handles arbitrarily aligned arrays of bytes */</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> hashlittle2<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span> <span class="op">*</span>key<span class="op">,</span>   <span class="co">/* array of bytes */</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>         <span class="dt">size_t</span> length<span class="op">,</span>     <span class="co">/* number of bytes */</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>         <span class="dt">uint32_t</span> <span class="op">*</span>pc<span class="op">,</span>      <span class="co">/* in: seed1, out: hash1 */</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>         <span class="dt">uint32_t</span> <span class="op">*</span>pb<span class="op">);</span>     <span class="co">/* in: seed2, out: hash2 */</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif </span><span class="co">/* _lookup3_h */</span></span></code></pre></div>
+<p>A "salt" is a value that perturbs the hash value that the function
+computes. If we hash the same value with two different salts, we will
+get two different hashes. Since these functions compute two hashes, they
+accept two salts.</p>
+<p>Here are our Haskell bindings to these functions.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Hash.hs
+</div>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE BangPatterns, ForeignFunctionInterface #-}</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">BloomFilter.Hash</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    (</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Hashable</span>(<span class="op">..</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    , hash</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    , doubleHash</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    ) <span class="kw">where</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Bits</span> ((.&amp;.), shiftR)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Foreign.Marshal.Array</span> (withArrayLen)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span> (foldM)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Word</span> (<span class="dt">Word32</span>, <span class="dt">Word64</span>)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Foreign.C.Types</span> (<span class="dt">CSize</span>)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Foreign.Marshal.Utils</span> (with)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Foreign.Ptr</span> (<span class="dt">Ptr</span>, castPtr, plusPtr)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Foreign.Storable</span> (<span class="dt">Storable</span>, peek, sizeOf)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString</span> <span class="kw">as</span> <span class="dt">Strict</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString.Lazy</span> <span class="kw">as</span> <span class="dt">Lazy</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.IO.Unsafe</span> (unsafePerformIO)</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>foreign <span class="kw">import</span> ccall unsafe &quot;lookup3.h hashword2&quot; hashWord2</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>foreign <span class="kw">import</span> ccall unsafe &quot;lookup3.h hashlittle2&quot; hashLittle2</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span></code></pre></div>
+</div>
+<p>We have specified that the definitions of the functions can be found
+in the <code>lookup3.h</code> header file that we just created.</p>
+<p>For convenience and efficiency, we will combine the 32-bit salts
+consumed, and the hash values computed, by the Jenkins hash functions
+into a single 64-bit value.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Hash.hs
+</div>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ot">hashIO ::</span> <span class="dt">Ptr</span> a    <span class="co">-- value to hash</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>       <span class="ot">-&gt;</span> <span class="dt">CSize</span>    <span class="co">-- number of bytes</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>       <span class="ot">-&gt;</span> <span class="dt">Word64</span>   <span class="co">-- salt</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>       <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Word64</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>hashIO ptr bytes salt <span class="ot">=</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    with (<span class="fu">fromIntegral</span> salt) <span class="op">$</span> \sp <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>      <span class="kw">let</span> p1 <span class="ot">=</span> castPtr sp</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>          p2 <span class="ot">=</span> castPtr sp <span class="ot">`plusPtr`</span> <span class="dv">4</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>      go p1 p2</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>      peek sp</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> go p1 p2</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>          <span class="op">|</span> bytes <span class="op">.&amp;.</span> <span class="dv">3</span> <span class="op">==</span> <span class="dv">0</span> <span class="ot">=</span> hashWord2 (castPtr ptr) <span class="fu">words</span> p1 p2</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>          <span class="op">|</span> <span class="fu">otherwise</span>        <span class="ot">=</span> hashLittle2 ptr bytes p1 p2</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">words</span> <span class="ot">=</span> bytes <span class="ot">`div`</span> <span class="dv">4</span></span></code></pre></div>
+</div>
+<p>Without explicit types around to describe what is happening, the
+above code is not completely obvious. The <code>with</code> function
+allocates room for the salt on the C stack, and stores the current salt
+value in there, so <code>sp</code> is a <code>Ptr Word64</code>. The
+pointers <code class="verbatim">~p1</code> and
+<code>=p2= are ~Ptr Word32</code>; <code>p1</code> points at the low
+word of <code>sp</code>, and <code>p2</code> at the high word. This is
+how we chop the single <code>Word64</code> salt into two
+<code>Ptr Word32</code> parameters.</p>
+<p>Because all of our data pointers are coming from the Haskell heap, we
+know that they will be aligned on an address that is safe to pass to
+either <code>hashWord2</code> (which only accepts 32-bit-aligned
+addresses) or <code>hashLittle2</code>. Since <code>hashWord32</code> is
+the faster of the two hashing functions, we call it if our data is a
+multiple of 4 bytes in size, otherwise <code>hashLittle2</code>.</p>
+<p>Since the C hash function will write the computed hashes into
+<code>p1</code> and <code>p2</code>, we only need to <code>peek</code>
+the pointer <code>sp</code> to retrieve the computed hash.</p>
+<p>We don't want clients of this module to be stuck fiddling with
+low-level details, so we use a type class to provide a clean, high-level
+interface.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Hash.hs
+</div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Hashable</span> a <span class="kw">where</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    hashSalt ::</span> <span class="dt">Word64</span>        <span class="co">-- ^ salt</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>             <span class="ot">-&gt;</span> a             <span class="co">-- ^ value to hash</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>             <span class="ot">-&gt;</span> <span class="dt">Word64</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="ot">hash ::</span> <span class="dt">Hashable</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Word64</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>hash <span class="ot">=</span> hashSalt <span class="bn">0x106fc397cf62f64d3</span></span></code></pre></div>
+</div>
+<p>We also provide a number of useful implementations of this type
+class. To hash basic types, we must write a little boilerplate code.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Hash.hs
+</div>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ot">hashStorable ::</span> <span class="dt">Storable</span> a <span class="ot">=&gt;</span> <span class="dt">Word64</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Word64</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>hashStorable salt k <span class="ot">=</span> unsafePerformIO <span class="op">.</span> with k <span class="op">$</span> \ptr <span class="ot">-&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                      hashIO ptr (<span class="fu">fromIntegral</span> (sizeOf k)) salt</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Hashable</span> <span class="dt">Char</span>   <span class="kw">where</span> hashSalt <span class="ot">=</span> hashStorable</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Hashable</span> <span class="dt">Int</span>    <span class="kw">where</span> hashSalt <span class="ot">=</span> hashStorable</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Hashable</span> <span class="dt">Double</span> <span class="kw">where</span> hashSalt <span class="ot">=</span> hashStorable</span></code></pre></div>
+</div>
+<p>We might prefer to use the <code>Storable</code> type class to write
+just one declaration, as follows:</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Hash.hs
+</div>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Storable</span> a <span class="ot">=&gt;</span> <span class="dt">Hashable</span> a <span class="kw">where</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    hashSalt <span class="ot">=</span> hashStorable</span></code></pre></div>
+</div>
+<p>Unfortunately, Haskell does not permit us to write instances of this
+form, as allowing them would make the type system <em>undecidable</em>:
+they can cause the compiler's type checker to loop infinitely. This
+restriction on undecidable types forces us to write out individual
+declarations. It does not, however, pose a problem for a definition such
+as this one.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Hash.hs
+</div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ot">hashList ::</span> (<span class="dt">Storable</span> a) <span class="ot">=&gt;</span> <span class="dt">Word64</span> <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Word64</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>hashList salt xs <span class="ot">=</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    withArrayLen xs <span class="op">$</span> \len ptr <span class="ot">-&gt;</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>      hashIO ptr (<span class="fu">fromIntegral</span> (len <span class="op">*</span> sizeOf x)) salt</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> x <span class="ot">=</span> <span class="fu">head</span> xs</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Storable</span> a) <span class="ot">=&gt;</span> <span class="dt">Hashable</span> [a] <span class="kw">where</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    hashSalt salt xs <span class="ot">=</span> unsafePerformIO <span class="op">$</span> hashList salt xs</span></code></pre></div>
+</div>
+<p>The compiler will accept this instance, so we gain the ability to
+hash values of many list types<a href="#fn3" class="footnote-ref"
+id="fnref3" role="doc-noteref"><sup>3</sup></a>. Most importantly, since
+<code>Char</code> is an instance of <code>Storable</code>, we can now
+hash <code>String</code> values.</p>
+<p>For tuple types, we take advantage of function composition. We take a
+salt in at one end of the composition pipeline, and use the result of
+hashing each tuple element as the salt for the next element.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Hash.hs
+</div>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ot">hash2 ::</span> (<span class="dt">Hashable</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Word64</span> <span class="ot">-&gt;</span> <span class="dt">Word64</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>hash2 k salt <span class="ot">=</span> hashSalt salt k</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Hashable</span> a, <span class="dt">Hashable</span> b) <span class="ot">=&gt;</span> <span class="dt">Hashable</span> (a,b) <span class="kw">where</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    hashSalt salt (a,b) <span class="ot">=</span> hash2 b <span class="op">.</span> hash2 a <span class="op">$</span> salt</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Hashable</span> a, <span class="dt">Hashable</span> b, <span class="dt">Hashable</span> c) <span class="ot">=&gt;</span> <span class="dt">Hashable</span> (a,b,c) <span class="kw">where</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    hashSalt salt (a,b,c) <span class="ot">=</span> hash2 c <span class="op">.</span> hash2 b <span class="op">.</span> hash2 a <span class="op">$</span> salt</span></code></pre></div>
+</div>
+<p>To hash <code>ByteString</code> types, we write special instances
+that plug straight into the internals of the <code>ByteString</code>
+types. This gives us excellent hashing performance.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Hash.hs
+</div>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ot">hashByteString ::</span> <span class="dt">Word64</span> <span class="ot">-&gt;</span> <span class="dt">Strict.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Word64</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>hashByteString salt bs <span class="ot">=</span> Strict.useAsCStringLen bs <span class="op">$</span> \(ptr, len) <span class="ot">-&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>                         hashIO ptr (<span class="fu">fromIntegral</span> len) salt</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Hashable</span> <span class="dt">Strict.ByteString</span> <span class="kw">where</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    hashSalt salt bs <span class="ot">=</span> unsafePerformIO <span class="op">$</span> hashByteString salt bs</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="ot">rechunk ::</span> <span class="dt">Lazy.ByteString</span> <span class="ot">-&gt;</span> [<span class="dt">Strict.ByteString</span>]</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>rechunk s</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> Lazy.null s <span class="ot">=</span> []</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="fu">otherwise</span>   <span class="ot">=</span> <span class="kw">let</span> (pre,suf) <span class="ot">=</span> Lazy.splitAt chunkSize s</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">in</span>  repack pre <span class="op">:</span> rechunk suf</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> repack    <span class="ot">=</span> Strict.concat <span class="op">.</span> Lazy.toChunks</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>          chunkSize <span class="ot">=</span> <span class="dv">64</span> <span class="op">*</span> <span class="dv">1024</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Hashable</span> <span class="dt">Lazy.ByteString</span> <span class="kw">where</span></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    hashSalt salt bs <span class="ot">=</span> unsafePerformIO <span class="op">$</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>                       foldM hashByteString salt (rechunk bs)</span></code></pre></div>
+</div>
+<p>Since a lazy <code>ByteString</code> is represented as a series of
+chunks, we must be careful with the boundaries between those chunks. The
+string <code>"foobar"</code> can be represented in five different ways,
+for example <code>["fo","obar"]</code> or <code>["foob","ar"]</code>.
+This is invisible to most users of the type, but not to us since we use
+the underlying chunks directly. Our <code>rechunk</code> function
+ensures that the chunks we pass to the C hashing code are a uniform 64KB
+in size, so that we will give consistent hash values no matter where the
+original chunk boundaries lie.</p>
+<h2 data-number="8.3" id="turning-two-hashes-into-many"><span
+class="header-section-number">8.3</span> Turning two hashes into
+many</h2>
+<p>As we mentioned earlier, we need many more than two hashes to make
+effective use of a Bloom filter. We can use a technique called
+<em>double hashing</em> to combine the two values computed by the
+Jenkins hash functions, yielding many more hashes. The resulting hashes
+are of good enough quality for our needs, and far cheaper than computing
+many distinct hashes.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Hash.hs
+</div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ot">doubleHash ::</span> <span class="dt">Hashable</span> a <span class="ot">=&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> [<span class="dt">Word32</span>]</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>doubleHash numHashes value <span class="ot">=</span> [h1 <span class="op">+</span> h2 <span class="op">*</span> i <span class="op">|</span> i <span class="ot">&lt;-</span> [<span class="dv">0</span><span class="op">..</span>num]]</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> h   <span class="ot">=</span> hashSalt <span class="bn">0x9150a946c4a8966e</span> value</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>          h1  <span class="ot">=</span> <span class="fu">fromIntegral</span> (h <span class="ot">`shiftR`</span> <span class="dv">32</span>) <span class="op">.&amp;.</span> <span class="fu">maxBound</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>          h2  <span class="ot">=</span> <span class="fu">fromIntegral</span> h</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>          num <span class="ot">=</span> <span class="fu">fromIntegral</span> numHashes</span></code></pre></div>
+</div>
+<h2 data-number="8.4" id="implementing-the-easy-creation-function"><span
+class="header-section-number">8.4</span> Implementing the easy creation
+function</h2>
+<p>In the <code>BloomFilter.Easy</code> module, we use our new
+<code>doubleHash</code> function to define the <code>easyList</code>
+function whose type we defined earlier.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Easy.hs
+</div>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">BloomFilter.Easy</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    (</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>      suggestSizing</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    , sizings</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    , easyList</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- re-export useful names from BloomFilter</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    , <span class="dt">B.Bloom</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    , B.length</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    , B.elem</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    , B.notElem</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    ) <span class="kw">where</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">BloomFilter.Hash</span> (<span class="dt">Hashable</span>, doubleHash)</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span> (genericLength)</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Maybe</span> (catMaybes)</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Word</span> (<span class="dt">Word32</span>)</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">BloomFilter</span> <span class="kw">as</span> <span class="dt">B</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>easyList errRate values <span class="ot">=</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> suggestSizing (genericLength values) errRate <span class="kw">of</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Left</span> err            <span class="ot">-&gt;</span> <span class="dt">Left</span> err</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Right</span> (bits,hashes) <span class="ot">-&gt;</span> <span class="dt">Right</span> filt</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>        <span class="kw">where</span> filt <span class="ot">=</span> B.fromList (doubleHash hashes) bits values</span></code></pre></div>
+</div>
+<p>This depends on a <code>suggestSizing</code> function that estimates
+the best combination of filter size and number of hashes to compute,
+based on our desired false positive rate and the maximum number of
+elements that we expect the filter to contain.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Easy.hs
+</div>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>suggestSizing</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="ot">-&gt;</span> <span class="dt">Double</span>        <span class="co">-- desired false positive rate</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">String</span> (<span class="dt">Word32</span>,<span class="dt">Int</span>) <span class="co">-- (filter size, number of hashes)</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>suggestSizing capacity errRate</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> capacity <span class="op">&lt;=</span> <span class="dv">0</span>                <span class="ot">=</span> <span class="dt">Left</span> <span class="st">&quot;capacity too small&quot;</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> errRate <span class="op">&lt;=</span> <span class="dv">0</span> <span class="op">||</span> errRate <span class="op">&gt;=</span> <span class="dv">1</span> <span class="ot">=</span> <span class="dt">Left</span> <span class="st">&quot;invalid error rate&quot;</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="fu">null</span> saneSizes               <span class="ot">=</span> <span class="dt">Left</span> <span class="st">&quot;capacity too large&quot;</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="fu">otherwise</span>                    <span class="ot">=</span> <span class="dt">Right</span> (<span class="fu">minimum</span> saneSizes)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> saneSizes <span class="ot">=</span> catMaybes <span class="op">.</span> <span class="fu">map</span> sanitize <span class="op">$</span> sizings capacity errRate</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>        sanitize (bits,hashes)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>          <span class="op">|</span> bits <span class="op">&gt;</span> maxWord32 <span class="op">-</span> <span class="dv">1</span> <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>          <span class="op">|</span> <span class="fu">otherwise</span>            <span class="ot">=</span> <span class="dt">Just</span> (<span class="fu">ceiling</span> bits, <span class="fu">truncate</span> hashes)</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>          <span class="kw">where</span> maxWord32 <span class="ot">=</span> <span class="fu">fromIntegral</span> (<span class="fu">maxBound</span><span class="ot"> ::</span> <span class="dt">Word32</span>)</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="ot">sizings ::</span> <span class="dt">Integer</span> <span class="ot">-&gt;</span> <span class="dt">Double</span> <span class="ot">-&gt;</span> [(<span class="dt">Double</span>, <span class="dt">Double</span>)]</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>sizings capacity errRate <span class="ot">=</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>    [(((<span class="op">-</span>k) <span class="op">*</span> cap <span class="op">/</span> <span class="fu">log</span> (<span class="dv">1</span> <span class="op">-</span> (errRate <span class="op">**</span> (<span class="dv">1</span> <span class="op">/</span> k)))), k) <span class="op">|</span> k <span class="ot">&lt;-</span> [<span class="dv">1</span><span class="op">..</span><span class="dv">50</span>]]</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> cap <span class="ot">=</span> <span class="fu">fromIntegral</span> capacity</span></code></pre></div>
+</div>
+<p>We perform some rather paranoid checking. For instance, the
+<code>sizings</code> function suggests pairs of array size and hash
+count, but it does not validate its suggestions. Since we use 32-bit
+hashes, we must filter out suggested array sizes that are too large.</p>
+<p>In our <code>suggestSizing</code> function, we attempt to minimise
+only the size of the bit array, without regard for the number of hashes.
+To see why, let us interactively explore the relationship between array
+size and number of hashes.</p>
+<p>Suppose we want to insert 10 million elements into a Bloom filter,
+with a false positive rate of 0.1%.</p>
+<pre class="screen"><code>ghci&gt; let kbytes (bits,hashes) = (ceiling bits `div` 8192, hashes)
+ghci&gt; :m +BloomFilter.Easy Data.List
+Could not find module `BloomFilter.Easy&#39;:
+  Use -v to see a list of the files searched for.
+ghci&gt; mapM_ (print . kbytes) . take 10 . sort $ sizings 10000000 0.001
+
+&lt;interactive&gt;:1:35: Not in scope: `sort&#39;
+
+&lt;interactive&gt;:1:42: Not in scope: `sizings&#39;
+</code></pre>
+<p>We achieve the most compact table (just over 17KB) by computing 10
+hashes. If we really were hashing the data repeatedly, we could reduce
+the number of hashes to 7 at a cost of 5% in space. Since we are using
+Jenkins's hash functions which compute two hashes in a single pass, and
+double hashing the results to produce additional hashes, the cost to us
+of computing extra those hashes is tiny, so we will choose the smallest
+table size.</p>
+<p>If we increase our tolerance for false positives tenfold, to 1%, the
+amount of space and the number of hashes we need drop, though not by
+easily predictable amounts.</p>
+<pre class="screen"><code>ghci&gt; mapM_ (print . kbytes) . take 10 . sort $ sizings 10000000 0.01
+
+&lt;interactive&gt;:1:35: Not in scope: `sort&#39;
+
+&lt;interactive&gt;:1:42: Not in scope: `sizings&#39;
+</code></pre>
+<h1 data-number="9" id="creating-a-cabal-package"><span
+class="header-section-number">9</span> Creating a Cabal package</h1>
+<p>We have created a moderately complicated library, with four public
+modules and one internal module. To turn this into a package that we can
+easily redistribute, we create a <code>rwh-bloomfilter.cabal</code>
+file.</p>
+<p>Cabal allows us to describe several libraries in a single package. A
+<code>.cabal</code> file begins with information that is common to all
+of the libraries, which is followed by a distinct section for each
+library.</p>
+<pre class="example"><code>Name:               rwh-bloomfilter
+Version:            0.1
+License:            BSD3
+License-File:       License.txt
+Category:           Data
+Stability:          experimental
+Build-Type:         Simple
+</code></pre>
+<p>As we are bundling some C code with our library, we tell Cabal about
+our C source files.</p>
+<pre class="example"><code>Extra-Source-Files: cbits/lookup3.c cbits/lookup3.h
+</code></pre>
+<p>The <code>extra-source-files</code> directive has no effect on a
+build: it directs Cabal to bundle some extra files if we run
+<code>runhaskell
+Setup sdist</code> to create a source tarball for redistribution.</p>
+<div class="TIP">
+<p>Property names are case insensitive</p>
+<p>When reading a property (the text before a "<code>:</code>"
+character), Cabal ignores case, so it treats
+<code>extra-source-files</code> and <code>Extra-Source-Files</code> as
+the same.</p>
+</div>
+<h2 data-number="9.1" id="dealing-with-different-build-setups"><span
+class="header-section-number">9.1</span> Dealing with different build
+setups</h2>
+<p>Prior to 2007, the standard Haskell libraries were organised in a
+handful of large packages, of which the biggest was named
+<code>base</code>. This organisation tied many unrelated libraries
+together, so the Haskell community split the <code>base</code> package
+up into a number of more modular libraries. For instance, the array
+types migrated from <code>base</code> into a package named
+<code>array</code>.</p>
+<p>A Cabal package needs to specify the other packages that it needs to
+have present in order to build. This makes it possible for Cabal's
+command line interface automatically download and build a package's
+dependencies, if necessary. We would like our code to work with as many
+versions of GHC as possible, regardless of whether they have the modern
+layout of <code>base</code> and numerous other packages. We thus need to
+be able to specify that we depend on the <code>array</code> package if
+it is present, and <code>base</code> alone otherwise.</p>
+<p>Cabal provides a generic <em>configurations</em> feature, which we
+can use to selectively enable parts of a <code>.cabal</code> file. A
+build configuration is controlled by a Boolean-valued <em>flag</em>. If
+it is <code>True</code>, the text following an <code>if flag</code>
+directive is used, otherwise the text following the associated
+<code>else</code> is used.</p>
+<pre class="example"><code>Cabal-Version:      &gt;= 1.2
+
+Flag split-base
+  Description: Has the base package been split up?
+  Default: True
+
+Flag bytestring-in-base
+  Description: Is ByteString in the base or bytestring package?
+  Default: False
+</code></pre>
+<ul>
+<li>The configurations feature was introduced in version 1.2 of Cabal,
+so we specify that our package cannot be built with an older
+version.</li>
+<li>The meaning of the <code>split-base</code> flag should be
+self-explanatory.</li>
+<li>The <code>bytestring-in-base</code> flag deals with a more torturous
+history. When the <code>bytestring</code> package was first created, it
+was bundled with GHC 6.4, and kept separate from the <code>base</code>
+package. In GHC 6.6, it was incorporated into the <code>base</code>
+package, but it became independent again when the <code>base</code>
+package was split before the release of GHC 6.8.1.</li>
+</ul>
+<p>These flags are usually invisible to people building a package,
+because Cabal handles them automatically. Before we explain what
+happens, it will help to see the beginning of the <code>Library</code>
+section of our <code>.cabal</code> file.</p>
+<pre class="example"><code>Library
+  if flag(bytestring-in-base)
+    -- bytestring was in base-2.0 and 2.1.1
+    Build-Depends: base &gt;= 2.0 &amp;&amp; &lt; 2.2
+  else
+    -- in base 1.0 and 3.0, bytestring is a separate package
+    Build-Depends: base &lt; 2.0 || &gt;= 3, bytestring &gt;= 0.9
+
+  if flag(split-base)
+    Build-Depends: base &gt;= 3.0, array
+  else
+    Build-Depends: base &lt; 3.0
+</code></pre>
+<p>Cabal creates a package description with the default values of the
+flags (a missing default is assumed to be <code>True</code>). If that
+configuration can be built (e.g. because all of the needed package
+versions are available), it will be used. Otherwise, Cabal tries
+different combinations of flags until it either finds a configuration
+that it can build or exhausts the alternatives.</p>
+<p>For example, if we were to begin with both <code>split-base</code>
+and <code>bytestring-in-base</code> set to <code>True</code>, Cabal
+would select the following package dependencies.</p>
+<pre class="example"><code>Build-Depends: base &gt;= 2.0 &amp;&amp; &lt; 2.2
+Build-Depends: base &gt;= 3.0, array
+</code></pre>
+<p>The <code>base</code> package cannot simultaneously be newer than
+<code>3.0</code> and older than <code>2.2</code>, so Cabal would reject
+this configuration as inconsistent. For a modern version of GHC, after a
+few attempts it would discover this configuration that will indeed
+build.</p>
+<pre class="example"><code>-- in base 1.0 and 3.0, bytestring is a separate package
+Build-Depends: base &lt; 2.0 || &gt;= 3, bytestring &gt;= 0.9
+Build-Depends: base &gt;= 3.0, array
+</code></pre>
+<p>When we run <code>runhaskell Setup configure</code>, we can manually
+specify the values of flags via the <code>--flag</code> option, though
+we will rarely need to do so in practice.</p>
+<h2 data-number="9.2"
+id="compilation-options-and-interfacing-to-c"><span
+class="header-section-number">9.2</span> Compilation options, and
+interfacing to C</h2>
+<p>Continuing with our <code>.cabal</code> file, we fill out the
+remaining details of the Haskell side of our library. If we enable
+profiling when we build, we want all of our top-level functions to show
+up in any profiling output.</p>
+<pre class="example"><code>GHC-Prof-Options: -auto-all
+</code></pre>
+<p>The <code>Other-Modules</code> property lists Haskell modules that
+are private to the library. Such modules will be invisible to code that
+uses this package.</p>
+<p>When we build this package with GHC, Cabal will pass the options from
+the <code>GHC-Options</code> property to the compiler.</p>
+<p>The <code>-O2</code> option makes GHC optimise our code aggressively.
+Code compiled without optimisation is very slow, so we should always use
+<code>-O2</code> for production code.</p>
+<p>To help ourselves to write cleaner code, we usually add the
+<code>-Wall</code> option, which enables all of GHC's warnings. This
+will cause GHC to issue complaints if it encounters potential problems,
+such as overlapping patterns; function parameters that are not used; and
+a myriad of other potential stumbling blocks. While it is often safe to
+ignore these warnings, we generally prefer to fix up our code to
+eliminate them. The small added effort usually yields code that is
+easier to read and maintain.</p>
+<p>When we compile with <code>-fvia-C</code>, GHC will generate C code
+and use the system's C compiler to compile it, instead of going straight
+to assembly language as it usually does. This slows compilation down,
+but sometimes the C compiler can further improve GHC's optimised code,
+so it can be worthwhile.</p>
+<p>We include <code>-fvia-C</code> here mainly to show how to make
+compilation with it work.</p>
+<pre class="example"><code>C-Sources:        cbits/lookup3.c
+CC-Options:       -O3
+Include-Dirs:     cbits
+Includes:         lookup3.h
+Install-Includes: lookup3.h
+</code></pre>
+<p>For the <code>C-Sources</code> property, we only need to list files
+that must be compiled into our library. The <code>CC-Options</code>
+property contains options for the C compiler (<code>-O3</code> specifies
+a high level of optimisation). Because our FFI bindings for the Jenkins
+hash functions refer to the <code>lookup3.h</code> header file, we need
+to tell Cabal where to find the header file. We must also tell it to
+<em>install</em> the header file (<code>Install-Includes</code>), as
+otherwise client code will fail to find the header file when we try to
+build it.</p>
+<div class="TIP">
+<p>The value of <code>-fvia-C</code> with the FFI</p>
+<p>Compiling with <code>-fvia-C</code> has a useful safety benefit when
+we write FFI bindings. If we mention a header file in an FFI declaration
+(e.g. <code>foreign import "string.h memcpy")</code>, the C compiler
+will type-check the generated Haskell code and ensure that its
+invocation of the C function is consistent with the C function's
+prototype in the header file.</p>
+<p>If we do not use <code>-fvia-C</code>, we lose that additional layer
+of safety. This makes it easy to let simple C type errors slip into our
+Haskell code. As an example, on most 64-bit machines, a
+<code>CInt</code> is 32 bits wide, and a <code>CSize</code> is 64 bits
+wide. If we accidentally use one type to describe a parameter for an FFI
+binding when we should use the other, we are likely to cause data
+corruption or a crash.</p>
+</div>
+<h1 data-number="10" id="testing-with-quickcheck"><span
+class="header-section-number">10</span> Testing with QuickCheck</h1>
+<p>Before we pay any attention to performance, we want to establish that
+our Bloom filter behaves correctly. We can easily use QuickCheck to test
+some basic properties.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomCheck.hs
+</div>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">BloomFilter.Hash</span> (<span class="dt">Hashable</span>)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Word</span> (<span class="dt">Word8</span>, <span class="dt">Word32</span>)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Random</span> (<span class="dt">Random</span>(..), <span class="dt">RandomGen</span>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Test.QuickCheck</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">BloomFilter.Easy</span> <span class="kw">as</span> <span class="dt">B</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString</span> <span class="kw">as</span> <span class="dt">Strict</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString.Lazy</span> <span class="kw">as</span> <span class="dt">Lazy</span></span></code></pre></div>
+</div>
+<p>We will not use the normal <code>quickCheck</code> function to test
+our properties, as the 100 test inputs that it generates do not provide
+much coverage.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomCheck.hs
+</div>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ot">handyCheck ::</span> <span class="dt">Testable</span> a <span class="ot">=&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>handyCheck limit <span class="ot">=</span> check defaultConfig {</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>                     configMaxTest <span class="ot">=</span> limit</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>                   , configEvery   <span class="ot">=</span> \_ _ <span class="ot">-&gt;</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>                   }</span></code></pre></div>
+</div>
+<p>Our first task is to ensure that if we add a value to a Bloom filter,
+a subsequent membership test will always report it as present, no matter
+what the chosen false positive rate or input value is.</p>
+<p>We will use the <code>easyList</code> function to create a Bloom
+filter. The <code>Random</code> instance for <code>Double</code>
+generates numbers in the range zero to one, so QuickCheck can
+<em>nearly</em> supply us with arbitrary false positive rates.</p>
+<p>However, we need to ensure that both zero and one are excluded from
+the false positives we test with. QuickCheck gives us two ways to do
+this.</p>
+<ul>
+<li>By <em>construction</em>: we specify the range of valid values to
+generate. QuickCheck provides a <code>forAll</code> combinator for this
+purpose.</li>
+<li>By <em>elimination</em>: when QuickCheck generates an arbitrary
+value for us, we filter out those that do not fit our criteria, using
+the <code>(==&gt;)</code> operator. If we reject a value in this way, a
+test will appear to succeed.</li>
+</ul>
+<p>If we can choose either method, it is always preferable to take the
+constructive approach. To see why, suppose that QuickCheck generates
+1,000 arbitrary values for us, and we filter out 800 as unsuitable for
+some reason. We will <em>appear</em> to run 1,000 tests, but only 200
+will actually do anything useful.</p>
+<p>Following this idea, when we generate desired false positive rates,
+we could eliminate zeroes and ones from whatever QuickCheck gives us,
+but instead we construct values in an interval that will always be
+valid.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomCheck.hs
+</div>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ot">falsePositive ::</span> <span class="dt">Gen</span> <span class="dt">Double</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>falsePositive <span class="ot">=</span> choose (epsilon, <span class="dv">1</span> <span class="op">-</span> epsilon)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> epsilon <span class="ot">=</span> <span class="fl">1e-6</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="ot">(=~&gt;) ::</span> <span class="dt">Either</span> a b <span class="ot">-&gt;</span> (b <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>k <span class="op">=~&gt;</span> f <span class="ot">=</span> <span class="fu">either</span> (<span class="fu">const</span> <span class="dt">True</span>) f k</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>prop_one_present _ elt <span class="ot">=</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>    forAll falsePositive <span class="op">$</span> \errRate <span class="ot">-&gt;</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>      B.easyList errRate [elt] <span class="op">=~&gt;</span> \filt <span class="ot">-&gt;</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>        elt <span class="ot">`B.elem`</span> filt</span></code></pre></div>
+</div>
+<p>Our small combinator, <code>(=~&gt;)</code>, lets us filter out
+failures of <code>easyList</code>: if it fails, the test automatically
+passes.</p>
+<h2 data-number="10.1" id="polymorphic-testing"><span
+class="header-section-number">10.1</span> Polymorphic testing</h2>
+<p>QuickCheck requires properties to be <em>monomorphic</em>. Since we
+have many different hashable types that we would like to test, we would
+very much like to avoid having to write the same test in many different
+ways.</p>
+<p>Notice that although our <code>prop_one_present</code> function is
+polymorphic, it ignores its first argument. We use this to simulate
+monomorphic properties, as follows.</p>
+<pre class="screen"><code>ghci&gt; :load BloomCheck
+
+BloomCheck.hs:9:17:
+    Could not find module `BloomFilter.Easy&#39;:
+      Use -v to see a list of the files searched for.
+Failed, modules loaded: none.
+ghci&gt; :t prop_one_present
+
+&lt;interactive&gt;:1:0: Not in scope: `prop_one_present&#39;
+ghci&gt; :t prop_one_present (undefined :: Int)
+
+&lt;interactive&gt;:1:0: Not in scope: `prop_one_present&#39;
+</code></pre>
+<p>We can supply any value as the first argument to
+<code>prop_one_present</code>. All that matters is its <em>type</em>, as
+the same type will be used for the first element of the second
+argument.</p>
+<pre class="screen"><code>ghci&gt; handyCheck 5000 $ prop_one_present (undefined :: Int)
+
+&lt;interactive&gt;:1:0: Not in scope: `handyCheck&#39;
+
+&lt;interactive&gt;:1:18: Not in scope: `prop_one_present&#39;
+ghci&gt; handyCheck 5000 $ prop_one_present (undefined :: Double)
+
+&lt;interactive&gt;:1:0: Not in scope: `handyCheck&#39;
+
+&lt;interactive&gt;:1:18: Not in scope: `prop_one_present&#39;
+</code></pre>
+<p>If we populate a Bloom filter with many elements, they should all be
+present afterwards.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomCheck.hs
+</div>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>prop_all_present _ xs <span class="ot">=</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    forAll falsePositive <span class="op">$</span> \errRate <span class="ot">-&gt;</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>      B.easyList errRate xs <span class="op">=~&gt;</span> \filt <span class="ot">-&gt;</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">all</span> (<span class="ot">`B.elem`</span> filt) xs</span></code></pre></div>
+</div>
+<p>This test also succeeds.</p>
+<pre class="screen"><code>ghci&gt; handyCheck 2000 $ prop_all_present (undefined :: Int)
+
+&lt;interactive&gt;:1:0: Not in scope: `handyCheck&#39;
+
+&lt;interactive&gt;:1:18: Not in scope: `prop_all_present&#39;
+</code></pre>
+<h2 data-number="10.2"
+id="writing-arbitrary-instances-for-bytestrings"><span
+class="header-section-number">10.2</span> Writing Arbitrary instances
+for <code>ByteStrings</code></h2>
+<p>The QuickCheck library does not provide <code>Arbitrary</code>
+instances for <code>ByteString</code> types, so we must write our own.
+Rather than create a <code>ByteString</code> directly, we will use a
+<code>pack</code> function to create one from a
+<code>[Word8]</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomCheck.hs
+</div>
+<div class="sourceCode" id="cb41"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Arbitrary</span> <span class="dt">Lazy.ByteString</span> <span class="kw">where</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    arbitrary <span class="ot">=</span> Lazy.pack <span class="ot">`fmap`</span> arbitrary</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    coarbitrary <span class="ot">=</span> coarbitrary <span class="op">.</span> Lazy.unpack</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Arbitrary</span> <span class="dt">Strict.ByteString</span> <span class="kw">where</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    arbitrary <span class="ot">=</span> Strict.pack <span class="ot">`fmap`</span> arbitrary</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    coarbitrary <span class="ot">=</span> coarbitrary <span class="op">.</span> Strict.unpack</span></code></pre></div>
+</div>
+<p>Also missing from QuickCheck are <code>Arbitrary</code> instances for
+the fixed-width types defined in <code>Data.Word</code> and
+<code>Data.Int</code>. We need to at least create an
+<code>Arbitrary</code> instance for <code>Word8</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomCheck.hs
+</div>
+<div class="sourceCode" id="cb42"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Random</span> <span class="dt">Word8</span> <span class="kw">where</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  randomR <span class="ot">=</span> integralRandomR</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  random <span class="ot">=</span> randomR (<span class="fu">minBound</span>, <span class="fu">maxBound</span>)</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Arbitrary</span> <span class="dt">Word8</span> <span class="kw">where</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>    arbitrary <span class="ot">=</span> choose (<span class="fu">minBound</span>, <span class="fu">maxBound</span>)</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>    coarbitrary <span class="ot">=</span> integralCoarbitrary</span></code></pre></div>
+</div>
+<p>We support these instances with a few common functions so that we can
+reuse them when writing instances for other integral types.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomCheck.hs
+</div>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>integralCoarbitrary n <span class="ot">=</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    variant <span class="op">$</span> <span class="kw">if</span> m <span class="op">&gt;=</span> <span class="dv">0</span> <span class="kw">then</span> <span class="dv">2</span><span class="op">*</span>m <span class="kw">else</span> <span class="dv">2</span><span class="op">*</span>(<span class="op">-</span>m) <span class="op">+</span> <span class="dv">1</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> m <span class="ot">=</span> <span class="fu">fromIntegral</span> n</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>integralRandomR (a,b) g <span class="ot">=</span> <span class="kw">case</span> randomR (c,d) g <span class="kw">of</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>                            (x,h) <span class="ot">-&gt;</span> (<span class="fu">fromIntegral</span> x, h)</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> (c,d) <span class="ot">=</span> (<span class="fu">fromIntegral</span><span class="ot"> a ::</span> <span class="dt">Integer</span>,</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">fromIntegral</span><span class="ot"> b ::</span> <span class="dt">Integer</span>)</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Random</span> <span class="dt">Word32</span> <span class="kw">where</span></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>  randomR <span class="ot">=</span> integralRandomR</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>  random <span class="ot">=</span> randomR (<span class="fu">minBound</span>, <span class="fu">maxBound</span>)</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Arbitrary</span> <span class="dt">Word32</span> <span class="kw">where</span></span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>    arbitrary <span class="ot">=</span> choose (<span class="fu">minBound</span>, <span class="fu">maxBound</span>)</span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>    coarbitrary <span class="ot">=</span> integralCoarbitrary</span></code></pre></div>
+</div>
+<p>With these <code>Arbitrary</code> instances created, we can try our
+existing properties on the <code>ByteString</code> types.</p>
+<pre class="screen"><code>ghci&gt; handyCheck 1000 $ prop_one_present (undefined :: Lazy.ByteString)
+
+&lt;interactive&gt;:1:0: Not in scope: `handyCheck&#39;
+
+&lt;interactive&gt;:1:18: Not in scope: `prop_one_present&#39;
+
+&lt;interactive&gt;:1:49:
+    Failed to load interface for `Lazy&#39;:
+      Use -v to see a list of the files searched for.
+ghci&gt; handyCheck 1000 $ prop_all_present (undefined :: Strict.ByteString)
+
+&lt;interactive&gt;:1:0: Not in scope: `handyCheck&#39;
+
+&lt;interactive&gt;:1:18: Not in scope: `prop_all_present&#39;
+
+&lt;interactive&gt;:1:49:
+    Failed to load interface for `Strict&#39;:
+      Use -v to see a list of the files searched for.
+</code></pre>
+<h2 data-number="10.3" id="are-suggested-sizes-correct"><span
+class="header-section-number">10.3</span> Are suggested sizes
+correct?</h2>
+<p>The cost of testing properties of <code>easyList</code> increases
+rapidly as we increase the number of tests to run. We would still like
+to have some assurance that <code>easyList</code> will behave well on
+huge inputs. Since it is not practical to test this directly, we can use
+a proxy: will <code>suggestSizing</code> give a sensible array size and
+number of hashes even with extreme inputs?</p>
+<p>This is a slightly tricky property to check. We need to vary both the
+desired false positive rate and the expected capacity. When we looked at
+some results from the <code>sizings</code> function, we saw that the
+relationship between these values is not easy to predict.</p>
+<p>We can try to ignore the complexity.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomCheck.hs
+</div>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>prop_suggest_try1 <span class="ot">=</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  forAll falsePositive <span class="op">$</span> \errRate <span class="ot">-&gt;</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>    forAll (choose (<span class="dv">1</span>,<span class="fu">maxBound</span><span class="ot"> ::</span> <span class="dt">Word32</span>)) <span class="op">$</span> \cap <span class="ot">-&gt;</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>      <span class="kw">case</span> B.suggestSizing (<span class="fu">fromIntegral</span> cap) errRate <span class="kw">of</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Left</span> err <span class="ot">-&gt;</span> <span class="dt">False</span></span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Right</span> (bits,hashes) <span class="ot">-&gt;</span> bits <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> bits <span class="op">&lt;</span> <span class="fu">maxBound</span> <span class="op">&amp;&amp;</span> hashes <span class="op">&gt;</span> <span class="dv">0</span></span></code></pre></div>
+</div>
+<p>Not surprisingly, this gives us a test that is not actually
+useful.</p>
+<pre class="screen"><code>ghci&gt; handyCheck 1000 $ prop_suggest_try1
+
+&lt;interactive&gt;:1:0: Not in scope: `handyCheck&#39;
+
+&lt;interactive&gt;:1:18: Not in scope: `prop_suggest_try1&#39;
+ghci&gt; handyCheck 1000 $ prop_suggest_try1
+
+&lt;interactive&gt;:1:0: Not in scope: `handyCheck&#39;
+
+&lt;interactive&gt;:1:18: Not in scope: `prop_suggest_try1&#39;
+</code></pre>
+<p>When we plug the counterexamples that QuickCheck prints into
+<code>suggestSizings</code>, we can see that these inputs are rejected
+because they would result in a bit array that would be too large.</p>
+<pre class="screen"><code>ghci&gt; B.suggestSizing 1678125842 8.501133057303545e-3
+
+&lt;interactive&gt;:1:0:
+    Failed to load interface for `B&#39;:
+      Use -v to see a list of the files searched for.
+</code></pre>
+<p>Since we can't easily predict which combinations will cause this
+problem, we must resort to eliminating sizes and false positive rates
+before they bite us.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomCheck.hs
+</div>
+<div class="sourceCode" id="cb48"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>prop_suggest_try2 <span class="ot">=</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>    forAll falsePositive <span class="op">$</span> \errRate <span class="ot">-&gt;</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>      forAll (choose (<span class="dv">1</span>,<span class="fu">fromIntegral</span> maxWord32)) <span class="op">$</span> \cap <span class="ot">-&gt;</span></span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> bestSize <span class="ot">=</span> <span class="fu">fst</span> <span class="op">.</span> <span class="fu">minimum</span> <span class="op">$</span> B.sizings cap errRate</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">in</span> bestSize <span class="op">&lt;</span> <span class="fu">fromIntegral</span> maxWord32 <span class="op">==&gt;</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>           <span class="fu">either</span> (<span class="fu">const</span> <span class="dt">False</span>) sane <span class="op">$</span> B.suggestSizing cap errRate</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> sane (bits,hashes) <span class="ot">=</span> bits <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> bits <span class="op">&lt;</span> <span class="fu">maxBound</span> <span class="op">&amp;&amp;</span> hashes <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>        maxWord32 <span class="ot">= maxBound ::</span> <span class="dt">Word32</span></span></code></pre></div>
+</div>
+<p>If we try this with a small number of tests, it seems to work
+well.</p>
+<pre class="screen"><code>ghci&gt; handyCheck 1000 $ prop_suggest_try2
+
+&lt;interactive&gt;:1:0: Not in scope: `handyCheck&#39;
+
+&lt;interactive&gt;:1:18: Not in scope: `prop_suggest_try2&#39;
+</code></pre>
+<p>On a larger body of tests, we filter out too many combinations.</p>
+<pre class="screen"><code>ghci&gt; handyCheck 10000 $ prop_suggest_try2
+
+&lt;interactive&gt;:1:0: Not in scope: `handyCheck&#39;
+
+&lt;interactive&gt;:1:19: Not in scope: `prop_suggest_try2&#39;
+</code></pre>
+<p>To deal with this, we try to reduce the likelihood of generating
+inputs that we will subsequently reject.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomCheck.hs
+</div>
+<div class="sourceCode" id="cb51"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>prop_suggestions_sane <span class="ot">=</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>    forAll falsePositive <span class="op">$</span> \errRate <span class="ot">-&gt;</span></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>      forAll (choose (<span class="dv">1</span>,<span class="fu">fromIntegral</span> maxWord32 <span class="ot">`div`</span> <span class="dv">8</span>)) <span class="op">$</span> \cap <span class="ot">-&gt;</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> size <span class="ot">=</span> <span class="fu">fst</span> <span class="op">.</span> <span class="fu">minimum</span> <span class="op">$</span> B.sizings cap errRate</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">in</span> size <span class="op">&lt;</span> <span class="fu">fromIntegral</span> maxWord32 <span class="op">==&gt;</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>           <span class="fu">either</span> (<span class="fu">const</span> <span class="dt">False</span>) sane <span class="op">$</span> B.suggestSizing cap errRate</span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> sane (bits,hashes) <span class="ot">=</span> bits <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> bits <span class="op">&lt;</span> <span class="fu">maxBound</span> <span class="op">&amp;&amp;</span> hashes <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>        maxWord32 <span class="ot">= maxBound ::</span> <span class="dt">Word32</span></span></code></pre></div>
+</div>
+<p>Finally, we have a robust looking property.</p>
+<pre class="screen"><code>ghci&gt; handyCheck 40000 $ prop_suggestions_sane
+
+&lt;interactive&gt;:1:0: Not in scope: `handyCheck&#39;
+
+&lt;interactive&gt;:1:19: Not in scope: `prop_suggestions_sane&#39;
+</code></pre>
+<h1 data-number="11" id="performance-analysis-and-tuning"><span
+class="header-section-number">11</span> Performance analysis and
+tuning</h1>
+<p>We now have a correctness base line: our QuickCheck tests pass. When
+we start tweaking performance, we can rerun the tests at any time to
+ensure that we haven't inadvertently broken anything.</p>
+<p>Our first step is to write a small test application that we can use
+for timing.</p>
+<div class="captioned-content">
+<div class="caption">
+WordTest.hs
+</div>
+<div class="sourceCode" id="cb53"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Parallel.Strategies</span> (<span class="dt">NFData</span>(..))</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span> (forM_, mapM_)</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">BloomFilter.Easy</span> <span class="kw">as</span> <span class="dt">B</span></span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString.Char8</span> <span class="kw">as</span> <span class="dt">BS</span></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Time.Clock</span> (diffUTCTime, getCurrentTime)</span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Environment</span> (getArgs)</span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Exit</span> (exitFailure)</span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a><span class="ot">timed ::</span> (<span class="dt">NFData</span> a) <span class="ot">=&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</span>
+<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a>timed desc act <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a>    start <span class="ot">&lt;-</span> getCurrentTime</span>
+<span id="cb53-14"><a href="#cb53-14" aria-hidden="true" tabindex="-1"></a>    ret <span class="ot">&lt;-</span> act</span>
+<span id="cb53-15"><a href="#cb53-15" aria-hidden="true" tabindex="-1"></a>    end <span class="ot">&lt;-</span> rnf ret <span class="ot">`seq`</span> getCurrentTime</span>
+<span id="cb53-16"><a href="#cb53-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">putStrLn</span> <span class="op">$</span> <span class="fu">show</span> (diffUTCTime end start) <span class="op">++</span> <span class="st">&quot; to &quot;</span> <span class="op">++</span> desc</span>
+<span id="cb53-17"><a href="#cb53-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> ret</span>
+<span id="cb53-18"><a href="#cb53-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-19"><a href="#cb53-19" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">NFData</span> <span class="dt">BS.ByteString</span> <span class="kw">where</span></span>
+<span id="cb53-20"><a href="#cb53-20" aria-hidden="true" tabindex="-1"></a>    rnf _ <span class="ot">=</span> ()</span>
+<span id="cb53-21"><a href="#cb53-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-22"><a href="#cb53-22" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">NFData</span> (<span class="dt">B.Bloom</span> a) <span class="kw">where</span></span>
+<span id="cb53-23"><a href="#cb53-23" aria-hidden="true" tabindex="-1"></a>    rnf filt <span class="ot">=</span> B.length filt <span class="ot">`seq`</span> ()</span></code></pre></div>
+</div>
+<p>We borrow the <code>rnf</code> function that we introduced in <a
+href="24-concurrent-and-multicore-programming.org::*Separating algorithm from evaluation">the
+section called "Separating algorithm from evaluation"</a> develop a
+simple timing harness. Out <code>timed</code> action ensures that a
+value is evaluated to normal form in order to accurately capture the
+cost of evaluating it.</p>
+<p>The application creates a Bloom filter from the contents of a file,
+treating each line as an element to add to the filter.</p>
+<div class="captioned-content">
+<div class="caption">
+WordTest.hs
+</div>
+<div class="sourceCode" id="cb54"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  args <span class="ot">&lt;-</span> getArgs</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> files <span class="op">|</span> <span class="fu">null</span> args <span class="ot">=</span> [<span class="st">&quot;/usr/share/dict/words&quot;</span>]</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> args</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>  forM_ files <span class="op">$</span> \file <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">words</span> <span class="ot">&lt;-</span> timed <span class="st">&quot;read words&quot;</span> <span class="op">$</span></span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>      BS.lines <span class="ot">`fmap`</span> BS.readFile file</span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> len <span class="ot">=</span> <span class="fu">length</span> <span class="fu">words</span></span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>        errRate <span class="ot">=</span> <span class="fl">0.01</span></span>
+<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-13"><a href="#cb54-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">putStrLn</span> <span class="op">$</span> <span class="fu">show</span> len <span class="op">++</span> <span class="st">&quot; words&quot;</span></span>
+<span id="cb54-14"><a href="#cb54-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">putStrLn</span> <span class="op">$</span> <span class="st">&quot;suggested sizings: &quot;</span> <span class="op">++</span></span>
+<span id="cb54-15"><a href="#cb54-15" aria-hidden="true" tabindex="-1"></a>               <span class="fu">show</span> (B.suggestSizing (<span class="fu">fromIntegral</span> len) errRate)</span>
+<span id="cb54-16"><a href="#cb54-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-17"><a href="#cb54-17" aria-hidden="true" tabindex="-1"></a>    filt <span class="ot">&lt;-</span> timed <span class="st">&quot;construct filter&quot;</span> <span class="op">$</span></span>
+<span id="cb54-18"><a href="#cb54-18" aria-hidden="true" tabindex="-1"></a>      <span class="kw">case</span> B.easyList errRate <span class="fu">words</span> <span class="kw">of</span></span>
+<span id="cb54-19"><a href="#cb54-19" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Left</span> errmsg <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb54-20"><a href="#cb54-20" aria-hidden="true" tabindex="-1"></a>          <span class="fu">putStrLn</span> <span class="op">$</span> <span class="st">&quot;Error: &quot;</span> <span class="op">++</span> errmsg</span>
+<span id="cb54-21"><a href="#cb54-21" aria-hidden="true" tabindex="-1"></a>          exitFailure</span>
+<span id="cb54-22"><a href="#cb54-22" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Right</span> filt <span class="ot">-&gt;</span> <span class="fu">return</span> filt</span>
+<span id="cb54-23"><a href="#cb54-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-24"><a href="#cb54-24" aria-hidden="true" tabindex="-1"></a>    timed <span class="st">&quot;query every element&quot;</span> <span class="op">$</span></span>
+<span id="cb54-25"><a href="#cb54-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mapM_</span> <span class="fu">print</span> <span class="op">$</span> <span class="fu">filter</span> (<span class="fu">not</span> <span class="op">.</span> (<span class="ot">`B.elem`</span> filt)) <span class="fu">words</span></span></code></pre></div>
+</div>
+<p>We use <code>timed</code> to account for the costs of three distinct
+phases: reading and splitting the data into lines; populating the Bloom
+filter; and querying every element in it.</p>
+<p>If we compile this and run it a few times, we can see that the
+execution time is just long enough to be interesting, while the timing
+variation from run to run is small. We have created a plausible-looking
+microbenchmark.</p>
+<pre class="screen"><code>$ ghc -O2  --make WordTest
+[1 of 1] Compiling Main             ( WordTest.hs, WordTest.o )
+Linking WordTest ...
+$ ./WordTest
+0.196347s to read words
+479829 words
+1.063537s to construct filter
+4602978 bits
+0.766899s to query every element
+$ ./WordTest
+0.179284s to read words
+479829 words
+1.069363s to construct filter
+4602978 bits
+0.780079s to query every element
+</code></pre>
+<h2 data-number="11.1" id="profile-driven-performance-tuning"><span
+class="header-section-number">11.1</span> Profile-driven performance
+tuning</h2>
+<p>To understand where our program might benefit from some tuning, we
+rebuild it and run it with profiling enabled.</p>
+<p>Since we already built <code>WordTest</code> and have not
+subsequently changed it, if we rerun <code>ghc</code> to enable
+profiling support, it will quite reasonably decide to do nothing. We
+must force it to rebuild, which we accomplish by updating the
+filesystem's idea of when we last edited the source file.</p>
+<pre class="screen"><code>$ touch WordTest.hs
+$ ghc -O2 -prof -auto-all --make WordTest
+[1 of 1] Compiling Main             ( WordTest.hs, WordTest.o )
+Linking WordTest ...
+
+$ ./WordTest +RTS -p
+0.322675s to read words
+479829 words
+suggested sizings: Right (4602978,7)
+2.475339s to construct filter
+1.964404s to query every element
+
+$ head -20 WordTest.prof
+total time  =          4.10 secs   (205 ticks @ 20 ms)
+total alloc = 2,752,287,168 bytes  (excludes profiling overheads)
+
+COST CENTRE                    MODULE               %time %alloc
+
+doubleHash                     BloomFilter.Hash      48.8   66.4
+indices                        BloomFilter.Mutable   13.7   15.8
+elem                           BloomFilter            9.8    1.3
+hashByteString                 BloomFilter.Hash       6.8    3.8
+easyList                       BloomFilter.Easy       5.9    0.3
+hashIO                         BloomFilter.Hash       4.4    5.3
+main                           Main                   4.4    3.8
+insert                         BloomFilter.Mutable    2.9    0.0
+len                            BloomFilter            2.0    2.4
+length                         BloomFilter.Mutable    1.5    1.0
+</code></pre>
+<p>Our <code>doubleHash</code> function immediately leaps out as a huge
+time and memory sink.</p>
+<div class="TIP">
+<p>Always profile before—and while—you tune!</p>
+<p>Before our first profiling run, we did not expect
+<code>doubleHash</code> to even appear in the top ten of "hot"
+functions, much less to dominate it. Without this knowledge, we would
+probably have started tuning something entirely irrelevant.</p>
+</div>
+<p>Recall that the body of <code>doubleHash</code> is an innocuous list
+comprehension.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Hash.hs
+</div>
+<div class="sourceCode" id="cb57"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ot">doubleHash ::</span> <span class="dt">Hashable</span> a <span class="ot">=&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> [<span class="dt">Word32</span>]</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>doubleHash numHashes value <span class="ot">=</span> [h1 <span class="op">+</span> h2 <span class="op">*</span> i <span class="op">|</span> i <span class="ot">&lt;-</span> [<span class="dv">0</span><span class="op">..</span>num]]</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> h   <span class="ot">=</span> hashSalt <span class="bn">0x9150a946c4a8966e</span> value</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>          h1  <span class="ot">=</span> <span class="fu">fromIntegral</span> (h <span class="ot">`shiftR`</span> <span class="dv">32</span>) <span class="op">.&amp;.</span> <span class="fu">maxBound</span></span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>          h2  <span class="ot">=</span> <span class="fu">fromIntegral</span> h</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>          num <span class="ot">=</span> <span class="fu">fromIntegral</span> numHashes</span></code></pre></div>
+</div>
+<p>Since the function returns a list, it makes <em>some</em> sense that
+it allocates so much memory, but when code this simple performs so
+badly, we should be suspicious.</p>
+<p>Faced with a performance mystery, the suspicious mind will naturally
+want to inspect the output of the compiler. We don't need to start
+scrabbling through assembly language dumps: it's best to start at a
+higher level.</p>
+<p>GHC's <code>-ddump-simpl</code> option prints out the code that it
+produces after performing all of its high-level optimisations.</p>
+<pre class="screen"><code>$ ghc -O2 -c -ddump-simpl --make BloomFilter/Hash.hs &gt; dump.txt
+[1 of 1] Compiling BloomFilter.Hash ( BloomFilter/Hash.hs )
+</code></pre>
+<p>The file thus produced is about a thousand lines long. Most of the
+names in it are mangled somewhat from their original Haskell
+representations. Even so, searching for <code>doubleHash</code> will
+immediately drop us at the definition of the function. For example, here
+is how we might start exactly at the right spot from a Unix shell.</p>
+<pre class="screen"><code>$ less +/doubleHash dump.txt
+</code></pre>
+<p>It can be difficult to start reading the output of GHC's simplifier.
+There are many automatically generated names, and the code has many
+obscure annotations. We can make substantial progress by ignoring things
+that we do not understand, focusing on those that look familiar. The
+Core language shares some features with regular Haskell, notably type
+signatures; <code>let</code> for variable binding; and <code>case</code>
+for pattern matching.</p>
+<p>If we skim through the definition of <code>doubleHash</code>, we will
+arrive at a section that looks something like this.</p>
+<pre class="example"><code>__letrec { -- 1
+  go_s1YC :: [GHC.Word.Word32] -&gt; [GHC.Word.Word32] -- 2
+  [Arity 1
+   Str: DmdType S]
+  go_s1YC =
+    \ (ds_a1DR :: [GHC.Word.Word32]) -&gt;
+      case ds_a1DR of wild_a1DS {
+    [] -&gt; GHC.Base.[] @ GHC.Word.Word32; -- 3
+    : y_a1DW ys_a1DX -&gt; -- 4
+      GHC.Base.: @ GHC.Word.Word32 -- 5
+        (case h1_s1YA of wild1_a1Mk { GHC.Word.W32# x#_a1Mm -&gt; -- 6
+         case h2_s1Yy of wild2_a1Mu { GHC.Word.W32# x#1_a1Mw -&gt;
+         case y_a1DW of wild11_a1My { GHC.Word.W32# y#_a1MA -&gt;
+         GHC.Word.W32# -- 7
+           (GHC.Prim.narrow32Word#
+          (GHC.Prim.plusWord# -- 8
+             x#_a1Mm (GHC.Prim.narrow32Word#
+                              (GHC.Prim.timesWord# x#1_a1Mw y#_a1MA))))
+         }
+         }
+         })
+        (go_s1YC ys_a1DX) -- 9
+      };
+} in
+  go_s1YC - 10
+    (GHC.Word.$w$dmenumFromTo2
+       __word 0 (GHC.Prim.narrow32Word# (GHC.Prim.int2Word# ww_s1X3)))
+</code></pre>
+<p>This is the body of the list comprehension. It may seem daunting, but
+we can look through it piece by piece and find that it is not, after
+all, so complicated.</p>
+<ol>
+<li><p>A <code>__letrec</code> is equivalent to a normal Haskell
+<code>let</code>.</p></li>
+<li><p>GHC compiled the body of our list comprehension into a loop named
+<code>go_s1YC</code>.</p></li>
+<li><p>If our <code>case</code> expression matches the empty list, we
+return the empty list. This is reassuringly familiar.</p></li>
+<li><p>This pattern would read in Haskell as
+<code>(y_a1DW:ys_a1DX)</code>. The <code>(:)</code> constructor appears
+before its operands because the Core language uses prefix notation
+exclusively for simplicity.</p></li>
+<li><p>This is an application of the <code>(:)</code> constructor. The
+<code>@</code> notation indicates that the first operand will have type
+<code>Word32</code>.</p></li>
+<li><p>Each of the three <code>case</code> expressions <em>unboxes</em>
+a <code>Word32value</code>, to get at the primitive value inside. First
+to be unboxed is <code>h1</code> (named <code>h1_s1YA</code> here), then
+<code>h2</code>, then the current list element, <code>y</code>.</p>
+<p>The unboxing occurs via pattern matching: <code>W32#</code> is the
+constructor that boxes a primitive value. By convention, primitive types
+and values, and functions that use them, always contains a
+<code>#</code> somewhere in their name.</p></li>
+<li><p>Here, we apply the <code>W32#</code> constructor to a value of
+the primitive type <code>Word32#</code>, to give a normal value of type
+<code>Word32</code>.</p></li>
+<li><p>The <code>plusWord#</code> and <code>timesWord#</code> functions
+add and multiply primitive unsigned integers.</p></li>
+<li><p>This is the second argument to the <code>(:)</code> constructor,
+in which the <code>go_s1YC</code> function applies itself
+recursively.</p></li>
+<li><p>Here, we apply our list comprehension loop function. Its argument
+is the Core translation of the expression <code>[0..n]</code>.</p></li>
+</ol>
+<p>From reading the Core for this code, we can see two interesting
+behaviours.</p>
+<ul>
+<li><p>We are creating a list, then immediately deconstructing it in the
+<code>go_s1YC</code> loop.</p>
+<p>GHC can often spot this pattern of production followed immediately by
+consumption, and transform it into a loop in which no allocation occurs.
+This class of transformation is called <em>fusion</em>, because the
+producer and consumer become fused together. Unfortunately, it is not
+occurring here.</p></li>
+<li><p>The repeated unboxing of <code>h1</code> and <code>h2</code> in
+the body of the loop is wasteful.</p></li>
+</ul>
+<p>To address these problems, we make a few tiny changes to our
+<code>doubleHash</code> function.</p>
+<div class="captioned-content">
+<div class="caption">
+BloomFilter/Hash.hs
+</div>
+<div class="sourceCode" id="cb61"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="ot">doubleHash ::</span> <span class="dt">Hashable</span> a <span class="ot">=&gt;</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> [<span class="dt">Word32</span>]</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>doubleHash numHashes value <span class="ot">=</span> go <span class="dv">0</span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> go n <span class="op">|</span> n <span class="op">==</span> num  <span class="ot">=</span> []</span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>               <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> h1 <span class="op">+</span> h2 <span class="op">*</span> n <span class="op">:</span> go (n <span class="op">+</span> <span class="dv">1</span>)</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a>          <span class="op">!</span>h1 <span class="ot">=</span> <span class="fu">fromIntegral</span> (h <span class="ot">`shiftR`</span> <span class="dv">32</span>) <span class="op">.&amp;.</span> <span class="fu">maxBound</span></span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>          <span class="op">!</span>h2 <span class="ot">=</span> <span class="fu">fromIntegral</span> h</span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>          h   <span class="ot">=</span> hashSalt <span class="bn">0x9150a946c4a8966e</span> value</span>
+<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a>          num <span class="ot">=</span> <span class="fu">fromIntegral</span> numHashes</span></code></pre></div>
+</div>
+<p>We have manually fused the <code>[0..num]</code> expression and the
+code that consumes it into a single loop. We have added strictness
+annotations to <code>h1</code> and <code>h2</code>. And nothing more.
+This has turned a 6-line function into an 8-line function. What effect
+does our change have on Core output?</p>
+<pre class="example"><code>__letrec {
+  $wgo_s1UH :: GHC.Prim.Word# -&gt; [GHC.Word.Word32]
+  [Arity 1
+   Str: DmdType L]
+  $wgo_s1UH =
+    \ (ww2_s1St :: GHC.Prim.Word#) -&gt;
+      case GHC.Prim.eqWord# ww2_s1St a_s1T1 of wild1_X2m {
+    GHC.Base.False -&gt;
+      GHC.Base.: @ GHC.Word.Word32
+        (GHC.Word.W32#
+         (GHC.Prim.narrow32Word#
+          (GHC.Prim.plusWord#
+           ipv_s1B2
+           (GHC.Prim.narrow32Word#
+        (GHC.Prim.timesWord# ipv1_s1AZ ww2_s1St)))))
+        ($wgo_s1UH (GHC.Prim.narrow32Word#
+                        (GHC.Prim.plusWord# ww2_s1St __word 1)));
+    GHC.Base.True -&gt; GHC.Base.[] @ GHC.Word.Word32
+      };
+} in  $wgo_s1UH __word 0
+</code></pre>
+<p>Our new function has compiled down to a simple counting loop. This is
+very encouraging, but how does it actually perform?</p>
+<pre class="screen"><code>$ touch WordTest.hs
+$ ghc -O2 -prof -auto-all --make WordTest
+[1 of 1] Compiling Main             ( WordTest.hs, WordTest.o )
+Linking WordTest ...
+
+$ ./WordTest +RTS -p
+0.304352s to read words
+479829 words
+suggested sizings: Right (4602978,7)
+1.516229s to construct filter
+1.069305s to query every element
+~/src/darcs/book/examples/ch27/examples $ head -20 WordTest.prof
+total time  =        3.68 secs    (184 ticks @ 20 ms)
+total alloc = 2,644,805,536 bytes (excludes profiling overheads)
+
+COST CENTRE                    MODULE               %time %alloc
+
+doubleHash                     BloomFilter.Hash      45.1   65.0
+indices                        BloomFilter.Mutable   19.0   16.4
+elem                           BloomFilter           12.5    1.3
+insert                         BloomFilter.Mutable    7.6    0.0
+easyList                       BloomFilter.Easy       4.3    0.3
+len                            BloomFilter            3.3    2.5
+hashByteString                 BloomFilter.Hash       3.3    4.0
+main                           Main                   2.7    4.0
+hashIO                         BloomFilter.Hash       2.2    5.5
+length                         BloomFilter.Mutable    0.0    1.0
+</code></pre>
+<p>Our tweak has improved performance by about 11%. This is a good
+result for such a small change.</p>
+<h1 data-number="12" id="exercises"><span
+class="header-section-number">12</span> Exercises</h1>
+<ol>
+<li>Our use <code>ofgenericLength</code> in <code>easyList</code> will
+cause our function to loop infinitely if we supply an infinite list. Fix
+this.</li>
+<li>Difficult. Write a QuickCheck property that checks whether the
+observed false positive rate is close to the requested false positive
+rate.</li>
+</ol>
+<h1 data-number="13" id="footnotes"><span
+class="header-section-number">13</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>The name <code>ST</code> is an
+acronym of "state transformer".<a href="#fnref1" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>Jenkins's hash functions have
+<em>much</em> better mixing properties than some other popular
+non-cryptographic hash functions that you might be familiar with, such
+as FNV and <code>hashpjw</code>, so we recommend avoiding them.<a
+href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>Unfortunately, we do not have room to
+explain why one of these instances is decidable, but the other is not.<a
+href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

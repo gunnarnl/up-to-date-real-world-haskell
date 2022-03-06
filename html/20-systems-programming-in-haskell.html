@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 20. Systems Programming in Haskell</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 20. Systems Programming in Haskell</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#running-external-programs"><span
+class="toc-section-number">1</span> Running External Programs</a></li>
+<li><a href="#directory-and-file-information"><span
+class="toc-section-number">2</span> Directory and File
+Information</a></li>
+<li><a href="#program-termination"><span
+class="toc-section-number">3</span> Program Termination</a></li>
+<li><a href="#dates-and-times"><span class="toc-section-number">4</span>
+Dates and Times</a>
+<ul>
+<li><a href="#clocktime-and-calendartime"><span
+class="toc-section-number">4.1</span> ClockTime and
+CalendarTime</a></li>
+<li><a href="#file-modification-times"><span
+class="toc-section-number">4.2</span> File Modification Times</a></li>
+</ul></li>
+<li><a href="#extended-example-piping"><span
+class="toc-section-number">5</span> Extended Example: Piping</a>
+<ul>
+<li><a href="#using-pipes-for-redirection"><span
+class="toc-section-number">5.1</span> Using Pipes for
+Redirection</a></li>
+<li><a href="#better-piping"><span class="toc-section-number">5.2</span>
+Better Piping</a></li>
+<li><a href="#final-words-on-pipes"><span
+class="toc-section-number">5.3</span> Final Words on Pipes</a></li>
+</ul></li>
+<li><a href="#footnotes"><span class="toc-section-number">6</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<p>So far, we've been talking mostly about high-level concepts. Haskell
+can also be used for lower-level systems programming. It is quite
+possible to write programs that interface with the operating system at a
+low level using Haskell.</p>
+<p>In this chapter, we are going to attempt something ambitious: a
+Perl-like "language" that is valid Haskell, implemented in pure Haskell,
+that makes shell scripting easy. We are going to implement piping, easy
+command invocation, and some simple tools to handle tasks that might
+otherwise be performed with <code>grep</code> or <code>sed</code>.</p>
+<p>Specialized modules exist for different operating systems. In this
+chapter, we will use generic OS-independent modules as much as possible.
+However, we will be focusing on the POSIX environment for much of the
+chapter. POSIX is a standard for Unix-like operating systems such as
+Linux, FreeBSD, MacOS X, or Solaris. Windows does not support POSIX by
+default, but the Cygwin environment provides a POSIX compatibility layer
+for Windows.</p>
+<h1 data-number="1" id="running-external-programs"><span
+class="header-section-number">1</span> Running External Programs</h1>
+<p>It is possible to invoke external commands from Haskell. To do that,
+we suggest using <code>rawSystem</code> from the <code>System.Cmd</code>
+module. This will invoke a specified program, with the specified
+arguments, and return the exit code from that program. You can play with
+it in <code>ghci</code>:</p>
+<pre class="screen"><code>ghci&gt; :module System.Cmd
+ghci&gt; rawSystem &quot;ls&quot; [&quot;-l&quot;, &quot;/usr&quot;]
+Loading package old-locale-1.0.0.0 ... linking ... done.
+Loading package old-time-1.0.0.0 ... linking ... done.
+Loading package filepath-1.1.0.0 ... linking ... done.
+Loading package directory-1.0.0.0 ... linking ... done.
+Loading package unix-2.3.0.0 ... linking ... done.
+Loading package process-1.0.0.0 ... linking ... done.
+total 124
+drwxr-xr-x   2 root root  49152 2008-08-18 11:04 bin
+drwxr-xr-x   2 root root   4096 2008-03-09 05:53 games
+drwxr-sr-x  10 jimb guile  4096 2006-02-04 09:13 guile
+drwxr-xr-x  47 root root   8192 2008-08-08 08:18 include
+drwxr-xr-x 107 root root  32768 2008-08-18 11:04 lib
+lrwxrwxrwx   1 root root      3 2007-09-24 16:55 lib64 -&gt; lib
+drwxrwsr-x  17 root staff  4096 2008-06-24 17:35 local
+drwxr-xr-x   2 root root   8192 2008-08-18 11:03 sbin
+drwxr-xr-x 181 root root   8192 2008-08-12 10:11 share
+drwxrwsr-x   2 root src    4096 2007-04-10 16:28 src
+drwxr-xr-x   3 root root   4096 2008-07-04 19:03 X11R6
+ExitSuccess
+</code></pre>
+<p>Here, we run the equivalent of the shell command
+<code>ls -l /usr</code>. <code>rawSystem</code> does not parse arguments
+from a string or expand wildcards.<a href="#fn1" class="footnote-ref"
+id="fnref1" role="doc-noteref"><sup>1</sup></a> Instead, it expects
+every argument to be contained in a list. If you don't want to pass any
+arguments, you can simply pass an empty list like this:</p>
+<pre class="screen"><code>ghci&gt; rawSystem &quot;ls&quot; []
+calendartime.ghci  modtime.ghci    rp.ghci    RunProcessSimple.hs
+cmd.ghci       posixtime.hs    rps.ghci   timediff.ghci
+dir.ghci       rawSystem.ghci  RunProcess.hs  time.ghci
+ExitSuccess
+</code></pre>
+<h1 data-number="2" id="directory-and-file-information"><span
+class="header-section-number">2</span> Directory and File
+Information</h1>
+<p>The <code>System.Directory</code> module contains quite a few
+functions that can be used to obtain information from the filesystem.
+You can get a list of files in a directory, rename or delete files, copy
+files, change the current working directory, or create new directories.
+<code>System.Directory</code> is portable and works on any platform
+where GHC itself works.</p>
+<p>The <a
+href="http://www.haskell.org/ghc/docs/latest/html/libraries/base/System-Directory.html">library
+reference for <code>System.Directory</code></a> provides a comprehensive
+list of the functions available. Let's use <code>ghci</code> to
+demonstrate a few of them. Most of these functions are straightforward
+equivalents to C library calls or shell commands.</p>
+<pre class="screen"><code>ghci&gt; :module System.Directory
+ghci&gt; setCurrentDirectory &quot;/etc&quot;
+Loading package old-locale-1.0.0.0 ... linking ... done.
+Loading package old-time-1.0.0.0 ... linking ... done.
+Loading package filepath-1.1.0.0 ... linking ... done.
+Loading package directory-1.0.0.0 ... linking ... done.
+ghci&gt; getCurrentDirectory
+&quot;/etc&quot;
+ghci&gt; setCurrentDirectory &quot;..&quot;
+ghci&gt; getCurrentDirectory
+&quot;/&quot;
+</code></pre>
+<p>Here we saw commands to change the current working directory and
+obtain the current working directory from the system. These are similar
+to the <code>cd</code> and <code>pwd</code> commands in the POSIX
+shell.</p>
+<pre class="screen"><code>ghci&gt; getDirectoryContents &quot;/&quot;
+[&quot;.&quot;,&quot;..&quot;,&quot;lost+found&quot;,&quot;boot&quot;,&quot;etc&quot;,&quot;media&quot;,&quot;initrd.img&quot;,&quot;var&quot;,&quot;usr&quot;,&quot;bin&quot;,&quot;dev&quot;,&quot;home&quot;,&quot;lib&quot;,&quot;mnt&quot;,&quot;proc&quot;,&quot;root&quot;,&quot;sbin&quot;,&quot;tmp&quot;,&quot;sys&quot;,&quot;lib64&quot;,&quot;srv&quot;,&quot;opt&quot;,&quot;initrd&quot;,&quot;vmlinuz&quot;,&quot;.rnd&quot;,&quot;www&quot;,&quot;ultra60&quot;,&quot;emul&quot;,&quot;.fonts.cache-1&quot;,&quot;selinux&quot;,&quot;razor-agent.log&quot;,&quot;.svn&quot;,&quot;initrd.img.old&quot;,&quot;vmlinuz.old&quot;,&quot;ugid-survey.bulkdata&quot;,&quot;ugid-survey.brief&quot;]
+</code></pre>
+<p><code>getDirectoryContents</code> returns a list for every item in a
+given directory. Note that on POSIX systems, this list normally includes
+the special values <code>"."</code> and <code>".."</code>. You will
+usually want to filter these out when processing the content of the
+directory, perhaps like this:</p>
+<pre class="screen"><code>ghci&gt; getDirectoryContents &quot;/&quot; &gt;&gt;= return . filter (`notElem` [&quot;.&quot;, &quot;..&quot;])
+[&quot;lost+found&quot;,&quot;boot&quot;,&quot;etc&quot;,&quot;media&quot;,&quot;initrd.img&quot;,&quot;var&quot;,&quot;usr&quot;,&quot;bin&quot;,&quot;dev&quot;,&quot;home&quot;,&quot;lib&quot;,&quot;mnt&quot;,&quot;proc&quot;,&quot;root&quot;,&quot;sbin&quot;,&quot;tmp&quot;,&quot;sys&quot;,&quot;lib64&quot;,&quot;srv&quot;,&quot;opt&quot;,&quot;initrd&quot;,&quot;vmlinuz&quot;,&quot;.rnd&quot;,&quot;www&quot;,&quot;ultra60&quot;,&quot;emul&quot;,&quot;.fonts.cache-1&quot;,&quot;selinux&quot;,&quot;razor-agent.log&quot;,&quot;.svn&quot;,&quot;initrd.img.old&quot;,&quot;vmlinuz.old&quot;,&quot;ugid-survey.bulkdata&quot;,&quot;ugid-survey.brief&quot;]
+</code></pre>
+<div class="TIP">
+<p>Tip</p>
+<p>For a more detailed discussion of filtering the results of
+<code>getDirectoryContents</code>, refer to <a
+href="8-efficient-file-processing-regular-expressions-and-file-name-matching.org">Chapter 8,
+<em>Efficient file processing, regular expressions, and file name
+matching</em></a>.</p>
+<p>Is the <code>filter (`notElem` [".", ".."])</code> part confusing?
+That could got also be written as
+<code>filter (\c -&gt; not $ elem c [".", ".."])</code>. The backticks
+in this case effectively let us pass the second argument to
+<code>notElem</code>; see <a
+href="4-functional-programming.org::*Infix functions">the section called
+"Infix functions"</a></p>
+</div>
+<p>You can also query the system about the location of certain
+directories. This query will ask the underlying operating system for the
+information.</p>
+<pre class="screen"><code>ghci&gt; getHomeDirectory
+&quot;/home/bos&quot;
+ghci&gt; getAppUserDataDirectory &quot;myApp&quot;
+&quot;/home/bos/.myApp&quot;
+ghci&gt; getUserDocumentsDirectory
+&quot;/home/bos&quot;
+</code></pre>
+<h1 data-number="3" id="program-termination"><span
+class="header-section-number">3</span> Program Termination</h1>
+<p>Developers often write individual programs to accomplish particular
+tasks. These individual parts may be combined to accomplish larger
+tasks. A shell script or another program may execute them. The calling
+script often needs a way to discover whether the program was able to
+complete its task successfully. Haskell automatically indicates a
+non-successful exit whenever a program is aborted by an exception.</p>
+<p>However, you may need more fine-grained control over the exit code
+than that. Perhaps you need to return different codes for different
+types of errors. The <code>System.Exit</code> module provides a way to
+exit the program and return a specific exit status code to the caller.
+You can call <code>exitWith ExitSuccess</code> to return a code
+indicating a successful termination (0 on POSIX systems). Or, you can
+call something like <code>exitWith (ExitFailure 5)</code>, which will
+return code 5 to the calling program.</p>
+<h1 data-number="4" id="dates-and-times"><span
+class="header-section-number">4</span> Dates and Times</h1>
+<p>Everything from file timestamps to business transactions involve
+dates and times. Haskell provides ways for manipulating dates and times,
+as well as features for obtaining date and time information from the
+system.</p>
+<h2 data-number="4.1" id="clocktime-and-calendartime"><span
+class="header-section-number">4.1</span> ClockTime and CalendarTime</h2>
+<p>In Haskell, the <code>System.Time</code> module is primarily
+responsible for date and time handling. It defines two types:
+<code>ClockTime</code> and <code>CalendarTime</code>.</p>
+<p><code>ClockTime</code> is the Haskell version of the traditional
+POSIX epoch. A <code>ClockTime</code> represents a time relative to
+midnight the morning of January 1, 1970, UTC. A negative
+<code>ClockTime</code> represents a number of seconds prior to that
+date, while a positive number represents a count of seconds after
+it.</p>
+<p><code>ClockTime</code> is convenient for computations. Since it
+tracks Coordinated Universal Time (UTC), it doesn't have to adjust for
+local timezones, daylight saving time, or other special cases in time
+handling. Every day is exactly (60 * 60 * 24) or 86,400 seconds<a
+href="#fn2" class="footnote-ref" id="fnref2"
+role="doc-noteref"><sup>2</sup></a>, which makes time interval
+calculations simple. You can, for instance, check the
+<code>ClockTime</code> at the start of a long task, again at the end,
+and simply subtract the start time from the end time to determine how
+much time elapsed. You can then divide by 3600 and display the elapsed
+time as a count of hours if you wish.</p>
+<p><code>ClockTime</code> is ideal for answering questions such as
+these:</p>
+<ul>
+<li>How much time has elapsed?</li>
+<li>What will be the <code>ClockTime</code> 14 days ahead of this
+precise instant?</li>
+<li>When was the file last modified?</li>
+<li>What is the precise time right now?</li>
+</ul>
+<p>These are good uses of <code>ClockTime</code> because they refer to
+precise, unambiguous moments in time. However, <code>ClockTime</code> is
+not as easily used for questions such as:</p>
+<ul>
+<li>Is today Monday?</li>
+<li>What day of the week will May 1 fall on next year?</li>
+<li>What is the current time in my local timezone, taking the potential
+presence of Daylight Saving Time (DST) into account?</li>
+</ul>
+<p><code>CalendarTime</code> stores a time the way humans do: with a
+year, month, day, hour, minute, second, timezone, and DST information.
+It's easy to convert this into a conveniently-displayable string, or to
+answer questions about the local time.</p>
+<p>You can convert between <code>ClockTime</code> and
+<code>CalendarTime</code> at will. Haskell includes functions to convert
+a <code>ClockTime</code> to a <code>CalendarTime</code> in the local
+timezone, or to a <code>CalendarTime</code> representing UTC.</p>
+<ol>
+<li><p>Using ClockTime</p>
+<p><code>ClockTime</code> is defined in <code>System.Time</code> like
+this:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">ClockTime</span> <span class="ot">=</span> <span class="dt">TOD</span> <span class="dt">Integer</span> <span class="dt">Integer</span></span></code></pre></div>
+<p>The first <code>Integer</code> represents the number of seconds since
+the epoch. The second <code>Integer</code> represents an additional
+number of picoseconds. Because <code>ClockTime</code> in Haskell uses
+the unbounded <code>Integer</code> type, it can effectively represent a
+date range limited only by computational resources.</p>
+<p>Let's look at some ways to use <code>ClockTime</code>. First, there
+is the <code>getClockTime</code> function that returns the current time
+according to the system's clock.</p>
+<pre class="screen"><code>ghci&gt; :module System.Time
+ghci&gt; getClockTime
+Loading package old-locale-1.0.0.0 ... linking ... done.
+Loading package old-time-1.0.0.0 ... linking ... done.
+Mon Aug 18 12
+</code></pre>
+<p>If you wait a second and run <code>getClockTime</code> again, you'll
+see it returning an updated time. Notice that the output from this
+command was a nice-looking string, complete with day-of-week
+information. That's due to the <code>Show</code> instance for
+<code>ClockTime</code>. Let's look at the <code>ClockTime</code> at a
+lower level:</p>
+<pre class="screen"><code>ghci&gt; TOD 1000 0
+Wed Dec 31 18
+ghci&gt; getClockTime &gt;&gt;= (\(TOD sec _) -&gt; return sec)
+1219079438
+</code></pre>
+<p>Here we first construct a <code>ClockTime</code> representing the
+point in time 1000 seconds after midnight on January 1, 1970, UTC. That
+moment in time is known as the <em>epoch</em>. Depending on your
+timezone, this moment in time may correspond to the evening of December
+31, 1969, in your local timezone.</p>
+<p>The second example shows us pulling the number of seconds out of the
+value returned by <code>getClockTime</code>. We can now manipulate it,
+like so:</p>
+<pre class="screen"><code>ghci&gt; getClockTime &gt;&gt;= (\(TOD sec _) -&gt; return (TOD (sec + 86400) 0))
+Tue Aug 19 12
+</code></pre>
+<p>This will display what the time will be exactly 24 hours from now in
+your local timezone, since there are 86,400 seconds in 24
+hours.</p></li>
+<li><p>Using CalendarTime</p>
+<p>As its name implies, <code>CalendarTime</code> represents time like
+we would on a calendar. It has fields for information such as year,
+month, and day. <code>CalendarTime</code> and its associated types are
+defined like this:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">CalendarTime</span> <span class="ot">=</span> <span class="dt">CalendarTime</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>   {<span class="ot">ctYear ::</span> <span class="dt">Int</span>,         <span class="co">-- Year (post-Gregorian)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="ot">    ctMonth ::</span> <span class="dt">Month</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="ot">    ctDay ::</span> <span class="dt">Int</span>,          <span class="co">-- Day of the month (1 to 31)</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="ot">    ctHour ::</span> <span class="dt">Int</span>,         <span class="co">-- Hour of the day (0 to 23)</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="ot">    ctMin ::</span> <span class="dt">Int</span>,          <span class="co">-- Minutes (0 to 59)</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="ot">    ctSec ::</span> <span class="dt">Int</span>,          <span class="co">-- Seconds (0 to 61, allowing for leap seconds)</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="ot">    ctPicosec ::</span> <span class="dt">Integer</span>,  <span class="co">-- Picoseconds</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="ot">    ctWDay ::</span> <span class="dt">Day</span>,         <span class="co">-- Day of the week</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="ot">    ctYDay ::</span> <span class="dt">Int</span>,         <span class="co">-- Day of the year (0 to 364 or 365)</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="ot">    ctTZName ::</span> <span class="dt">String</span>,    <span class="co">-- Name of timezone</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="ot">    ctTZ ::</span> <span class="dt">Int</span>,           <span class="co">-- Variation from UTC in seconds</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="ot">    ctIsDST ::</span> <span class="dt">Bool</span>        <span class="co">-- True if Daylight Saving Time in effect</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>   }</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Month</span> <span class="ot">=</span> <span class="dt">January</span> <span class="op">|</span> <span class="dt">February</span> <span class="op">|</span> <span class="dt">March</span> <span class="op">|</span> <span class="dt">April</span> <span class="op">|</span> <span class="dt">May</span> <span class="op">|</span> <span class="dt">June</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>             <span class="op">|</span> <span class="dt">July</span> <span class="op">|</span> <span class="dt">August</span> <span class="op">|</span> <span class="dt">September</span> <span class="op">|</span> <span class="dt">October</span> <span class="op">|</span> <span class="dt">November</span> <span class="op">|</span> <span class="dt">December</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Day</span> <span class="ot">=</span> <span class="dt">Sunday</span> <span class="op">|</span> <span class="dt">Monday</span> <span class="op">|</span> <span class="dt">Tuesday</span> <span class="op">|</span> <span class="dt">Wednesday</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>           <span class="op">|</span> <span class="dt">Thursday</span> <span class="op">|</span> <span class="dt">Friday</span> <span class="op">|</span> <span class="dt">Saturday</span></span></code></pre></div>
+<p>There are a few things about these structures that should be
+highlighted:</p>
+<ul>
+<li><p><code>ctWDay</code>, <code>ctYDay</code>, and
+<code>ctTZName</code> are generated by the library functions that create
+a <code>CalendarTime</code>, but are not used in calculations. If you
+are creating a <code>CalendarTime</code> by hand, it is not necessary to
+put accurate values into these fields, unless your later calculations
+will depend upon them.</p></li>
+<li><p>All of these three types are members of the <code>Eq</code>,
+<code>Ord</code>, <code>Read</code>, and <code>Show</code> type classes.
+In addition, <code>Month</code> and <code>Day</code> are declared as
+members of the <code>Enum</code> and <code>Bounded</code> type classes.
+For more information on these type classes, refer to <a
+href="6-using-typeclasses.org::*Important%20Built-In%20Type%20Classes">the
+section called "Important Built-In Type Classes"</a></p>
+<p>You can generate <code>CalendarTime</code> values several ways. You
+could start by converting a <code>ClockTime</code> to a
+<code>CalendarTime</code> such as this:</p>
+<pre class="screen"><code>ghci&gt; :module System.Time
+ghci&gt; now &lt;- getClockTime
+Loading package old-locale-1.0.0.0 ... linking ... done.
+Loading package old-time-1.0.0.0 ... linking ... done.
+Mon Aug 18 12
+ghci&gt; nowCal &lt;- toCalendarTime now
+CalendarTime {ctYear = 2008, ctMonth = August, ctDay = 18, ctHour = 12, ctMin = 10, ctSec = 35, ctPicosec = 804267000000, ctWDay = Monday, ctYDay = 230, ctTZName = &quot;CDT&quot;, ctTZ = -18000, ctIsDST = True}
+ghci&gt; let nowUTC = toUTCTime now
+ghci&gt; nowCal
+CalendarTime {ctYear = 2008, ctMonth = August, ctDay = 18, ctHour = 12, ctMin = 10, ctSec = 35, ctPicosec = 804267000000, ctWDay = Monday, ctYDay = 230, ctTZName = &quot;CDT&quot;, ctTZ = -18000, ctIsDST = True}
+ghci&gt; nowUTC
+CalendarTime {ctYear = 2008, ctMonth = August, ctDay = 18, ctHour = 17, ctMin = 10, ctSec = 35, ctPicosec = 804267000000, ctWDay = Monday, ctYDay = 230, ctTZName = &quot;UTC&quot;, ctTZ = 0, ctIsDST = False}
+</code></pre>
+<p>We used <code>getClockTime</code> to obtain the current
+<code>ClockTime</code> from the system's clock. Next,
+<code>toCalendarTime</code> converts the <code>ClockTime</code> to a
+<code>CalendarTime</code> representing the time in the local timezone.
+<code>toUTCTime</code> performs a similar conversion, but its result is
+in the UTC timezone instead of the local timezone.</p>
+<p>Notice that <code>toCalendarTime</code> is an IO function, but
+<code>toUTCTime</code> is not. The reason is that
+<code>toCalendarTime</code> returns a different result depending upon
+the locally-configured timezone, but <code>toUTCTime</code> will return
+the exact same result whenever it is passed the same source
+<code>ClockTime</code>.</p>
+<p>It's easy to modify a <code>CalendarTime</code> value:</p>
+<pre class="screen"><code>ghci&gt; nowCal {ctYear = 1960}
+CalendarTime {ctYear = 1960, ctMonth = August, ctDay = 18, ctHour = 12, ctMin = 10, ctSec = 35, ctPicosec = 804267000000, ctWDay = Monday, ctYDay = 230, ctTZName = &quot;CDT&quot;, ctTZ = -18000, ctIsDST = True}
+ghci&gt; (\(TOD sec _) -&gt; sec) (toClockTime nowCal)
+1219079435
+ghci&gt; (\(TOD sec _) -&gt; sec) (toClockTime (nowCal {ctYear = 1960}))
+-295685365
+</code></pre>
+<p>In this example, we first took the <code>CalendarTime</code> value
+from earlier and simply switched its year to 1960. Then, we used
+<code>toClockTime</code> to convert the unmodified value to a
+<code>ClockTime</code>, and then the modified value, so you can see the
+difference. Notice that the modified value shows a negative number of
+seconds once converted to <code>ClockTime</code>. That's to be expected,
+since a <code>ClockTime</code> is an offset from midnight on January 1,
+1970, UTC, and this value is in 1960.</p>
+<p>You can also create <code>CalendarTime</code> values manually:</p>
+<pre class="screen"><code>ghci&gt; let newCT = CalendarTime 2010 January 15 12 30 0 0 Sunday 0 &quot;UTC&quot; 0 False
+ghci&gt; newCT
+CalendarTime {ctYear = 2010, ctMonth = January, ctDay = 15, ctHour = 12, ctMin = 30, ctSec = 0, ctPicosec = 0, ctWDay = Sunday, ctYDay = 0, ctTZName = &quot;UTC&quot;, ctTZ = 0, ctIsDST = False}
+ghci&gt; (\(TOD sec _) -&gt; sec) (toClockTime newCT)
+1263558600
+</code></pre>
+<p>Note that even though January 15, 2010, isn't a Sunday—and isn't day
+0 in the year—the system was able to process this just fine. In fact, if
+we convert the value to a <code>ClockTime</code> and then back to a
+<code>CalendarTime</code>, you'll find those fields properly filled
+in:</p>
+<pre class="screen"><code>ghci&gt; toUTCTime . toClockTime $ newCT
+CalendarTime {ctYear = 2010, ctMonth = January, ctDay = 15, ctHour = 12, ctMin = 30, ctSec = 0, ctPicosec = 0, ctWDay = Friday, ctYDay = 14, ctTZName = &quot;UTC&quot;, ctTZ = 0, ctIsDST = False}
+</code></pre></li>
+</ul></li>
+<li><p>TimeDiff for ClockTime</p>
+<p>Because it can be difficult to manage differences between
+<code>ClockTime</code> values in a human-friendly way, the
+<code>System.Time</code> module includes a <code>TimeDiff</code> type.
+<code>TimeDiff</code> can be used, where convenient, to handle these
+differences. It is defined like this:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">TimeDiff</span> <span class="ot">=</span> <span class="dt">TimeDiff</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>   {<span class="ot">tdYear ::</span> <span class="dt">Int</span>,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="ot">    tdMonth ::</span> <span class="dt">Int</span>,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="ot">    tdDay ::</span> <span class="dt">Int</span>,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="ot">    tdHour ::</span> <span class="dt">Int</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="ot">    tdMin ::</span> <span class="dt">Int</span>,</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="ot">    tdSec ::</span> <span class="dt">Int</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="ot">    tdPicosec ::</span> <span class="dt">Integer</span>}</span></code></pre></div>
+<p>Functions such as <code>diffClockTimes</code> and
+<code>addToClockTime</code> take a <code>ClockTime</code> and a
+<code>TimeDiff</code> and handle the calculations internally by
+converting to a <code>CalendarTime</code> in UTC, applying the
+differences, and converting back to a <code>ClockTime</code>.</p>
+<p>Let's see how it works:</p>
+<pre class="screen"><code>ghci&gt; :module System.Time
+ghci&gt; let feb5 = toClockTime $ CalendarTime 2008 February 5 0 0 0 0 Sunday 0 &quot;UTC&quot; 0 False
+Loading package old-locale-1.0.0.0 ... linking ... done.
+Loading package old-time-1.0.0.0 ... linking ... done.
+ghci&gt; feb5
+Mon Feb  4 18
+ghci&gt; addToClockTime (TimeDiff 0 1 0 0 0 0 0) feb5
+Tue Mar  4 18
+ghci&gt; toUTCTime $ addToClockTime (TimeDiff 0 1 0 0 0 0 0) feb5
+CalendarTime {ctYear = 2008, ctMonth = March, ctDay = 5, ctHour = 0, ctMin = 0, ctSec = 0, ctPicosec = 0, ctWDay = Wednesday, ctYDay = 64, ctTZName = &quot;UTC&quot;, ctTZ = 0, ctIsDST = False}
+ghci&gt; let jan30 = toClockTime $ CalendarTime 2009 January 30 0 0 0 0 Sunday 0 &quot;UTC&quot; 0 False
+ghci&gt; jan30
+Thu Jan 29 18
+ghci&gt; addToClockTime (TimeDiff 0 1 0 0 0 0 0) jan30
+Sun Mar  1 18
+ghci&gt; toUTCTime $ addToClockTime (TimeDiff 0 1 0 0 0 0 0) jan30
+CalendarTime {ctYear = 2009, ctMonth = March, ctDay = 2, ctHour = 0, ctMin = 0, ctSec = 0, ctPicosec = 0, ctWDay = Monday, ctYDay = 60, ctTZName = &quot;UTC&quot;, ctTZ = 0, ctIsDST = False}
+ghci&gt; diffClockTimes jan30 feb5
+TimeDiff {tdYear = 0, tdMonth = 0, tdDay = 0, tdHour = 0, tdMin = 0, tdSec = 31104000, tdPicosec = 0}
+ghci&gt; normalizeTimeDiff $ diffClockTimes jan30 feb5
+TimeDiff {tdYear = 0, tdMonth = 12, tdDay = 0, tdHour = 0, tdMin = 0, tdSec = 0, tdPicosec = 0}
+</code></pre>
+<p>We started by generating a <code>ClockTime</code> representing
+midnight February 5, 2008 in UTC. Note that, unless your timezone is the
+same as UTC, when this time is printed out on the display, it may show
+up as the evening of February 4 because it is formatted for your local
+timezone.</p>
+<p>Next, we add one month to to it by calling
+<code>addToClockTime</code>. 2008 is a leap year, but the system handled
+that properly and we get a result that has the same date and time in
+March. By using <code>toUTCTime</code>, we can see the effect on this in
+the original UTC timezone.</p>
+<p>For a second experiment, we set up a time representing midnight on
+January 30, 2009 in UTC. 2009 is not a leap year, so we might wonder
+what will happen when trying to add one month to it. We can see that,
+since neither February 29 or 30 exist in 2009, we wind up with March
+2.</p>
+<p>Finally, we can see how <code>diffClockTimes</code> turns two
+<code>ClockTime</code> values into a <code>TimeDiff</code>, though only
+the seconds and picoseconds are filled in. The
+<code>normalizeTimeDiff</code> function takes such a
+<code>TimeDiff</code> and reformats it as a human might expect to see
+it.</p></li>
+</ol>
+<h2 data-number="4.2" id="file-modification-times"><span
+class="header-section-number">4.2</span> File Modification Times</h2>
+<p>Many programs need to find out when particular files were last
+modified. Programs such as <code>ls</code> or graphical file managers
+typically display the modification time of files. The
+<code>System.Directory</code> module contains a cross-platform
+<code>getModificationTime</code> function. It takes a filename and
+returns a <code>ClockTime</code> representing the time the file was last
+modified. For instance:</p>
+<pre class="screen"><code>ghci&gt; :module System.Directory
+ghci&gt; getModificationTime &quot;/etc/passwd&quot;
+Loading package old-locale-1.0.0.0 ... linking ... done.
+Loading package old-time-1.0.0.0 ... linking ... done.
+Loading package filepath-1.1.0.0 ... linking ... done.
+Loading package directory-1.0.0.0 ... linking ... done.
+Fri Aug 15 08
+</code></pre>
+<p>POSIX platforms maintain not just a modification time (known as
+<code>mtime</code>), but also the time of last read or write access
+(<code>atime</code>) and the time of last status change
+(<code>ctime</code>). Since this information is POSIX-specific, the
+cross-platform <code>System.Directory</code> module does not provide
+access to it. Instead, you will need to use functions in
+<code>System.Posix.Files</code>. Here is an example function to do
+that:</p>
+<div class="captioned-content">
+<div class="caption">
+posixtime.hs
+</div>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Posix.Files</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Time</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Posix.Types</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Given a path, returns (atime, mtime, ctime)</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="ot">getTimes ::</span> <span class="dt">FilePath</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">ClockTime</span>, <span class="dt">ClockTime</span>, <span class="dt">ClockTime</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>getTimes fp <span class="ot">=</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> stat <span class="ot">&lt;-</span> getFileStatus fp</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>       <span class="fu">return</span> (toct (accessTime stat),</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>               toct (modificationTime stat),</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>               toct (statusChangeTime stat))</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Convert an EpochTime to a ClockTime</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="ot">toct ::</span> <span class="dt">EpochTime</span> <span class="ot">-&gt;</span> <span class="dt">ClockTime</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>toct et <span class="ot">=</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">TOD</span> (<span class="fu">truncate</span> (<span class="fu">toRational</span> et)) <span class="dv">0</span></span></code></pre></div>
+</div>
+<p>Notice that call to <code>getFileStatus</code>. That call maps
+directly to the C function <code>stat()</code>. Its return value stores
+a vast assortment of information, including file type, permissions,
+owner, group, and the three time values we're interested in.
+<code>System.Posix.Files</code> provides various functions, such as
+<code>accessTime</code>, that extract the information we're interested
+out of the opaque <code class="verbatim">FileStatus</code> type returned
+by <code>getFileStatus</code>.</p>
+<p>The functions such as <code>accessTime</code> return data in a
+POSIX-specific type called <code>EpochTime</code>, which se convert to a
+<code>ClockTime</code> using the <code>toct</code> function.
+<code>System.Posix.Files</code> also provides a
+<code>setFileTimes</code> function to set the <code>atime</code> and
+<code>mtime</code> for a file.<a href="#fn3" class="footnote-ref"
+id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<h1 data-number="5" id="extended-example-piping"><span
+class="header-section-number">5</span> Extended Example: Piping</h1>
+<p>We've just seen how to invoke external programs. Sometimes we need
+more control that that. Perhaps we need to obtain the output from those
+programs, provide input, or even chain together multiple external
+programs. Piping can help with all of these needs. Piping is often used
+in shell scripts. When you set up a pipe in the shell, you run multiple
+programs. The output of the first program is sent to the input of the
+second. Its output is sent to the third as input, and so on. The last
+program's output normally goes to the terminal, or it could go to a
+file. Here's an example session with the POSIX shell to illustrate
+piping:</p>
+<pre class="screen"><code>$ ls /etc | grep &#39;m.*ap&#39; | tr a-z A-Z
+IDMAPD.CONF
+MAILCAP
+MAILCAP.ORDER
+MEDIAPRM
+TERMCAP
+</code></pre>
+<p>This command runs three programs, piping data between them. It starts
+with <code>ls /etc</code>, which outputs a list of all files or
+directories in <code>/etc</code>. The output of <code>ls</code> is sent
+as input to <code>grep</code>. We gave <code>grep</code> a regular
+expression that will cause it to output only the lines that start with
+<code>'m'</code> and then contain <code>"ap"</code> somewhere in the
+line. Finally, the result of that is sent to <code>tr</code>. We gave
+<code>tr</code> options to convert everything to uppercase. The output
+of <code>tr</code> isn't set anywhere in particular, so it is displayed
+on the screen.</p>
+<p>In this situation, the shell handles setting up all the pipelines
+between programs. By using some of the POSIX tools in Haskell, we can
+accomplish the same thing.</p>
+<p>Before describing how to do this, we should first warn you that the
+<code>System.Posix</code> modules expose a very low-level interface to
+Unix systems. The interfaces can be complex and their interactions can
+be complex as well, regardless of the programming language you use to
+access them. The full nature of these low-level interfaces has been the
+topic of entire books themselves, so in this chapter we will just
+scratch the surface.</p>
+<h2 data-number="5.1" id="using-pipes-for-redirection"><span
+class="header-section-number">5.1</span> Using Pipes for
+Redirection</h2>
+<p>POSIX defines a function that creates a pipe. This function returns
+two file descriptors (FDs), which are similar in concept to a Haskell
+<code>Handle</code>. One FD is the reading end of the pipe, and the
+other is the writing end. Anything that is written to the writing end
+can be read by the reading end. The data is "shoved through a pipe". In
+Haskell, you call <code>createPipe</code> to access this interface.</p>
+<p>Having a pipe is the first step to being able to pipe data between
+external programs. We must also be able to redirect the output of a
+program to a pipe, and the input of another program from a pipe. The
+Haskell function <code>dupTo</code> accomplishes this. It takes a FD and
+makes a copy of it at another FD number. POSIX FDs for standard input,
+standard output, and standard error have the predefined FD numbers of 0,
+1, and 2, respectively. By renumbering an endpoint of a pipe to one of
+those numbers, we effectively can cause programs to have their input or
+output redirected.</p>
+<p>There is another piece of the puzzle, however. We can't just use
+<code>dupTo</code> before a call such as <code>rawSystem</code> because
+this would mess up the standard input or output of our main Haskell
+process. Moreover, <code>rawSystem</code> blocks until the invoked
+program executes, leaving us no way to start multiple processes running
+in parallel. To make this happen, we must use <code>forkProcess</code>.
+This is a very special function. It actually makes a copy of the
+currently-running program and you wind up with two copies of the program
+running at the same time. Haskell's <code>forkProcess</code> function
+takes a function to execute in the new process (known as the child). We
+have that function call <code>dupTo</code>. After it has done that, it
+calls <code>executeFile</code> to actually invoke the command. This is
+also a special function: if all goes well, it <em>never returns</em>.
+That's because <code>executeFile</code> replaces the running process
+with a different program. Eventually, the original Haskell process will
+call <code>getProcessStatus</code> to wait for the child processes to
+terminate and learn of their exit codes.</p>
+<p>Whenever you run a command on POSIX systems, whether you've just
+typed <code>ls</code> on the command line or used <code>rawSystem</code>
+in Haskell, under the hood, <code>forkProcess</code>,
+<code>executeFile</code>, and <code>getProcessStatus</code> (or their C
+equivalents) are always being used. To set up pipes, we are duplicating
+the process that the system uses to start up programs, and adding a few
+steps involving piping and redirection along the way.</p>
+<p>There are a few other housekeeping things we must be careful about.
+When you call <code>forkProcess</code>, just about everything about your
+program is cloned.<a href="#fn4" class="footnote-ref" id="fnref4"
+role="doc-noteref"><sup>4</sup></a> That includes the set of open file
+descriptors (handles). Programs detect when they're done receiving input
+from a pipe by checking the end-of-file indicator. When the process at
+the writing end of a pipe closes the pipe, the process at the reading
+end will receive an end-of-file indication. However, if the writing file
+descriptor exists in more than one process, the end-of-file indicator
+won't be sent until all processes have closed that particular FD.
+Therefore, we must keep track of which FDs are opened so we can close
+them all in the child processes. We must also close the child ends of
+the pipes in the parent process as soon as possible.</p>
+<p>Here is an initial implementation of a system of piping in
+Haskell.</p>
+<div class="captioned-content">
+<div class="caption">
+RunProcessSimple.hs
+</div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# OPTIONS_GHC -fglasgow-exts #-}</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">RunProcessSimple</span> <span class="kw">where</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Process</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Concurrent</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Concurrent.MVar</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.IO</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Exit</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.Regex</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Posix.Process</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Posix.IO</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Posix.Types</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="co">{- | The type for running external commands.  The first part</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="co">of the tuple is the program name.  The list represents the</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="co">command-line parameters to pass to the command. -}</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">SysCommand</span> <span class="ot">=</span> (<span class="dt">String</span>, [<span class="dt">String</span>])</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="co">{- | The result of running any command -}</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">CommandResult</span> <span class="ot">=</span> <span class="dt">CommandResult</span> {</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="ot">    cmdOutput ::</span> <span class="dt">IO</span> <span class="dt">String</span>,              <span class="co">-- ^ IO action that yields the output</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="ot">    getExitStatus ::</span> <span class="dt">IO</span> <span class="dt">ProcessStatus</span>    <span class="co">-- ^ IO action that yields exit result</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a><span class="co">{- | The type for handling global lists of FDs to always close in the clients</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a><span class="co">-}</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">CloseFDs</span> <span class="ot">=</span> <span class="dt">MVar</span> [<span class="dt">Fd</span>]</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Class representing anything that is a runnable command -}</span></span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">CommandLike</span> a <span class="kw">where</span></span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">{- | Given the command and a String representing input,</span></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a><span class="co">         invokes the command.  Returns a String</span></span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a><span class="co">         representing the output of the command. -}</span></span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a><span class="ot">    invoke ::</span> a <span class="ot">-&gt;</span> <span class="dt">CloseFDs</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">CommandResult</span></span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a><span class="co">-- Support for running system commands</span></span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">CommandLike</span> <span class="dt">SysCommand</span> <span class="kw">where</span></span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>    invoke (cmd, args) closefds input <span class="ot">=</span></span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>        <span class="kw">do</span> <span class="co">-- Create two pipes: one to handle stdin and the other</span></span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- to handle stdout.  We do not redirect stderr in this program.</span></span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>           (stdinread, stdinwrite) <span class="ot">&lt;-</span> createPipe</span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>           (stdoutread, stdoutwrite) <span class="ot">&lt;-</span> createPipe</span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- We add the parent FDs to this list because we always need</span></span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- to close them in the clients.</span></span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>           addCloseFDs closefds [stdinwrite, stdoutread]</span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- Now, grab the closed FDs list and fork the child.</span></span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a>           childPID <span class="ot">&lt;-</span> withMVar closefds (\fds <span class="ot">-&gt;</span></span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a>                          forkProcess (child fds stdinread stdoutwrite))</span>
+<span id="cb21-52"><a href="#cb21-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-53"><a href="#cb21-53" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- Now, on the parent, close the client-side FDs.</span></span>
+<span id="cb21-54"><a href="#cb21-54" aria-hidden="true" tabindex="-1"></a>           closeFd stdinread</span>
+<span id="cb21-55"><a href="#cb21-55" aria-hidden="true" tabindex="-1"></a>           closeFd stdoutwrite</span>
+<span id="cb21-56"><a href="#cb21-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-57"><a href="#cb21-57" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- Write the input to the command.</span></span>
+<span id="cb21-58"><a href="#cb21-58" aria-hidden="true" tabindex="-1"></a>           stdinhdl <span class="ot">&lt;-</span> fdToHandle stdinwrite</span>
+<span id="cb21-59"><a href="#cb21-59" aria-hidden="true" tabindex="-1"></a>           forkIO <span class="op">$</span> <span class="kw">do</span> hPutStr stdinhdl input</span>
+<span id="cb21-60"><a href="#cb21-60" aria-hidden="true" tabindex="-1"></a>                       hClose stdinhdl</span>
+<span id="cb21-61"><a href="#cb21-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-62"><a href="#cb21-62" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- Prepare to receive output from the command</span></span>
+<span id="cb21-63"><a href="#cb21-63" aria-hidden="true" tabindex="-1"></a>           stdouthdl <span class="ot">&lt;-</span> fdToHandle stdoutread</span>
+<span id="cb21-64"><a href="#cb21-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-65"><a href="#cb21-65" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- Set up the function to call when ready to wait for the</span></span>
+<span id="cb21-66"><a href="#cb21-66" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- child to exit.</span></span>
+<span id="cb21-67"><a href="#cb21-67" aria-hidden="true" tabindex="-1"></a>           <span class="kw">let</span> waitfunc <span class="ot">=</span></span>
+<span id="cb21-68"><a href="#cb21-68" aria-hidden="true" tabindex="-1"></a>                <span class="kw">do</span> status <span class="ot">&lt;-</span> getProcessStatus <span class="dt">True</span> <span class="dt">False</span> childPID</span>
+<span id="cb21-69"><a href="#cb21-69" aria-hidden="true" tabindex="-1"></a>                   <span class="kw">case</span> status <span class="kw">of</span></span>
+<span id="cb21-70"><a href="#cb21-70" aria-hidden="true" tabindex="-1"></a>                       <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">fail</span> <span class="op">$</span> <span class="st">&quot;Error: Nothing from getProcessStatus&quot;</span></span>
+<span id="cb21-71"><a href="#cb21-71" aria-hidden="true" tabindex="-1"></a>                       <span class="dt">Just</span> ps <span class="ot">-&gt;</span> <span class="kw">do</span> removeCloseFDs closefds</span>
+<span id="cb21-72"><a href="#cb21-72" aria-hidden="true" tabindex="-1"></a>                                          [stdinwrite, stdoutread]</span>
+<span id="cb21-73"><a href="#cb21-73" aria-hidden="true" tabindex="-1"></a>                                     <span class="fu">return</span> ps</span>
+<span id="cb21-74"><a href="#cb21-74" aria-hidden="true" tabindex="-1"></a>           <span class="fu">return</span> <span class="op">$</span> <span class="dt">CommandResult</span> {cmdOutput <span class="ot">=</span> hGetContents stdouthdl,</span>
+<span id="cb21-75"><a href="#cb21-75" aria-hidden="true" tabindex="-1"></a>                                   getExitStatus <span class="ot">=</span> waitfunc}</span>
+<span id="cb21-76"><a href="#cb21-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-77"><a href="#cb21-77" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Define what happens in the child process</span></span>
+<span id="cb21-78"><a href="#cb21-78" aria-hidden="true" tabindex="-1"></a>        <span class="kw">where</span> child closefds stdinread stdoutwrite <span class="ot">=</span></span>
+<span id="cb21-79"><a href="#cb21-79" aria-hidden="true" tabindex="-1"></a>                <span class="kw">do</span> <span class="co">-- Copy our pipes over the regular stdin/stdout FDs</span></span>
+<span id="cb21-80"><a href="#cb21-80" aria-hidden="true" tabindex="-1"></a>                   dupTo stdinread stdInput</span>
+<span id="cb21-81"><a href="#cb21-81" aria-hidden="true" tabindex="-1"></a>                   dupTo stdoutwrite stdOutput</span>
+<span id="cb21-82"><a href="#cb21-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-83"><a href="#cb21-83" aria-hidden="true" tabindex="-1"></a>                   <span class="co">-- Now close the original pipe FDs</span></span>
+<span id="cb21-84"><a href="#cb21-84" aria-hidden="true" tabindex="-1"></a>                   closeFd stdinread</span>
+<span id="cb21-85"><a href="#cb21-85" aria-hidden="true" tabindex="-1"></a>                   closeFd stdoutwrite</span>
+<span id="cb21-86"><a href="#cb21-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-87"><a href="#cb21-87" aria-hidden="true" tabindex="-1"></a>                   <span class="co">-- Close all the open FDs we inherited from the parent</span></span>
+<span id="cb21-88"><a href="#cb21-88" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">mapM_</span> (\fd <span class="ot">-&gt;</span> <span class="fu">catch</span> (closeFd fd) (\_ <span class="ot">-&gt;</span> <span class="fu">return</span> ())) closefds</span>
+<span id="cb21-89"><a href="#cb21-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-90"><a href="#cb21-90" aria-hidden="true" tabindex="-1"></a>                   <span class="co">-- Start the program</span></span>
+<span id="cb21-91"><a href="#cb21-91" aria-hidden="true" tabindex="-1"></a>                   executeFile cmd <span class="dt">True</span> args <span class="dt">Nothing</span></span>
+<span id="cb21-92"><a href="#cb21-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-93"><a href="#cb21-93" aria-hidden="true" tabindex="-1"></a><span class="co">-- Add FDs to the list of FDs that must be closed post-fork in a child</span></span>
+<span id="cb21-94"><a href="#cb21-94" aria-hidden="true" tabindex="-1"></a><span class="ot">addCloseFDs ::</span> <span class="dt">CloseFDs</span> <span class="ot">-&gt;</span> [<span class="dt">Fd</span>] <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb21-95"><a href="#cb21-95" aria-hidden="true" tabindex="-1"></a>addCloseFDs closefds newfds <span class="ot">=</span></span>
+<span id="cb21-96"><a href="#cb21-96" aria-hidden="true" tabindex="-1"></a>    modifyMVar_ closefds (\oldfds <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="op">$</span> oldfds <span class="op">++</span> newfds)</span>
+<span id="cb21-97"><a href="#cb21-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-98"><a href="#cb21-98" aria-hidden="true" tabindex="-1"></a><span class="co">-- Remove FDs from the list</span></span>
+<span id="cb21-99"><a href="#cb21-99" aria-hidden="true" tabindex="-1"></a><span class="ot">removeCloseFDs ::</span> <span class="dt">CloseFDs</span> <span class="ot">-&gt;</span> [<span class="dt">Fd</span>] <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb21-100"><a href="#cb21-100" aria-hidden="true" tabindex="-1"></a>removeCloseFDs closefds removethem <span class="ot">=</span></span>
+<span id="cb21-101"><a href="#cb21-101" aria-hidden="true" tabindex="-1"></a>    modifyMVar_ closefds (\fdlist <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="op">$</span> procfdlist fdlist removethem)</span>
+<span id="cb21-102"><a href="#cb21-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-103"><a href="#cb21-103" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb21-104"><a href="#cb21-104" aria-hidden="true" tabindex="-1"></a>    procfdlist fdlist [] <span class="ot">=</span> fdlist</span>
+<span id="cb21-105"><a href="#cb21-105" aria-hidden="true" tabindex="-1"></a>    procfdlist fdlist (x<span class="op">:</span>xs) <span class="ot">=</span> procfdlist (removefd fdlist x) xs</span>
+<span id="cb21-106"><a href="#cb21-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-107"><a href="#cb21-107" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- We want to remove only the first occurrence ot any given fd</span></span>
+<span id="cb21-108"><a href="#cb21-108" aria-hidden="true" tabindex="-1"></a>    removefd [] _ <span class="ot">=</span> []</span>
+<span id="cb21-109"><a href="#cb21-109" aria-hidden="true" tabindex="-1"></a>    removefd (x<span class="op">:</span>xs) fd</span>
+<span id="cb21-110"><a href="#cb21-110" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> fd <span class="op">==</span> x <span class="ot">=</span> xs</span>
+<span id="cb21-111"><a href="#cb21-111" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> x <span class="op">:</span> removefd xs fd</span>
+<span id="cb21-112"><a href="#cb21-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-113"><a href="#cb21-113" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Type representing a pipe.  A &#39;PipeCommand&#39; consists of a source</span></span>
+<span id="cb21-114"><a href="#cb21-114" aria-hidden="true" tabindex="-1"></a><span class="co">and destination part, both of which must be instances of</span></span>
+<span id="cb21-115"><a href="#cb21-115" aria-hidden="true" tabindex="-1"></a><span class="co">&#39;CommandLike&#39;. -}</span></span>
+<span id="cb21-116"><a href="#cb21-116" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> (<span class="dt">CommandLike</span> src, <span class="dt">CommandLike</span> dest) <span class="ot">=&gt;</span></span>
+<span id="cb21-117"><a href="#cb21-117" aria-hidden="true" tabindex="-1"></a>     <span class="dt">PipeCommand</span> src dest <span class="ot">=</span> <span class="dt">PipeCommand</span> src dest</span>
+<span id="cb21-118"><a href="#cb21-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-119"><a href="#cb21-119" aria-hidden="true" tabindex="-1"></a><span class="co">{- | A convenient function for creating a &#39;PipeCommand&#39;. -}</span></span>
+<span id="cb21-120"><a href="#cb21-120" aria-hidden="true" tabindex="-1"></a><span class="ot">(-|-) ::</span> (<span class="dt">CommandLike</span> a, <span class="dt">CommandLike</span> b) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> <span class="dt">PipeCommand</span> a b</span>
+<span id="cb21-121"><a href="#cb21-121" aria-hidden="true" tabindex="-1"></a>(<span class="op">-|-</span>) <span class="ot">=</span> <span class="dt">PipeCommand</span></span>
+<span id="cb21-122"><a href="#cb21-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-123"><a href="#cb21-123" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Make &#39;PipeCommand&#39; runnable as a command -}</span></span>
+<span id="cb21-124"><a href="#cb21-124" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">CommandLike</span> a, <span class="dt">CommandLike</span> b) <span class="ot">=&gt;</span></span>
+<span id="cb21-125"><a href="#cb21-125" aria-hidden="true" tabindex="-1"></a>         <span class="dt">CommandLike</span> (<span class="dt">PipeCommand</span> a b) <span class="kw">where</span></span>
+<span id="cb21-126"><a href="#cb21-126" aria-hidden="true" tabindex="-1"></a>    invoke (<span class="dt">PipeCommand</span> src dest) closefds input <span class="ot">=</span></span>
+<span id="cb21-127"><a href="#cb21-127" aria-hidden="true" tabindex="-1"></a>        <span class="kw">do</span> res1 <span class="ot">&lt;-</span> invoke src closefds input</span>
+<span id="cb21-128"><a href="#cb21-128" aria-hidden="true" tabindex="-1"></a>           output1 <span class="ot">&lt;-</span> cmdOutput res1</span>
+<span id="cb21-129"><a href="#cb21-129" aria-hidden="true" tabindex="-1"></a>           res2 <span class="ot">&lt;-</span> invoke dest closefds output1</span>
+<span id="cb21-130"><a href="#cb21-130" aria-hidden="true" tabindex="-1"></a>           <span class="fu">return</span> <span class="op">$</span> <span class="dt">CommandResult</span> (cmdOutput res2) (getEC res1 res2)</span>
+<span id="cb21-131"><a href="#cb21-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-132"><a href="#cb21-132" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Given two &#39;CommandResult&#39; items, evaluate the exit codes for</span></span>
+<span id="cb21-133"><a href="#cb21-133" aria-hidden="true" tabindex="-1"></a><span class="co">both and then return a &quot;combined&quot; exit code.  This will be ExitSuccess</span></span>
+<span id="cb21-134"><a href="#cb21-134" aria-hidden="true" tabindex="-1"></a><span class="co">if both exited successfully.  Otherwise, it will reflect the first</span></span>
+<span id="cb21-135"><a href="#cb21-135" aria-hidden="true" tabindex="-1"></a><span class="co">error encountered. -}</span></span>
+<span id="cb21-136"><a href="#cb21-136" aria-hidden="true" tabindex="-1"></a><span class="ot">getEC ::</span> <span class="dt">CommandResult</span> <span class="ot">-&gt;</span> <span class="dt">CommandResult</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">ProcessStatus</span></span>
+<span id="cb21-137"><a href="#cb21-137" aria-hidden="true" tabindex="-1"></a>getEC src dest <span class="ot">=</span></span>
+<span id="cb21-138"><a href="#cb21-138" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> sec <span class="ot">&lt;-</span> getExitStatus src</span>
+<span id="cb21-139"><a href="#cb21-139" aria-hidden="true" tabindex="-1"></a>       dec <span class="ot">&lt;-</span> getExitStatus dest</span>
+<span id="cb21-140"><a href="#cb21-140" aria-hidden="true" tabindex="-1"></a>       <span class="kw">case</span> sec <span class="kw">of</span></span>
+<span id="cb21-141"><a href="#cb21-141" aria-hidden="true" tabindex="-1"></a>            <span class="dt">Exited</span> <span class="dt">ExitSuccess</span> <span class="ot">-&gt;</span> <span class="fu">return</span> dec</span>
+<span id="cb21-142"><a href="#cb21-142" aria-hidden="true" tabindex="-1"></a>            x <span class="ot">-&gt;</span> <span class="fu">return</span> x</span>
+<span id="cb21-143"><a href="#cb21-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-144"><a href="#cb21-144" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Execute a &#39;CommandLike&#39;. -}</span></span>
+<span id="cb21-145"><a href="#cb21-145" aria-hidden="true" tabindex="-1"></a><span class="ot">runIO ::</span> <span class="dt">CommandLike</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb21-146"><a href="#cb21-146" aria-hidden="true" tabindex="-1"></a>runIO cmd <span class="ot">=</span></span>
+<span id="cb21-147"><a href="#cb21-147" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> <span class="co">-- Initialize our closefds list</span></span>
+<span id="cb21-148"><a href="#cb21-148" aria-hidden="true" tabindex="-1"></a>       closefds <span class="ot">&lt;-</span> newMVar []</span>
+<span id="cb21-149"><a href="#cb21-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-150"><a href="#cb21-150" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Invoke the command</span></span>
+<span id="cb21-151"><a href="#cb21-151" aria-hidden="true" tabindex="-1"></a>       res <span class="ot">&lt;-</span> invoke cmd closefds []</span>
+<span id="cb21-152"><a href="#cb21-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-153"><a href="#cb21-153" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Process its output</span></span>
+<span id="cb21-154"><a href="#cb21-154" aria-hidden="true" tabindex="-1"></a>       output <span class="ot">&lt;-</span> cmdOutput res</span>
+<span id="cb21-155"><a href="#cb21-155" aria-hidden="true" tabindex="-1"></a>       <span class="fu">putStr</span> output</span>
+<span id="cb21-156"><a href="#cb21-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-157"><a href="#cb21-157" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Wait for termination and get exit status</span></span>
+<span id="cb21-158"><a href="#cb21-158" aria-hidden="true" tabindex="-1"></a>       ec <span class="ot">&lt;-</span> getExitStatus res</span>
+<span id="cb21-159"><a href="#cb21-159" aria-hidden="true" tabindex="-1"></a>       <span class="kw">case</span> ec <span class="kw">of</span></span>
+<span id="cb21-160"><a href="#cb21-160" aria-hidden="true" tabindex="-1"></a>            <span class="dt">Exited</span> <span class="dt">ExitSuccess</span> <span class="ot">-&gt;</span> <span class="fu">return</span> ()</span>
+<span id="cb21-161"><a href="#cb21-161" aria-hidden="true" tabindex="-1"></a>            x <span class="ot">-&gt;</span> <span class="fu">fail</span> <span class="op">$</span> <span class="st">&quot;Exited: &quot;</span> <span class="op">++</span> <span class="fu">show</span> x</span></code></pre></div>
+</div>
+<p>Let's experiment with this in <code>ghci</code> a bit before looking
+at how it works.</p>
+<pre class="screen"><code>ghci&gt; :load RunProcessSimple.hs
+
+RunProcessSimple.hs
+    Could not find module `Text.Regex&#39;:
+      Use -v to see a list of the files searched for.
+Failed, modules loaded: none.
+ghci&gt; runIO $ (&quot;pwd&quot;, []
+
+&lt;interactive&gt;
+ghci&gt; runIO $ (&quot;ls&quot;, [&quot;/usr&quot;])
+
+&lt;interactive&gt;
+ghci&gt; runIO $ (&quot;ls&quot;, [&quot;/usr&quot;]) -|- (&quot;grep&quot;, [&quot;^l&quot;])
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+ghci&gt; runIO $ (&quot;ls&quot;, [&quot;/etc&quot;]) -|- (&quot;grep&quot;, [&quot;m.*ap&quot;]) -|- (&quot;tr&quot;, [&quot;a-z&quot;, &quot;A-Z&quot;])
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+</code></pre>
+<p>We start by running a simple command, <code>pwd</code>, which just
+prints the name of the current working directory. We pass
+<code>[]</code> for the list of arguments, because <code>pwd</code>
+doesn't need any arguments. Due to the type classes used, Haskell can't
+infer the type of <code>[]</code>, so we specifically mention that it's
+a <code>String</code>.</p>
+<p>Then we get into more complex commands. We run <code>ls</code>,
+sending it through <code>grep</code>. At the end, we set up a pipe to
+run the exact same command that we ran via a shell-built pipe at the
+start of this section. It's not yet as pleasant as it was in the shell,
+but then again our program is still relatively simple when compared to
+the shell.</p>
+<p>Let's look at the program. The very first line has a special
+<code>OPTIONS_GHC</code> clause. This is the same as passing
+<code>-fglasgow-exts</code> to <code>ghc</code> or <code>ghci</code>. We
+are using a GHC extension that permits us to use a
+<code>(String, [String])</code> type as an instance of a type class.<a
+href="#fn5" class="footnote-ref" id="fnref5"
+role="doc-noteref"><sup>5</sup></a> By putting it in the source file, we
+don't have to remember to specify it every time we use this module.</p>
+<p>After the <code>import</code> lines, we define a few types. First, we
+define <code>type SysCommand = (String, [String])</code> as an alias.
+This is the type a command to be executed by the system will take. We
+used data of this type for each command in the example execution above.
+The <code>CommandResult</code> type represents the result from executing
+a given command, and the <code>CloseFDs</code> type represents the list
+of FDs that we must close upon forking a new child process.</p>
+<p>Next, we define a class named <code>CommandLike</code>. This class
+will be used to run "things", where a "thing" might be a standalone
+program, a pipe set up between two or more programs, or in the future,
+even pure Haskell functions. To be a member of this class, only one
+function – <code>invoke~—needs to be present for a given
+type. This will let us use ~runIO</code> to start either a standalone
+command or a pipeline. It will also be useful for defining a pipeline,
+since we may have a whole stack of commands on one or both sides of a
+given command.</p>
+<p>Our piping infrastructure is going to use strings as the way of
+sending data from one process to another. We can take advantage of
+Haskell's support for lazy reading via <code>hGetContents</code> while
+reading data, and use <code>forkIO</code> to let writing occur in the
+background. This will work well, although not as fast as connecting the
+endpoints of two processes directly together.<a href="#fn6"
+class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> It
+makes implementation quite simple, however. We need only take care to do
+nothing that would require the entire <code>String</code> to be
+buffered, and let Haskell's laziness do the rest.</p>
+<p>Next, we define an instance of <code>CommandLike</code> for
+<code>SysCommand</code>. We create two pipes: one to use for the new
+process's standard input, and the other for its standard output. This
+creates four endpoints, and thus four file descriptors. We add the
+parent file descriptors to the list of those that must be closed in all
+children. These would be the write end of the child's standard input,
+and the read end of the child's standard output. Next, we fork the child
+process. In the parent, we can then close the file descriptors that
+correspond to the child. We can't do that before the fork, because then
+they wouldn't be available to the child. We obtain a handle for the
+<code>stdinwrite</code> file descriptor, and start a thread via
+<code>forkIO</code> to write the input data to it. We then define
+<code>waitfunc</code>, which is the action that the caller will invoke
+when it is ready to wait for the called process to terminate. Meanwhile,
+the child uses <code>dupTo</code>, closes the file descriptors it
+doesn't need, and executes the command.</p>
+<p>Next, we define some utility functions to manage the list of file
+descriptors. After that, we define the tools that help set up pipelines.
+First, we define a new type <code>PipeCommand</code> that has a source
+and destination. Both the source and destination must be members of
+<code>CommandLike</code>. We also define the <code>-|-</code>
+convenience operator. Then, we make <code>PipeCommand</code> an instance
+of <code>CommandLike</code>. Its <code>invoke</code> implementation
+starts the first command with the given input, obtains its output, and
+passes that output to the invocation of the second command. It then
+returns the output of the second command, and causes the
+<code>getExitStatus</code> function to wait for and check the exit
+statuses from both commands.</p>
+<p>We finish by defining <code>runIO</code>. This function establishes
+the list of FDs that must be closed in the client, starts the command,
+displays its output, and checks its exit status.</p>
+<h2 data-number="5.2" id="better-piping"><span
+class="header-section-number">5.2</span> Better Piping</h2>
+<p>Our previous example solved the basic need of letting us set up
+shell-like pipes. There are some other features that it would be nice to
+have though:</p>
+<ul>
+<li>Supporting more shell-like syntax</li>
+<li>Letting people pipe data into external programs or regular Haskell
+functions, freely mixing and matching the two</li>
+<li>Returning the final output and exit code in a way that Haskell
+programs can readily use</li>
+</ul>
+<p>Fortunately, we already have most of the pieces to support this in
+place. We need only add a few more instances of <code>CommandLike</code>
+to support this, and a few more functions similar to <code>runIO</code>.
+Here is a revised example that implements all of these features:</p>
+<div class="captioned-content">
+<div class="caption">
+RunProcess.hs
+</div>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# OPTIONS_GHC -fglasgow-exts #-}</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">RunProcess</span> <span class="kw">where</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Process</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Concurrent</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Concurrent.MVar</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Exception</span>(evaluate)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Posix.Directory</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Directory</span>(setCurrentDirectory)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.IO</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Exit</span></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.Regex</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Posix.Process</span></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Posix.IO</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Posix.Types</span></span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Posix.Env</span>(getEnv)</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a><span class="co">{- | The type for running external commands.  The first part</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="co">of the tuple is the program name.  The list represents the</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a><span class="co">command-line parameters to pass to the command. -}</span></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">SysCommand</span> <span class="ot">=</span> (<span class="dt">String</span>, [<span class="dt">String</span>])</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a><span class="co">{- | The result of running any command -}</span></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">CommandResult</span> <span class="ot">=</span> <span class="dt">CommandResult</span> {</span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a><span class="ot">    cmdOutput ::</span> <span class="dt">IO</span> <span class="dt">String</span>,              <span class="co">-- ^ IO action that yields the output</span></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a><span class="ot">    getExitStatus ::</span> <span class="dt">IO</span> <span class="dt">ProcessStatus</span>    <span class="co">-- ^ IO action that yields exit result</span></span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a><span class="co">{- | The type for handling global lists of FDs to always close in the clients</span></span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a><span class="co">-}</span></span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">CloseFDs</span> <span class="ot">=</span> <span class="dt">MVar</span> [<span class="dt">Fd</span>]</span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Class representing anything that is a runnable command -}</span></span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">CommandLike</span> a <span class="kw">where</span></span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>    <span class="co">{- | Given the command and a String representing input,</span></span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a><span class="co">         invokes the command.  Returns a String</span></span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a><span class="co">         representing the output of the command. -}</span></span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a><span class="ot">    invoke ::</span> a <span class="ot">-&gt;</span> <span class="dt">CloseFDs</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">CommandResult</span></span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a><span class="co">-- Support for running system commands</span></span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">CommandLike</span> <span class="dt">SysCommand</span> <span class="kw">where</span></span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a>    invoke (cmd, args) closefds input <span class="ot">=</span></span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a>        <span class="kw">do</span> <span class="co">-- Create two pipes: one to handle stdin and the other</span></span>
+<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- to handle stdout.  We do not redirect stderr in this program.</span></span>
+<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a>           (stdinread, stdinwrite) <span class="ot">&lt;-</span> createPipe</span>
+<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a>           (stdoutread, stdoutwrite) <span class="ot">&lt;-</span> createPipe</span>
+<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- We add the parent FDs to this list because we always need</span></span>
+<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- to close them in the clients.</span></span>
+<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a>           addCloseFDs closefds [stdinwrite, stdoutread]</span>
+<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- Now, grab the closed FDs list and fork the child.</span></span>
+<span id="cb23-55"><a href="#cb23-55" aria-hidden="true" tabindex="-1"></a>           childPID <span class="ot">&lt;-</span> withMVar closefds (\fds <span class="ot">-&gt;</span></span>
+<span id="cb23-56"><a href="#cb23-56" aria-hidden="true" tabindex="-1"></a>                          forkProcess (child fds stdinread stdoutwrite))</span>
+<span id="cb23-57"><a href="#cb23-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-58"><a href="#cb23-58" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- Now, on the parent, close the client-side FDs.</span></span>
+<span id="cb23-59"><a href="#cb23-59" aria-hidden="true" tabindex="-1"></a>           closeFd stdinread</span>
+<span id="cb23-60"><a href="#cb23-60" aria-hidden="true" tabindex="-1"></a>           closeFd stdoutwrite</span>
+<span id="cb23-61"><a href="#cb23-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-62"><a href="#cb23-62" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- Write the input to the command.</span></span>
+<span id="cb23-63"><a href="#cb23-63" aria-hidden="true" tabindex="-1"></a>           stdinhdl <span class="ot">&lt;-</span> fdToHandle stdinwrite</span>
+<span id="cb23-64"><a href="#cb23-64" aria-hidden="true" tabindex="-1"></a>           forkIO <span class="op">$</span> <span class="kw">do</span> hPutStr stdinhdl input</span>
+<span id="cb23-65"><a href="#cb23-65" aria-hidden="true" tabindex="-1"></a>                       hClose stdinhdl</span>
+<span id="cb23-66"><a href="#cb23-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-67"><a href="#cb23-67" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- Prepare to receive output from the command</span></span>
+<span id="cb23-68"><a href="#cb23-68" aria-hidden="true" tabindex="-1"></a>           stdouthdl <span class="ot">&lt;-</span> fdToHandle stdoutread</span>
+<span id="cb23-69"><a href="#cb23-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-70"><a href="#cb23-70" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- Set up the function to call when ready to wait for the</span></span>
+<span id="cb23-71"><a href="#cb23-71" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- child to exit.</span></span>
+<span id="cb23-72"><a href="#cb23-72" aria-hidden="true" tabindex="-1"></a>           <span class="kw">let</span> waitfunc <span class="ot">=</span></span>
+<span id="cb23-73"><a href="#cb23-73" aria-hidden="true" tabindex="-1"></a>                <span class="kw">do</span> status <span class="ot">&lt;-</span> getProcessStatus <span class="dt">True</span> <span class="dt">False</span> childPID</span>
+<span id="cb23-74"><a href="#cb23-74" aria-hidden="true" tabindex="-1"></a>                   <span class="kw">case</span> status <span class="kw">of</span></span>
+<span id="cb23-75"><a href="#cb23-75" aria-hidden="true" tabindex="-1"></a>                       <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">fail</span> <span class="op">$</span> <span class="st">&quot;Error: Nothing from getProcessStatus&quot;</span></span>
+<span id="cb23-76"><a href="#cb23-76" aria-hidden="true" tabindex="-1"></a>                       <span class="dt">Just</span> ps <span class="ot">-&gt;</span> <span class="kw">do</span> removeCloseFDs closefds</span>
+<span id="cb23-77"><a href="#cb23-77" aria-hidden="true" tabindex="-1"></a>                                          [stdinwrite, stdoutread]</span>
+<span id="cb23-78"><a href="#cb23-78" aria-hidden="true" tabindex="-1"></a>                                     <span class="fu">return</span> ps</span>
+<span id="cb23-79"><a href="#cb23-79" aria-hidden="true" tabindex="-1"></a>           <span class="fu">return</span> <span class="op">$</span> <span class="dt">CommandResult</span> {cmdOutput <span class="ot">=</span> hGetContents stdouthdl,</span>
+<span id="cb23-80"><a href="#cb23-80" aria-hidden="true" tabindex="-1"></a>                                   getExitStatus <span class="ot">=</span> waitfunc}</span>
+<span id="cb23-81"><a href="#cb23-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-82"><a href="#cb23-82" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- Define what happens in the child process</span></span>
+<span id="cb23-83"><a href="#cb23-83" aria-hidden="true" tabindex="-1"></a>        <span class="kw">where</span> child closefds stdinread stdoutwrite <span class="ot">=</span></span>
+<span id="cb23-84"><a href="#cb23-84" aria-hidden="true" tabindex="-1"></a>                <span class="kw">do</span> <span class="co">-- Copy our pipes over the regular stdin/stdout FDs</span></span>
+<span id="cb23-85"><a href="#cb23-85" aria-hidden="true" tabindex="-1"></a>                   dupTo stdinread stdInput</span>
+<span id="cb23-86"><a href="#cb23-86" aria-hidden="true" tabindex="-1"></a>                   dupTo stdoutwrite stdOutput</span>
+<span id="cb23-87"><a href="#cb23-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-88"><a href="#cb23-88" aria-hidden="true" tabindex="-1"></a>                   <span class="co">-- Now close the original pipe FDs</span></span>
+<span id="cb23-89"><a href="#cb23-89" aria-hidden="true" tabindex="-1"></a>                   closeFd stdinread</span>
+<span id="cb23-90"><a href="#cb23-90" aria-hidden="true" tabindex="-1"></a>                   closeFd stdoutwrite</span>
+<span id="cb23-91"><a href="#cb23-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-92"><a href="#cb23-92" aria-hidden="true" tabindex="-1"></a>                   <span class="co">-- Close all the open FDs we inherited from the parent</span></span>
+<span id="cb23-93"><a href="#cb23-93" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">mapM_</span> (\fd <span class="ot">-&gt;</span> <span class="fu">catch</span> (closeFd fd) (\_ <span class="ot">-&gt;</span> <span class="fu">return</span> ())) closefds</span>
+<span id="cb23-94"><a href="#cb23-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-95"><a href="#cb23-95" aria-hidden="true" tabindex="-1"></a>                   <span class="co">-- Start the program</span></span>
+<span id="cb23-96"><a href="#cb23-96" aria-hidden="true" tabindex="-1"></a>                   executeFile cmd <span class="dt">True</span> args <span class="dt">Nothing</span></span>
+<span id="cb23-97"><a href="#cb23-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-98"><a href="#cb23-98" aria-hidden="true" tabindex="-1"></a><span class="co">{- | An instance of &#39;CommandLike&#39; for an external command.  The String is</span></span>
+<span id="cb23-99"><a href="#cb23-99" aria-hidden="true" tabindex="-1"></a><span class="co">passed to a shell for evaluation and invocation. -}</span></span>
+<span id="cb23-100"><a href="#cb23-100" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">CommandLike</span> <span class="dt">String</span> <span class="kw">where</span></span>
+<span id="cb23-101"><a href="#cb23-101" aria-hidden="true" tabindex="-1"></a>    invoke cmd closefds input <span class="ot">=</span></span>
+<span id="cb23-102"><a href="#cb23-102" aria-hidden="true" tabindex="-1"></a>        <span class="kw">do</span> <span class="co">-- Use the shell given by the environment variable SHELL,</span></span>
+<span id="cb23-103"><a href="#cb23-103" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- if any.  Otherwise, use /bin/sh</span></span>
+<span id="cb23-104"><a href="#cb23-104" aria-hidden="true" tabindex="-1"></a>           esh <span class="ot">&lt;-</span> getEnv <span class="st">&quot;SHELL&quot;</span></span>
+<span id="cb23-105"><a href="#cb23-105" aria-hidden="true" tabindex="-1"></a>           <span class="kw">let</span> sh <span class="ot">=</span> <span class="kw">case</span> esh <span class="kw">of</span></span>
+<span id="cb23-106"><a href="#cb23-106" aria-hidden="true" tabindex="-1"></a>                       <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="st">&quot;/bin/sh&quot;</span></span>
+<span id="cb23-107"><a href="#cb23-107" aria-hidden="true" tabindex="-1"></a>                       <span class="dt">Just</span> x <span class="ot">-&gt;</span> x</span>
+<span id="cb23-108"><a href="#cb23-108" aria-hidden="true" tabindex="-1"></a>           invoke (sh, [<span class="st">&quot;-c&quot;</span>, cmd]) closefds input</span>
+<span id="cb23-109"><a href="#cb23-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-110"><a href="#cb23-110" aria-hidden="true" tabindex="-1"></a><span class="co">-- Add FDs to the list of FDs that must be closed post-fork in a child</span></span>
+<span id="cb23-111"><a href="#cb23-111" aria-hidden="true" tabindex="-1"></a><span class="ot">addCloseFDs ::</span> <span class="dt">CloseFDs</span> <span class="ot">-&gt;</span> [<span class="dt">Fd</span>] <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb23-112"><a href="#cb23-112" aria-hidden="true" tabindex="-1"></a>addCloseFDs closefds newfds <span class="ot">=</span></span>
+<span id="cb23-113"><a href="#cb23-113" aria-hidden="true" tabindex="-1"></a>    modifyMVar_ closefds (\oldfds <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="op">$</span> oldfds <span class="op">++</span> newfds)</span>
+<span id="cb23-114"><a href="#cb23-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-115"><a href="#cb23-115" aria-hidden="true" tabindex="-1"></a><span class="co">-- Remove FDs from the list</span></span>
+<span id="cb23-116"><a href="#cb23-116" aria-hidden="true" tabindex="-1"></a><span class="ot">removeCloseFDs ::</span> <span class="dt">CloseFDs</span> <span class="ot">-&gt;</span> [<span class="dt">Fd</span>] <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb23-117"><a href="#cb23-117" aria-hidden="true" tabindex="-1"></a>removeCloseFDs closefds removethem <span class="ot">=</span></span>
+<span id="cb23-118"><a href="#cb23-118" aria-hidden="true" tabindex="-1"></a>    modifyMVar_ closefds (\fdlist <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="op">$</span> procfdlist fdlist removethem)</span>
+<span id="cb23-119"><a href="#cb23-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-120"><a href="#cb23-120" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb23-121"><a href="#cb23-121" aria-hidden="true" tabindex="-1"></a>    procfdlist fdlist [] <span class="ot">=</span> fdlist</span>
+<span id="cb23-122"><a href="#cb23-122" aria-hidden="true" tabindex="-1"></a>    procfdlist fdlist (x<span class="op">:</span>xs) <span class="ot">=</span> procfdlist (removefd fdlist x) xs</span>
+<span id="cb23-123"><a href="#cb23-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-124"><a href="#cb23-124" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- We want to remove only the first occurrence ot any given fd</span></span>
+<span id="cb23-125"><a href="#cb23-125" aria-hidden="true" tabindex="-1"></a>    removefd [] _ <span class="ot">=</span> []</span>
+<span id="cb23-126"><a href="#cb23-126" aria-hidden="true" tabindex="-1"></a>    removefd (x<span class="op">:</span>xs) fd</span>
+<span id="cb23-127"><a href="#cb23-127" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> fd <span class="op">==</span> x <span class="ot">=</span> xs</span>
+<span id="cb23-128"><a href="#cb23-128" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> x <span class="op">:</span> removefd xs fd</span>
+<span id="cb23-129"><a href="#cb23-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-130"><a href="#cb23-130" aria-hidden="true" tabindex="-1"></a><span class="co">-- Support for running Haskell commands</span></span>
+<span id="cb23-131"><a href="#cb23-131" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">CommandLike</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">String</span>) <span class="kw">where</span></span>
+<span id="cb23-132"><a href="#cb23-132" aria-hidden="true" tabindex="-1"></a>    invoke func _ input <span class="ot">=</span></span>
+<span id="cb23-133"><a href="#cb23-133" aria-hidden="true" tabindex="-1"></a>       <span class="fu">return</span> <span class="op">$</span> <span class="dt">CommandResult</span> (func input) (<span class="fu">return</span> (<span class="dt">Exited</span> <span class="dt">ExitSuccess</span>))</span>
+<span id="cb23-134"><a href="#cb23-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-135"><a href="#cb23-135" aria-hidden="true" tabindex="-1"></a><span class="co">-- Support pure Haskell functions by wrapping them in IO</span></span>
+<span id="cb23-136"><a href="#cb23-136" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">CommandLike</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span>) <span class="kw">where</span></span>
+<span id="cb23-137"><a href="#cb23-137" aria-hidden="true" tabindex="-1"></a>    invoke func <span class="ot">=</span> invoke iofunc</span>
+<span id="cb23-138"><a href="#cb23-138" aria-hidden="true" tabindex="-1"></a>        <span class="kw">where</span><span class="ot"> iofunc ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">String</span></span>
+<span id="cb23-139"><a href="#cb23-139" aria-hidden="true" tabindex="-1"></a>              iofunc <span class="ot">=</span> <span class="fu">return</span> <span class="op">.</span> func</span>
+<span id="cb23-140"><a href="#cb23-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-141"><a href="#cb23-141" aria-hidden="true" tabindex="-1"></a><span class="co">-- It&#39;s also useful to operate on lines.  Define support for line-based</span></span>
+<span id="cb23-142"><a href="#cb23-142" aria-hidden="true" tabindex="-1"></a><span class="co">-- functions both within and without the IO monad.</span></span>
+<span id="cb23-143"><a href="#cb23-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-144"><a href="#cb23-144" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">CommandLike</span> ([<span class="dt">String</span>] <span class="ot">-&gt;</span> <span class="dt">IO</span> [<span class="dt">String</span>]) <span class="kw">where</span></span>
+<span id="cb23-145"><a href="#cb23-145" aria-hidden="true" tabindex="-1"></a>    invoke func _ input <span class="ot">=</span></span>
+<span id="cb23-146"><a href="#cb23-146" aria-hidden="true" tabindex="-1"></a>           <span class="fu">return</span> <span class="op">$</span> <span class="dt">CommandResult</span> linedfunc (<span class="fu">return</span> (<span class="dt">Exited</span> <span class="dt">ExitSuccess</span>))</span>
+<span id="cb23-147"><a href="#cb23-147" aria-hidden="true" tabindex="-1"></a>       <span class="kw">where</span> linedfunc <span class="ot">=</span> func (<span class="fu">lines</span> input) <span class="op">&gt;&gt;=</span> (<span class="fu">return</span> <span class="op">.</span> <span class="fu">unlines</span>)</span>
+<span id="cb23-148"><a href="#cb23-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-149"><a href="#cb23-149" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">CommandLike</span> ([<span class="dt">String</span>] <span class="ot">-&gt;</span> [<span class="dt">String</span>]) <span class="kw">where</span></span>
+<span id="cb23-150"><a href="#cb23-150" aria-hidden="true" tabindex="-1"></a>    invoke func <span class="ot">=</span> invoke (<span class="fu">unlines</span> <span class="op">.</span> func <span class="op">.</span> <span class="fu">lines</span>)</span>
+<span id="cb23-151"><a href="#cb23-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-152"><a href="#cb23-152" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Type representing a pipe.  A &#39;PipeCommand&#39; consists of a source</span></span>
+<span id="cb23-153"><a href="#cb23-153" aria-hidden="true" tabindex="-1"></a><span class="co">and destination part, both of which must be instances of</span></span>
+<span id="cb23-154"><a href="#cb23-154" aria-hidden="true" tabindex="-1"></a><span class="co">&#39;CommandLike&#39;. -}</span></span>
+<span id="cb23-155"><a href="#cb23-155" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> (<span class="dt">CommandLike</span> src, <span class="dt">CommandLike</span> dest) <span class="ot">=&gt;</span></span>
+<span id="cb23-156"><a href="#cb23-156" aria-hidden="true" tabindex="-1"></a>     <span class="dt">PipeCommand</span> src dest <span class="ot">=</span> <span class="dt">PipeCommand</span> src dest</span>
+<span id="cb23-157"><a href="#cb23-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-158"><a href="#cb23-158" aria-hidden="true" tabindex="-1"></a><span class="co">{- | A convenient function for creating a &#39;PipeCommand&#39;. -}</span></span>
+<span id="cb23-159"><a href="#cb23-159" aria-hidden="true" tabindex="-1"></a><span class="ot">(-|-) ::</span> (<span class="dt">CommandLike</span> a, <span class="dt">CommandLike</span> b) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> <span class="dt">PipeCommand</span> a b</span>
+<span id="cb23-160"><a href="#cb23-160" aria-hidden="true" tabindex="-1"></a>(<span class="op">-|-</span>) <span class="ot">=</span> <span class="dt">PipeCommand</span></span>
+<span id="cb23-161"><a href="#cb23-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-162"><a href="#cb23-162" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Make &#39;PipeCommand&#39; runnable as a command -}</span></span>
+<span id="cb23-163"><a href="#cb23-163" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">CommandLike</span> a, <span class="dt">CommandLike</span> b) <span class="ot">=&gt;</span></span>
+<span id="cb23-164"><a href="#cb23-164" aria-hidden="true" tabindex="-1"></a>         <span class="dt">CommandLike</span> (<span class="dt">PipeCommand</span> a b) <span class="kw">where</span></span>
+<span id="cb23-165"><a href="#cb23-165" aria-hidden="true" tabindex="-1"></a>    invoke (<span class="dt">PipeCommand</span> src dest) closefds input <span class="ot">=</span></span>
+<span id="cb23-166"><a href="#cb23-166" aria-hidden="true" tabindex="-1"></a>        <span class="kw">do</span> res1 <span class="ot">&lt;-</span> invoke src closefds input</span>
+<span id="cb23-167"><a href="#cb23-167" aria-hidden="true" tabindex="-1"></a>           output1 <span class="ot">&lt;-</span> cmdOutput res1</span>
+<span id="cb23-168"><a href="#cb23-168" aria-hidden="true" tabindex="-1"></a>           res2 <span class="ot">&lt;-</span> invoke dest closefds output1</span>
+<span id="cb23-169"><a href="#cb23-169" aria-hidden="true" tabindex="-1"></a>           <span class="fu">return</span> <span class="op">$</span> <span class="dt">CommandResult</span> (cmdOutput res2) (getEC res1 res2)</span>
+<span id="cb23-170"><a href="#cb23-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-171"><a href="#cb23-171" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Given two &#39;CommandResult&#39; items, evaluate the exit codes for</span></span>
+<span id="cb23-172"><a href="#cb23-172" aria-hidden="true" tabindex="-1"></a><span class="co">both and then return a &quot;combined&quot; exit code.  This will be ExitSuccess</span></span>
+<span id="cb23-173"><a href="#cb23-173" aria-hidden="true" tabindex="-1"></a><span class="co">if both exited successfully.  Otherwise, it will reflect the first</span></span>
+<span id="cb23-174"><a href="#cb23-174" aria-hidden="true" tabindex="-1"></a><span class="co">error encountered. -}</span></span>
+<span id="cb23-175"><a href="#cb23-175" aria-hidden="true" tabindex="-1"></a><span class="ot">getEC ::</span> <span class="dt">CommandResult</span> <span class="ot">-&gt;</span> <span class="dt">CommandResult</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">ProcessStatus</span></span>
+<span id="cb23-176"><a href="#cb23-176" aria-hidden="true" tabindex="-1"></a>getEC src dest <span class="ot">=</span></span>
+<span id="cb23-177"><a href="#cb23-177" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> sec <span class="ot">&lt;-</span> getExitStatus src</span>
+<span id="cb23-178"><a href="#cb23-178" aria-hidden="true" tabindex="-1"></a>       dec <span class="ot">&lt;-</span> getExitStatus dest</span>
+<span id="cb23-179"><a href="#cb23-179" aria-hidden="true" tabindex="-1"></a>       <span class="kw">case</span> sec <span class="kw">of</span></span>
+<span id="cb23-180"><a href="#cb23-180" aria-hidden="true" tabindex="-1"></a>            <span class="dt">Exited</span> <span class="dt">ExitSuccess</span> <span class="ot">-&gt;</span> <span class="fu">return</span> dec</span>
+<span id="cb23-181"><a href="#cb23-181" aria-hidden="true" tabindex="-1"></a>            x <span class="ot">-&gt;</span> <span class="fu">return</span> x</span>
+<span id="cb23-182"><a href="#cb23-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-183"><a href="#cb23-183" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Different ways to get data from &#39;run&#39;.</span></span>
+<span id="cb23-184"><a href="#cb23-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-185"><a href="#cb23-185" aria-hidden="true" tabindex="-1"></a><span class="co"> * IO () runs, throws an exception on error, and sends stdout to stdout</span></span>
+<span id="cb23-186"><a href="#cb23-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-187"><a href="#cb23-187" aria-hidden="true" tabindex="-1"></a><span class="co"> * IO String runs, throws an exception on error, reads stdout into</span></span>
+<span id="cb23-188"><a href="#cb23-188" aria-hidden="true" tabindex="-1"></a><span class="co">   a buffer, and returns it as a string.</span></span>
+<span id="cb23-189"><a href="#cb23-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-190"><a href="#cb23-190" aria-hidden="true" tabindex="-1"></a><span class="co"> * IO [String] is same as IO String, but returns the results as lines</span></span>
+<span id="cb23-191"><a href="#cb23-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-192"><a href="#cb23-192" aria-hidden="true" tabindex="-1"></a><span class="co"> * IO ProcessStatus runs and returns a ProcessStatus with the exit</span></span>
+<span id="cb23-193"><a href="#cb23-193" aria-hidden="true" tabindex="-1"></a><span class="co">   information.  stdout is sent to stdout.  Exceptions are not thrown.</span></span>
+<span id="cb23-194"><a href="#cb23-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-195"><a href="#cb23-195" aria-hidden="true" tabindex="-1"></a><span class="co"> * IO (String, ProcessStatus) is like IO ProcessStatus, but also</span></span>
+<span id="cb23-196"><a href="#cb23-196" aria-hidden="true" tabindex="-1"></a><span class="co">   includes a description of the last command in the pipe to have</span></span>
+<span id="cb23-197"><a href="#cb23-197" aria-hidden="true" tabindex="-1"></a><span class="co">   an error (or the last command, if there was no error)</span></span>
+<span id="cb23-198"><a href="#cb23-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-199"><a href="#cb23-199" aria-hidden="true" tabindex="-1"></a><span class="co"> * IO Int returns the exit code from a program directly.  If a signal</span></span>
+<span id="cb23-200"><a href="#cb23-200" aria-hidden="true" tabindex="-1"></a><span class="co">   caused the command to be reaped, returns 128 + SIGNUM.</span></span>
+<span id="cb23-201"><a href="#cb23-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-202"><a href="#cb23-202" aria-hidden="true" tabindex="-1"></a><span class="co"> * IO Bool returns True if the program exited normally (exit code 0,</span></span>
+<span id="cb23-203"><a href="#cb23-203" aria-hidden="true" tabindex="-1"></a><span class="co">   not stopped by a signal) and False otherwise.</span></span>
+<span id="cb23-204"><a href="#cb23-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-205"><a href="#cb23-205" aria-hidden="true" tabindex="-1"></a><span class="co">-}</span></span>
+<span id="cb23-206"><a href="#cb23-206" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">RunResult</span> a <span class="kw">where</span></span>
+<span id="cb23-207"><a href="#cb23-207" aria-hidden="true" tabindex="-1"></a>    <span class="co">{- | Runs a command (or pipe of commands), with results presented</span></span>
+<span id="cb23-208"><a href="#cb23-208" aria-hidden="true" tabindex="-1"></a><span class="co">       in any number of different ways. -}</span></span>
+<span id="cb23-209"><a href="#cb23-209" aria-hidden="true" tabindex="-1"></a><span class="ot">    run ::</span> (<span class="dt">CommandLike</span> b) <span class="ot">=&gt;</span> b <span class="ot">-&gt;</span> a</span>
+<span id="cb23-210"><a href="#cb23-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-211"><a href="#cb23-211" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Utility function for use by &#39;RunResult&#39; instances</span></span>
+<span id="cb23-212"><a href="#cb23-212" aria-hidden="true" tabindex="-1"></a><span class="ot">setUpCommand ::</span> <span class="dt">CommandLike</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">CommandResult</span></span>
+<span id="cb23-213"><a href="#cb23-213" aria-hidden="true" tabindex="-1"></a>setUpCommand cmd <span class="ot">=</span></span>
+<span id="cb23-214"><a href="#cb23-214" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> <span class="co">-- Initialize our closefds list</span></span>
+<span id="cb23-215"><a href="#cb23-215" aria-hidden="true" tabindex="-1"></a>       closefds <span class="ot">&lt;-</span> newMVar []</span>
+<span id="cb23-216"><a href="#cb23-216" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-217"><a href="#cb23-217" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Invoke the command</span></span>
+<span id="cb23-218"><a href="#cb23-218" aria-hidden="true" tabindex="-1"></a>       invoke cmd closefds []</span>
+<span id="cb23-219"><a href="#cb23-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-220"><a href="#cb23-220" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">RunResult</span> (<span class="dt">IO</span> ()) <span class="kw">where</span></span>
+<span id="cb23-221"><a href="#cb23-221" aria-hidden="true" tabindex="-1"></a>    run cmd <span class="ot">=</span> run cmd <span class="op">&gt;&gt;=</span> checkResult</span>
+<span id="cb23-222"><a href="#cb23-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-223"><a href="#cb23-223" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">RunResult</span> (<span class="dt">IO</span> <span class="dt">ProcessStatus</span>) <span class="kw">where</span></span>
+<span id="cb23-224"><a href="#cb23-224" aria-hidden="true" tabindex="-1"></a>    run cmd <span class="ot">=</span></span>
+<span id="cb23-225"><a href="#cb23-225" aria-hidden="true" tabindex="-1"></a>        <span class="kw">do</span> res <span class="ot">&lt;-</span> setUpCommand cmd</span>
+<span id="cb23-226"><a href="#cb23-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-227"><a href="#cb23-227" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- Process its output</span></span>
+<span id="cb23-228"><a href="#cb23-228" aria-hidden="true" tabindex="-1"></a>           output <span class="ot">&lt;-</span> cmdOutput res</span>
+<span id="cb23-229"><a href="#cb23-229" aria-hidden="true" tabindex="-1"></a>           <span class="fu">putStr</span> output</span>
+<span id="cb23-230"><a href="#cb23-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-231"><a href="#cb23-231" aria-hidden="true" tabindex="-1"></a>           getExitStatus res</span>
+<span id="cb23-232"><a href="#cb23-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-233"><a href="#cb23-233" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">RunResult</span> (<span class="dt">IO</span> <span class="dt">Int</span>) <span class="kw">where</span></span>
+<span id="cb23-234"><a href="#cb23-234" aria-hidden="true" tabindex="-1"></a>    run cmd <span class="ot">=</span> <span class="kw">do</span> rc <span class="ot">&lt;-</span> run cmd</span>
+<span id="cb23-235"><a href="#cb23-235" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">case</span> rc <span class="kw">of</span></span>
+<span id="cb23-236"><a href="#cb23-236" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">Exited</span> (<span class="dt">ExitSuccess</span>) <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="dv">0</span></span>
+<span id="cb23-237"><a href="#cb23-237" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">Exited</span> (<span class="dt">ExitFailure</span> x) <span class="ot">-&gt;</span> <span class="fu">return</span> x</span>
+<span id="cb23-238"><a href="#cb23-238" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">Terminated</span> x <span class="ot">-&gt;</span> <span class="fu">return</span> (<span class="dv">128</span> <span class="op">+</span> (<span class="fu">fromIntegral</span> x))</span>
+<span id="cb23-239"><a href="#cb23-239" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">Stopped</span> x <span class="ot">-&gt;</span> <span class="fu">return</span> (<span class="dv">128</span> <span class="op">+</span> (<span class="fu">fromIntegral</span> x))</span>
+<span id="cb23-240"><a href="#cb23-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-241"><a href="#cb23-241" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">RunResult</span> (<span class="dt">IO</span> <span class="dt">Bool</span>) <span class="kw">where</span></span>
+<span id="cb23-242"><a href="#cb23-242" aria-hidden="true" tabindex="-1"></a>    run cmd <span class="ot">=</span> <span class="kw">do</span> rc <span class="ot">&lt;-</span> run cmd</span>
+<span id="cb23-243"><a href="#cb23-243" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">return</span> ((<span class="ot">rc::</span><span class="dt">Int</span>) <span class="op">==</span> <span class="dv">0</span>)</span>
+<span id="cb23-244"><a href="#cb23-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-245"><a href="#cb23-245" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">RunResult</span> (<span class="dt">IO</span> [<span class="dt">String</span>]) <span class="kw">where</span></span>
+<span id="cb23-246"><a href="#cb23-246" aria-hidden="true" tabindex="-1"></a>    run cmd <span class="ot">=</span> <span class="kw">do</span> r <span class="ot">&lt;-</span> run cmd</span>
+<span id="cb23-247"><a href="#cb23-247" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">return</span> (<span class="fu">lines</span> r)</span>
+<span id="cb23-248"><a href="#cb23-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-249"><a href="#cb23-249" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">RunResult</span> (<span class="dt">IO</span> <span class="dt">String</span>) <span class="kw">where</span></span>
+<span id="cb23-250"><a href="#cb23-250" aria-hidden="true" tabindex="-1"></a>    run cmd <span class="ot">=</span></span>
+<span id="cb23-251"><a href="#cb23-251" aria-hidden="true" tabindex="-1"></a>        <span class="kw">do</span> res <span class="ot">&lt;-</span> setUpCommand cmd</span>
+<span id="cb23-252"><a href="#cb23-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-253"><a href="#cb23-253" aria-hidden="true" tabindex="-1"></a>           output <span class="ot">&lt;-</span> cmdOutput res</span>
+<span id="cb23-254"><a href="#cb23-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-255"><a href="#cb23-255" aria-hidden="true" tabindex="-1"></a>           <span class="co">-- Force output to be buffered</span></span>
+<span id="cb23-256"><a href="#cb23-256" aria-hidden="true" tabindex="-1"></a>           evaluate (<span class="fu">length</span> output)</span>
+<span id="cb23-257"><a href="#cb23-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-258"><a href="#cb23-258" aria-hidden="true" tabindex="-1"></a>           ec <span class="ot">&lt;-</span> getExitStatus res</span>
+<span id="cb23-259"><a href="#cb23-259" aria-hidden="true" tabindex="-1"></a>           checkResult ec</span>
+<span id="cb23-260"><a href="#cb23-260" aria-hidden="true" tabindex="-1"></a>           <span class="fu">return</span> output</span>
+<span id="cb23-261"><a href="#cb23-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-262"><a href="#cb23-262" aria-hidden="true" tabindex="-1"></a><span class="ot">checkResult ::</span> <span class="dt">ProcessStatus</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb23-263"><a href="#cb23-263" aria-hidden="true" tabindex="-1"></a>checkResult ps <span class="ot">=</span></span>
+<span id="cb23-264"><a href="#cb23-264" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> ps <span class="kw">of</span></span>
+<span id="cb23-265"><a href="#cb23-265" aria-hidden="true" tabindex="-1"></a>         <span class="dt">Exited</span> (<span class="dt">ExitSuccess</span>) <span class="ot">-&gt;</span> <span class="fu">return</span> ()</span>
+<span id="cb23-266"><a href="#cb23-266" aria-hidden="true" tabindex="-1"></a>         x <span class="ot">-&gt;</span> <span class="fu">fail</span> (<span class="fu">show</span> x)</span>
+<span id="cb23-267"><a href="#cb23-267" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-268"><a href="#cb23-268" aria-hidden="true" tabindex="-1"></a><span class="co">{- | A convenience function.  Refers only to the version of &#39;run&#39;</span></span>
+<span id="cb23-269"><a href="#cb23-269" aria-hidden="true" tabindex="-1"></a><span class="co">that returns @IO ()@.  This prevents you from having to cast to it</span></span>
+<span id="cb23-270"><a href="#cb23-270" aria-hidden="true" tabindex="-1"></a><span class="co">all the time when you do not care about the result of &#39;run&#39;.</span></span>
+<span id="cb23-271"><a href="#cb23-271" aria-hidden="true" tabindex="-1"></a><span class="co">-}</span></span>
+<span id="cb23-272"><a href="#cb23-272" aria-hidden="true" tabindex="-1"></a><span class="ot">runIO ::</span> <span class="dt">CommandLike</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb23-273"><a href="#cb23-273" aria-hidden="true" tabindex="-1"></a>runIO <span class="ot">=</span> run</span>
+<span id="cb23-274"><a href="#cb23-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-275"><a href="#cb23-275" aria-hidden="true" tabindex="-1"></a><span class="co">------------------------------------------------------------</span></span>
+<span id="cb23-276"><a href="#cb23-276" aria-hidden="true" tabindex="-1"></a><span class="co">-- Utility Functions</span></span>
+<span id="cb23-277"><a href="#cb23-277" aria-hidden="true" tabindex="-1"></a><span class="co">------------------------------------------------------------</span></span>
+<span id="cb23-278"><a href="#cb23-278" aria-hidden="true" tabindex="-1"></a><span class="ot">cd ::</span> <span class="dt">FilePath</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb23-279"><a href="#cb23-279" aria-hidden="true" tabindex="-1"></a>cd <span class="ot">=</span> setCurrentDirectory</span>
+<span id="cb23-280"><a href="#cb23-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-281"><a href="#cb23-281" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Takes a string and sends it on as standard output.</span></span>
+<span id="cb23-282"><a href="#cb23-282" aria-hidden="true" tabindex="-1"></a><span class="co">The input to this function is never read. -}</span></span>
+<span id="cb23-283"><a href="#cb23-283" aria-hidden="true" tabindex="-1"></a><span class="ot">echo ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb23-284"><a href="#cb23-284" aria-hidden="true" tabindex="-1"></a>echo inp _ <span class="ot">=</span> inp</span>
+<span id="cb23-285"><a href="#cb23-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-286"><a href="#cb23-286" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Search for the regexp in the lines.  Return those that match.</span></span>
+<span id="cb23-287"><a href="#cb23-287" aria-hidden="true" tabindex="-1"></a><span class="ot">grep ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>] <span class="ot">-&gt;</span> [<span class="dt">String</span>]</span>
+<span id="cb23-288"><a href="#cb23-288" aria-hidden="true" tabindex="-1"></a>grep pat <span class="ot">=</span> <span class="fu">filter</span> (ismatch regex)</span>
+<span id="cb23-289"><a href="#cb23-289" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> regex <span class="ot">=</span> mkRegex pat</span>
+<span id="cb23-290"><a href="#cb23-290" aria-hidden="true" tabindex="-1"></a>          ismatch r inp <span class="ot">=</span> <span class="kw">case</span> matchRegex r inp <span class="kw">of</span></span>
+<span id="cb23-291"><a href="#cb23-291" aria-hidden="true" tabindex="-1"></a>                            <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dt">False</span></span>
+<span id="cb23-292"><a href="#cb23-292" aria-hidden="true" tabindex="-1"></a>                            <span class="dt">Just</span> _ <span class="ot">-&gt;</span> <span class="dt">True</span></span>
+<span id="cb23-293"><a href="#cb23-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-294"><a href="#cb23-294" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Creates the given directory.  A value of 0o755 for mode would be typical.</span></span>
+<span id="cb23-295"><a href="#cb23-295" aria-hidden="true" tabindex="-1"></a><span class="co">An alias for System.Posix.Directory.createDirectory. -}</span></span>
+<span id="cb23-296"><a href="#cb23-296" aria-hidden="true" tabindex="-1"></a><span class="ot">mkdir ::</span> <span class="dt">FilePath</span> <span class="ot">-&gt;</span> <span class="dt">FileMode</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb23-297"><a href="#cb23-297" aria-hidden="true" tabindex="-1"></a>mkdir <span class="ot">=</span> createDirectory</span>
+<span id="cb23-298"><a href="#cb23-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-299"><a href="#cb23-299" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Remove duplicate lines from a file (like Unix uniq).</span></span>
+<span id="cb23-300"><a href="#cb23-300" aria-hidden="true" tabindex="-1"></a><span class="co">Takes a String representing a file or output and plugs it through</span></span>
+<span id="cb23-301"><a href="#cb23-301" aria-hidden="true" tabindex="-1"></a><span class="co">lines and then nub to uniqify on a line basis. -}</span></span>
+<span id="cb23-302"><a href="#cb23-302" aria-hidden="true" tabindex="-1"></a><span class="ot">uniq ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb23-303"><a href="#cb23-303" aria-hidden="true" tabindex="-1"></a>uniq <span class="ot">=</span> <span class="fu">unlines</span> <span class="op">.</span> nub <span class="op">.</span> <span class="fu">lines</span></span>
+<span id="cb23-304"><a href="#cb23-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-305"><a href="#cb23-305" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Count number of lines.  wc -l</span></span>
+<span id="cb23-306"><a href="#cb23-306" aria-hidden="true" tabindex="-1"></a>wcL,<span class="ot"> wcW ::</span> [<span class="dt">String</span>] <span class="ot">-&gt;</span> [<span class="dt">String</span>]</span>
+<span id="cb23-307"><a href="#cb23-307" aria-hidden="true" tabindex="-1"></a>wcL inp <span class="ot">=</span> [<span class="fu">show</span> (genericLength<span class="ot"> inp ::</span> <span class="dt">Integer</span>)]</span>
+<span id="cb23-308"><a href="#cb23-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-309"><a href="#cb23-309" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Count number of words in a file (like wc -w)</span></span>
+<span id="cb23-310"><a href="#cb23-310" aria-hidden="true" tabindex="-1"></a>wcW inp <span class="ot">=</span> [<span class="fu">show</span> ((genericLength <span class="op">$</span> <span class="fu">words</span> <span class="op">$</span> <span class="fu">unlines</span> inp)<span class="ot"> ::</span> <span class="dt">Integer</span>)]</span>
+<span id="cb23-311"><a href="#cb23-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-312"><a href="#cb23-312" aria-hidden="true" tabindex="-1"></a><span class="ot">sortLines ::</span> [<span class="dt">String</span>] <span class="ot">-&gt;</span> [<span class="dt">String</span>]</span>
+<span id="cb23-313"><a href="#cb23-313" aria-hidden="true" tabindex="-1"></a>sortLines <span class="ot">=</span> <span class="fu">sort</span></span>
+<span id="cb23-314"><a href="#cb23-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-315"><a href="#cb23-315" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Count the lines in the input</span></span>
+<span id="cb23-316"><a href="#cb23-316" aria-hidden="true" tabindex="-1"></a><span class="ot">countLines ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">String</span></span>
+<span id="cb23-317"><a href="#cb23-317" aria-hidden="true" tabindex="-1"></a>countLines <span class="ot">=</span> <span class="fu">return</span> <span class="op">.</span> (<span class="op">++</span>) <span class="st">&quot;\n&quot;</span> <span class="op">.</span> <span class="fu">show</span> <span class="op">.</span> <span class="fu">length</span> <span class="op">.</span> <span class="fu">lines</span></span></code></pre></div>
+</div>
+<p>Here's what has changed:</p>
+<ul>
+<li>A new <code>CommandLike</code> instance for <code>String</code> that
+uses the shell to evaluate and invoke the string.</li>
+<li>New <code>CommandLike</code> instances for
+<code>String -&gt; IO String</code> and various other types that are
+implemented in terms of this one. These process Haskell functions as
+commands.</li>
+<li>A new <code>RunResult</code> type class that defines a function
+<code>run</code> that returns information about the command in many
+different ways. See the comments in the source for more information.
+<code>runIO</code> is now just an alias for one particular
+<code>RunResult</code> instance.</li>
+<li>A few utility functions providing Haskell implementations of
+familiar Unix shell commands.</li>
+</ul>
+<p>Let's try out the new shell features. First, let's make sure that the
+command we used in the previous example still works. Then, let's try it
+using a more shell-like syntax.</p>
+<pre class="screen"><code>ghci&gt; :load RunProcess.hs
+
+RunProcess.hs
+    Could not find module `Text.Regex&#39;:
+      Use -v to see a list of the files searched for.
+Failed, modules loaded: none.
+ghci&gt; runIO $ (&quot;ls&quot;, [&quot;/etc&quot;]) -|- (&quot;grep&quot;, [&quot;m.*ap&quot;]) -|- (&quot;tr&quot;, [&quot;a-z&quot;, &quot;A-Z&quot;])
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+ghci&gt; runIO $ &quot;ls /etc&quot; -|- &quot;grep &#39;m.*ap&#39;&quot; -|- &quot;tr a-z A-Z&quot;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+</code></pre>
+<p>That was a lot easier to type. Let's try substituting our native
+Haskell implementation of <code>grep</code> and try out some other new
+features as well:</p>
+<pre class="screen"><code>ghci&gt; runIO $ &quot;ls /etc&quot; -|- grep &quot;m.*ap&quot; -|- &quot;tr a-z A-Z&quot;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+ghci&gt; run $ &quot;ls /etc&quot; -|- grep &quot;m.*ap&quot; -|- &quot;tr a-z A-Z&quot;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+ghci&gt; run $ &quot;ls /etc&quot; -|- grep &quot;m.*ap&quot; -|- &quot;tr a-z A-Z&quot;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+ghci&gt; run $ &quot;ls /nonexistant&quot;
+
+&lt;interactive&gt;
+ghci&gt; run $ &quot;ls /nonexistant&quot;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+    Not in scope: type constructor or class `ProcessStatus&#39;
+ghci&gt; run $ &quot;ls /nonexistant&quot;
+
+&lt;interactive&gt;
+ghci&gt; runIO $ echo &quot;Line1\nHi, test\n&quot; -|- &quot;tr a-z A-Z&quot; -|- sortLines
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+
+&lt;interactive&gt;
+</code></pre>
+<h2 data-number="5.3" id="final-words-on-pipes"><span
+class="header-section-number">5.3</span> Final Words on Pipes</h2>
+<p>We have developed a sophisticated system here. We warned you earlier
+that POSIX can be complex. One other thing we need to highlight: you
+must always make sure to evaluate the <code>String</code> returned by
+these functions before you attempt to evaluate the exit code of the
+child process. The child process will often not exit until it can write
+all of its data, and if you do this in the wrong order, your program
+will hang.</p>
+<p>In this chapter, we have developed, from the ground up, a simplified
+version of HSH. If you wish to use these shell-like capabilities in your
+own programs, we recommend HSH instead of the example developed here due
+to optimizations present in HSH. HSH also comes with a larger set of
+utility functions and more capabilities, but the source code behind the
+library is much more complex and large. Some of the utility functions
+presented here, in fact, were copied verbatim from HSH. HSH is available
+from <a
+href="http://software.complete.org/hsh">http://software.complete.org/hsh</a>.</p>
+<h1 data-number="6" id="footnotes"><span
+class="header-section-number">6</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>There is also a function
+<code>system</code> that takes only a single string and passes it
+through the shell to parse. We recommend using <code>rawSystem</code>
+instead, because the shell attaches special meaning to certain
+characters, which could lead to security issues or unexpected
+behavior.<a href="#fnref1" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>Some will note that UTC defines leap
+seconds at irregular intervals. The POSIX standard, which Haskell
+follows, states that every day is exactly 86,400 seconds in length in
+its representation, so you need not be concerned about leap seconds when
+performing routine calculations. The exact manner of handling leap
+seconds is system-dependent and complex, though usually it can be
+explained as having a "long second". This nuance is generally only of
+interest when performing precise subsecond calculations.<a
+href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>It is not normally possible to set
+the <code>ctime</code> on POSIX systems.<a href="#fnref3"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p>The main exception is threads, which
+are not cloned.<a href="#fnref4" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn5" role="doc-endnote"><p>This extension is well-supported in
+the Haskell community; Hugs users can access the same thing with
+<code>hugs -98 +o</code>.<a href="#fnref5" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn6" role="doc-endnote"><p>The Haskell library HSH provides a
+similar API to that presented here, but uses a more efficient (and much
+more complex) mechanism of connecting pipes directly between external
+processes without the data needing to pass through Haskell. This is the
+same approach that the shell takes, and reduces the CPU load of handling
+piping.<a href="#fnref6" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

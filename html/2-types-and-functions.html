@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 2: Types and Functions</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 2: Types and Functions</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#why-care-about-types"><span
+class="toc-section-number">1</span> Why care about types?</a></li>
+<li><a href="#haskells-type-system"><span
+class="toc-section-number">2</span> Haskell's type system</a>
+<ul>
+<li><a href="#strong-types"><span class="toc-section-number">2.1</span>
+Strong types</a></li>
+<li><a href="#static-types"><span class="toc-section-number">2.2</span>
+Static types</a></li>
+<li><a href="#type-inference"><span
+class="toc-section-number">2.3</span> Type inference</a></li>
+</ul></li>
+<li><a href="#what-to-expect-from-the-type-system"><span
+class="toc-section-number">3</span> What to expect from the type
+system</a></li>
+<li><a href="#some-common-basic-types"><span
+class="toc-section-number">4</span> Some common basic types</a></li>
+<li><a href="#function-application"><span
+class="toc-section-number">5</span> Function application</a></li>
+<li><a href="#useful-composite-data-types-lists-and-tuples"><span
+class="toc-section-number">6</span> Useful composite data types: lists
+and tuples</a>
+<ul>
+<li><a href="#exercises"><span class="toc-section-number">6.1</span>
+Exercises</a></li>
+</ul></li>
+<li><a href="#functions-over-lists-and-tuples"><span
+class="toc-section-number">7</span> Functions over lists and tuples</a>
+<ul>
+<li><a href="#passing-an-expression-to-a-function"><span
+class="toc-section-number">7.1</span> Passing an expression to a
+function</a></li>
+</ul></li>
+<li><a href="#function-types-and-purity"><span
+class="toc-section-number">8</span> Function types and purity</a></li>
+<li><a href="#haskell-source-files-and-writing-simple-functions"><span
+class="toc-section-number">9</span> Haskell source files, and writing
+simple functions</a>
+<ul>
+<li><a href="#just-what-is-a-variable-anyway"><span
+class="toc-section-number">9.1</span> Just what is a variable,
+anyway?</a></li>
+<li><a href="#conditional-evaluation"><span
+class="toc-section-number">9.2</span> Conditional evaluation</a></li>
+</ul></li>
+<li><a href="#understanding-evaluation-by-example"><span
+class="toc-section-number">10</span> Understanding evaluation by
+example</a>
+<ul>
+<li><a href="#lazy-evaluation"><span
+class="toc-section-number">10.1</span> Lazy evaluation</a></li>
+<li><a href="#a-more-involved-example"><span
+class="toc-section-number">10.2</span> A more involved example</a></li>
+<li><a href="#recursion"><span class="toc-section-number">10.3</span>
+Recursion</a></li>
+<li><a href="#ending-the-recursion"><span
+class="toc-section-number">10.4</span> Ending the recursion</a></li>
+<li><a href="#returning-from-the-recursion"><span
+class="toc-section-number">10.5</span> Returning from the
+recursion</a></li>
+<li><a href="#what-have-we-learned"><span
+class="toc-section-number">10.6</span> What have we learned?</a></li>
+</ul></li>
+<li><a href="#polymorphism-in-haskell"><span
+class="toc-section-number">11</span> Polymorphism in Haskell</a>
+<ul>
+<li><a href="#reasoning-about-polymorphic-functions"><span
+class="toc-section-number">11.1</span> Reasoning about polymorphic
+functions</a></li>
+</ul></li>
+<li><a href="#the-type-of-a-function-of-more-than-one-argument"><span
+class="toc-section-number">12</span> The type of a function of more than
+one argument</a></li>
+<li><a href="#exercises-1"><span class="toc-section-number">13</span>
+Exercises</a></li>
+<li><a href="#why-the-fuss-over-purity"><span
+class="toc-section-number">14</span> Why the fuss over purity?</a></li>
+<li><a href="#conclusion"><span class="toc-section-number">15</span>
+Conclusion</a></li>
+<li><a href="#footnotes"><span class="toc-section-number">16</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<h1 data-number="1" id="why-care-about-types"><span
+class="header-section-number">1</span> Why care about types?</h1>
+<p>Every expression and function in Haskell has a <em>type</em>. For
+example, the value <code>True</code> has the type <code>Bool</code>,
+while the value <code>"foo"</code> has the type String. The type of a
+value indicates that it shares certain properties with other values of
+the same type. For example, we can add numbers, and we can concatenate
+lists; these are properties of those types. We say an expression "has
+type <code>X</code>", or "is of type <code>X</code>".</p>
+<p>Before we launch into a deeper discussion of Haskell's type system,
+let's talk about why we should care about types at all: what are they
+even <em>for</em>? At the lowest level, a computer is concerned with
+bytes, with barely any additional structure. What a type system gives us
+is <em>abstraction</em>. A type adds meaning to plain bytes: it lets us
+say "these bytes are text", "those bytes are an airline reservation",
+and so on. Usually, a type system goes beyond this to prevent us from
+accidentally mixing types up: for example, a type system usually won't
+let us treat a hotel reservation as a car rental receipt.</p>
+<p>The benefit of introducing abstraction is that it lets us forget or
+ignore low-level details. If I know that a value in my program is a
+string, I don't have to know the intimate details of how strings are
+implemented: I can just assume that my string is going to behave like
+all the other strings I've worked with.</p>
+<p>What makes type systems interesting is that they're not all equal. In
+fact, different type systems are often not even concerned with the same
+kinds of problems. A programming language's type system deeply colours
+the way we think, and write code, in that language.</p>
+<p>Haskell's type system allows us to think at a very abstract level: it
+permits us to write concise, powerful programs.</p>
+<h1 data-number="2" id="haskells-type-system"><span
+class="header-section-number">2</span> Haskell's type system</h1>
+<p>There are three interesting aspects to types in Haskell: they are
+<em>strong</em>, they are <em>static</em>, and they can be automatically
+<em>inferred</em>. Let's talk in more detail about each of these ideas.
+When possible, we'll present similarities between concepts from
+Haskell's type system and related ideas in other languages. We'll also
+touch on the respective strengths and weaknesses of each of these
+properties.</p>
+<h2 data-number="2.1" id="strong-types"><span
+class="header-section-number">2.1</span> Strong types</h2>
+<p>When we say that Haskell has a <em>strong</em> type system, we mean
+that the type system guarantees that a program cannot contain certain
+kinds of errors. These errors come from trying to write expressions that
+don't make sense, such as using an integer as a function. For instance,
+if a function expects to work with integers, and we pass it a string, a
+Haskell compiler will reject this.</p>
+<p>We call an expression that obeys a language's type rules <em>well
+typed</em>. An expression that disobeys the type rules is <em>ill
+typed</em>, and will cause a <em>type error</em>.</p>
+<p>Another aspect of Haskell's view of strong typing is that it will not
+automatically coerce values from one type to another. (Coercion is also
+known as casting or conversion.) For example, a C compiler will
+automatically and silently coerce a value of type int into a float on
+our behalf if a function expects a parameter of type float, but a
+Haskell compiler will raise a compilation error in a similar situation.
+We must explicitly coerce types by applying coercion functions.</p>
+<p>Strong typing does occasionally make it more difficult to write
+certain kinds of code. For example, a classic way to write low-level
+code in the C language is to be given a byte array, and cast it to treat
+the bytes as if they're really a complicated data structure. This is
+very efficient, since it doesn't require us to copy the bytes around.
+Haskell's type system does not allow this sort of coercion. In order to
+get the same structured view of the data, we would need to do some
+copying, which would cost a little in performance.</p>
+<p>The huge benefit of strong typing is that it catches real bugs in our
+code before they can cause problems. For example, in a strongly typed
+language, we can't accidentally use a string where an integer is
+expected.</p>
+<div class="NOTE">
+<p>Weaker and stronger types</p>
+<p>It is useful to be aware that many language communities have their
+own definitions of a "strong type". Nevertheless, we will speak briefly
+and in broad terms about the notion of strength in type systems.</p>
+<p>In academic computer science, the meanings of "strong" and "weak"
+have a narrowly technical meaning: strength refers to <em>how
+permissive</em> a type system is. A weaker type system treats more
+expressions as valid than a stronger type system.</p>
+<p>For example, in Perl, the expression <code>"foo" + 2</code> evaluates
+to the number 2, but the expression <code>"13foo" + 2</code> evaluates
+to the number <code>15</code>. Haskell rejects both expressions as
+invalid, because the <code>(+)</code> operator requires both of its
+operands to be numeric. Because Perl's type system is more permissive
+than Haskell's, we say that it is weaker under this narrow technical
+interpretation.</p>
+<p>The fireworks around type systems have their roots in ordinary
+English, where people attach notions of <em>value</em> to the words
+"weak" and "strong": we usually think of strength as better than
+weakness. Many more programmers speak plain English than academic
+jargon, and quite often academics <em>really are</em> throwing brickbats
+at whatever type system doesn't suit their fancy. The result is often
+that popular Internet pastime, a flame war.</p>
+</div>
+<h2 data-number="2.2" id="static-types"><span
+class="header-section-number">2.2</span> Static types</h2>
+<p>Having a <em>static</em> type system means that the compiler knows
+the type of every value and expression at compile time, before any code
+is executed. A Haskell compiler or interpreter will detect when we try
+to use expressions whose types don't match, and reject our code with an
+error message before we run it.</p>
+<pre class="screen"><code>ghci&gt; True &amp;&amp; &quot;false&quot;
+
+&lt;interactive&gt;:1:9: error:
+    • Couldn&#39;t match expected type ‘Bool’ with actual type ‘[Char]’
+    • In the second argument of ‘(&amp;&amp;)’, namely ‘&quot;false&quot;’
+      In the expression: True &amp;&amp; &quot;false&quot;
+      In an equation for ‘it’: it = True &amp;&amp; &quot;false&quot;
+</code></pre>
+<p>This error message is of a kind we've seen before. The compiler has
+inferred that the type of the expression <code>"false"</code> is [Char].
+The <code>(&amp;&amp;)</code> operator requires each of its operands to
+be of type <code>Bool</code>, and its left operand indeed has this type.
+Since the actual type of <code>"false"</code> does not match the
+required type, the compiler rejects this expression as ill typed.</p>
+<p>Static typing can occasionally make it difficult to write some useful
+kinds of code. In languages like Python, "duck typing" is common, where
+an object acts enough like another to be used as a substitute for it<a
+href="#fn1" class="footnote-ref" id="fnref1"
+role="doc-noteref"><sup>1</sup></a>. Fortunately, Haskell's system of
+<em>type classes</em>, which we will cover in <a
+href="6-using-typeclasses.org">Chapter 6, Using Type Classes</a>,
+provides almost all of the benefits of dynamic typing, in a safe and
+convenient form. Haskell has some support for programming with truly
+dynamic types, though it is not quite as easy as in a language that
+wholeheartedly embraces the notion.</p>
+<p>Haskell's combination of strong and static typing makes it impossible
+for type errors to occur at runtime. While this means that we need to do
+a little more thinking "up front", it also eliminates many simple errors
+that can otherwise be devilishly hard to find. It's a truism within the
+Haskell community that once code compiles, it's more likely to work
+correctly than in other languages. (Perhaps a more realistic way of
+putting this is that Haskell code often has fewer trivial bugs.)</p>
+<p>Programs written in dynamically typed languages require large suites
+of tests to give some assurance that simple type errors cannot occur.
+Test suites cannot offer complete coverage: some common tasks, such as
+refactoring a program to make it more modular, can introduce new type
+errors that a test suite may not expose.</p>
+<p>In Haskell, the compiler proves the absence of type errors for us: a
+Haskell program that compiles will not suffer from type errors when it
+runs. Refactoring is usually a matter of moving code around, then
+recompiling and tidying up a few times until the compiler gives us the
+"all clear".</p>
+<p>A helpful analogy to understand the value of static typing is to look
+at it as putting pieces into a jigsaw puzzle. In Haskell, if a piece has
+the wrong shape, it simply won't fit. In a dynamically typed language,
+all the pieces are 1x1 squares and always fit, so you have to constantly
+examine the resulting picture and check (through testing) whether it's
+correct.</p>
+<h2 data-number="2.3" id="type-inference"><span
+class="header-section-number">2.3</span> Type inference</h2>
+<p>Finally, a Haskell compiler can automatically deduce the types of
+almost<a href="#fn2" class="footnote-ref" id="fnref2"
+role="doc-noteref"><sup>2</sup></a> all expressions in a program. This
+process is known as <em>type inference</em>. Haskell allows us to
+explicitly declare the type of any value, but the presence of type
+inference means that this is almost always optional, not something we
+are required to do.</p>
+<h1 data-number="3" id="what-to-expect-from-the-type-system"><span
+class="header-section-number">3</span> What to expect from the type
+system</h1>
+<p>Our exploration of the major capabilities and benefits of Haskell's
+type system will span a number of chapters. Early on, you may find
+Haskell's types to be a chore to deal with.</p>
+<p>For example, instead of simply writing some code and running it to
+see if it works as you might expect in Python or Ruby, you'll first need
+to make sure that your program passes the scrutiny of the type checker.
+Why stick with the learning curve?</p>
+<p>While strong, static typing makes Haskell safe, type inference makes
+it concise. The result is potent: we end up with a language that's both
+safer than popular statically typed languages, and often more expressive
+than dynamically typed languages. This is a strong claim to make, and we
+will back it up with evidence throughout the book.</p>
+<p>Fixing type errors may initially feel like more work than if you were
+using a dynamic language. It might help to look at this as moving much
+of your debugging <em>up front</em>. The compiler shows you many of the
+logical flaws in your code, instead of leaving you to stumble across
+problems at runtime.</p>
+<p>Furthermore, because Haskell can infer the types of your expressions
+and functions, you gain the benefits of static typing <em>without</em>
+the added burden of "finger typing" imposed by less powerful statically
+typed languages. In other languages, the type system serves the needs of
+the compiler. In Haskell, it serves <em>you</em>. The tradeoff is that
+you have to learn to work within the framework it provides.</p>
+<p>We will introduce new uses of Haskell's types throughout this book,
+to help us to write and test practical code. As a result, the complete
+picture of why the type system is worthwhile will emerge gradually.
+While each step should justify itself, the whole will end up greater
+than the sum of its parts.</p>
+<h1 data-number="4" id="some-common-basic-types"><span
+class="header-section-number">4</span> Some common basic types</h1>
+<p>In <a href="1-getting-started.org::*First steps with types">the
+section called "First steps with types"</a>, we introduced a few types.
+Here are several more of the most common base types.</p>
+<ul>
+<li>A <code>Char</code> value represents a Unicode character.</li>
+<li>A <code>Bool</code> value represents a value in boolean logic. The
+possible values of type <code>Bool</code> are <code>True</code> and
+<code>False</code>.</li>
+<li>The <code>Int</code> type is used for signed, fixed-width integer
+values. The exact range of values representable as <code>Int</code>
+depends on the system's longest "native" integer: on a 32-bit machine,
+an <code>Int</code> is usually 32 bits wide, while on a 64-bit machine,
+it is usually 64 bits wide. The Haskell standard only guarantees a range
+of -229 to (229 - 1) (There exist numeric types that are exactly 8, 16,
+and so on bits wide, in signed and unsigned flavours; we'll get to those
+later.)</li>
+<li>An <code>Integer</code> value is a signed integer of unbounded size.
+<code>Integers</code> are not used as often as ~Int~s, because they are
+more expensive both in performance and space consumption. On the other
+hand, <code>Integer</code> computations do not silently overflow, so
+they give more reliably correct answers.</li>
+<li>Values of type <code>Double</code> are used for floating point
+numbers. A <code>Double</code> value is typically 64 bits wide, and uses
+the system's native floating point representation. (A narrower type,
+<code>Float</code>, also exists, but its use is discouraged; Haskell
+compiler writers concentrate more on making <code>Double</code>
+efficient, so <code>Float</code> is much slower.)</li>
+</ul>
+<p>We have already briefly seen Haskell's notation for types in <a
+href="1-getting-started.org::*First steps with types">the section called
+"First steps with types"</a>. When we write a type explicitly, we use
+the notation <code>expression :: MyType</code> to say that
+<code>expression</code> has the type <code>MyType</code>. If we omit the
+<code>::</code> and the type that follows, a Haskell compiler will infer
+the type of the expression.</p>
+<pre class="screen"><code>ghci&gt; :type &#39;a&#39;
+&#39;a&#39; :: Char
+ghci&gt; &#39;a&#39; :: Char
+&#39;a&#39;
+ghci&gt; [1,2,3] :: Int
+
+&lt;interactive&gt;:1:1: error:
+    • Couldn&#39;t match expected type ‘Int’ with actual type ‘[Integer]’
+    • In the expression: [1, 2, 3] :: Int
+      In an equation for ‘it’: it = [1, 2, 3] :: Int
+</code></pre>
+<p>The combination of <code>::</code> and the type after it is called a
+<em>type signature</em>.</p>
+<h1 data-number="5" id="function-application"><span
+class="header-section-number">5</span> Function application</h1>
+<p>Now that we've had our fill of data types for a while, let's turn our
+attention to <em>working</em> with some of the types we've seen, using
+functions.</p>
+<p>To apply a function in Haskell, we write the name of the function
+followed by its arguments.</p>
+<pre class="screen"><code>ghci&gt; odd 3
+True
+ghci&gt; odd 6
+False
+</code></pre>
+<p>We don't use parentheses or commas to group or separate the arguments
+to a function; merely writing the name of the function, followed by each
+argument in turn, is enough. As an example, let's apply the
+<code>compare</code> function, which takes two arguments.</p>
+<pre class="screen"><code>ghci&gt; compare 2 3
+LT
+ghci&gt; compare 3 3
+EQ
+ghci&gt; compare 3 2
+GT
+</code></pre>
+<p>If you're used to function call syntax in other languages, this
+notation can take a little getting used to, but it's simple and
+uniform.</p>
+<p>Function application has higher precedence than using operators, so
+the following two expressions have the same meaning.</p>
+<pre class="screen"><code>ghci&gt; (compare 2 3) == LT
+True
+ghci&gt; compare 2 3 == LT
+True
+</code></pre>
+<p>The above parentheses don't do any harm, but they add some visual
+noise. Sometimes, however, we <em>must</em> use parentheses to indicate
+how we want a complicated expression to be parsed.</p>
+<pre class="screen"><code>ghci&gt; compare (sqrt 3) (sqrt 6)
+LT
+</code></pre>
+<p>This applies <code>compare</code> to the results of applying
+<code>sqrt 3</code> and <code>sqrt 6</code>, respectively. If we omit
+the parentheses, it looks like we are trying to pass four arguments to
+<code>compare</code>, instead of the two it accepts.</p>
+<h1 data-number="6"
+id="useful-composite-data-types-lists-and-tuples"><span
+class="header-section-number">6</span> Useful composite data types:
+lists and tuples</h1>
+<p>A composite data type is constructed from other types. The most
+common composite data types in Haskell are lists and tuples.</p>
+<p>We've already seen the list type mentioned in <a
+href="1-getting-started.org::*Strings and characters">the section called
+"Strings and characters"</a>, where we found that Haskell represents a
+text string as a list of <code>Char</code> values, and that the type
+"list of <code>Char</code>" is written <code>[Char]</code>.</p>
+<p>The <code>head</code> function returns the first element of a
+list.</p>
+<pre class="screen"><code>ghci&gt; head [1,2,3,4]
+1
+ghci&gt; head [&#39;a&#39;,&#39;b&#39;,&#39;c&#39;]
+&#39;a&#39;
+</code></pre>
+<p>Its counterpart, <code>tail</code>, returns all <em>but</em> the head
+of a list.</p>
+<pre class="screen"><code>ghci&gt; tail [1,2,3,4]
+[2,3,4]
+ghci&gt; tail [2,3,4]
+[3,4]
+ghci&gt; tail [True,False]
+[False]
+ghci&gt; tail &quot;list&quot;
+&quot;ist&quot;
+ghci&gt; tail []
+*** Exception: Prelude.tail: empty list
+</code></pre>
+<p>As you can see, we can apply <code>head</code> and <code>tail</code>
+to lists of different types. Applying <code>head</code> to a
+<code>[Char]</code> value returns a <code>Char</code> value, while
+applying it to a <code>[Bool]</code> value returns a <code>Bool</code>
+value. The <code>head</code> function doesn't care what type of list it
+deals with.</p>
+<p>Because the values in a list can have any type, we call the list type
+<em>polymorphic</em><a href="#fn3" class="footnote-ref" id="fnref3"
+role="doc-noteref"><sup>3</sup></a>. When we want to write a polymorphic
+type, we use a <em>type variable</em>, which must begin with a lowercase
+letter. A type variable is a placeholder, where eventually we'll
+substitute a real type.</p>
+<p>We can write the type "list of <code>a</code>" by enclosing the type
+variable in square brackets: <code>[a]</code>. This amounts to saying "I
+don't care what type I have; I can make a list with it".</p>
+<div class="NOTE">
+<p>Distinguishing type names and type variables</p>
+<p>We can now see why a type name must start with an uppercase letter:
+this makes it distinct from a type variable, which must start with a
+lowercase letter.</p>
+</div>
+<p>When we talk about a list with values of a specific type, we
+substitute that type for our type variable. So, for example, the type
+<code>[Int]</code> is a list of values of type <code>Int</code>, because
+we substituted Int for <code>a</code>. Similarly, the type
+<code>[MyPersonalType]</code> is a list of values of type
+<code>MyPersonalType</code>. We can perform this substitution
+recursively, too: <code>[[Int]]</code> is a list of values of type
+<code>[Int]</code>, i.e. a list of lists of <code>Int</code>.</p>
+<pre class="screen"><code>ghci&gt; :type [[True],[False,False]]
+[[True],[False,False]] :: [[Bool]]
+</code></pre>
+<p>The type of this expression is a list of lists of
+<code>Bool</code>.</p>
+<div class="NOTE">
+<p>Lists are special</p>
+<p>Lists are the "bread and butter" of Haskell collections. In an
+imperative language, we might perform a task many items by iterating
+through a loop. This is something that we often do in Haskell by
+traversing a list, either by recursing or using a function that recurses
+for us. Lists are the easiest stepping stone into the idea that we can
+use data to structure our program and its control flow. We'll be
+spending a lot more time discussing lists in <a
+href="4-functional-programming.org">Chapter 4, <em>Functional
+programming</em></a>.</p>
+</div>
+<p>A tuple is a fixed-size collection of values, where each value can
+have a different type. This distinguishes them from a list, which can
+have any length, but whose elements must all have the same type.</p>
+<p>To help to understand the difference, let's say we want to track two
+pieces of information about a book. It has a year of publication, which
+is a number, and a title, which is a string. We can't keep both of these
+pieces of information in a list, because they have different types.
+Instead, we use a tuple.</p>
+<pre class="screen"><code>ghci&gt; (1964, &quot;Labyrinths&quot;)
+(1964,&quot;Labyrinths&quot;)
+</code></pre>
+<p>We write a tuple by enclosing its elements in parentheses and
+separating them with commas. We use the same notation for writing its
+type.</p>
+<pre class="screen"><code>ghci&gt; :type (True, &quot;hello&quot;)
+(True, &quot;hello&quot;) :: (Bool, [Char])
+ghci&gt; (4, [&#39;a&#39;, &#39;m&#39;], (16, True))
+(4,&quot;am&quot;,(16,True))
+</code></pre>
+<p>There's a special type, <code>()</code>, that acts as a tuple of zero
+elements. This type has only one value, also written <code>()</code>.
+Both the type and the value are usually pronounced "unit". If you are
+familiar with C, <code>()</code> is somewhat similar to void.</p>
+<p>Haskell doesn't have a notion of a one-element tuple. Tuples are
+often referred to using the number of elements as a prefix. A 2-tuple
+has two elements, and is usually called a <em>pair</em>. A "3-tuple"
+(sometimes called a <em>triple</em>) has three elements; a 5-tuple has
+five; and so on. In practice, working with tuples that contain more than
+a handful of elements makes code unwieldy, so tuples of more than a few
+elements are rarely used.</p>
+<p>A tuple's type represents the number, positions, and types of its
+elements. This means that tuples containing different numbers or types
+of elements have distinct types, as do tuples whose types appear in
+different orders.</p>
+<pre class="screen"><code>ghci&gt; :type (False, &#39;a&#39;)
+(False, &#39;a&#39;) :: (Bool, Char)
+ghci&gt; :type (&#39;a&#39;, False)
+(&#39;a&#39;, False) :: (Char, Bool)
+</code></pre>
+<p>In this example, the expression <code>(False, 'a')</code> has the
+type <code>(Bool, Char)</code>, which is distinct from the type of
+<code>('a', False)</code>. Even though the number of elements and their
+types are the same, these two types are distinct because the positions
+of the element types are different.</p>
+<pre class="screen"><code>ghci&gt; :type (False, &#39;a&#39;, &#39;b&#39;)
+(False, &#39;a&#39;, &#39;b&#39;) :: (Bool, Char, Char)
+</code></pre>
+<p>This type, <code>(Bool, Char, Char)</code>, is distinct from
+<code>(Bool, Char)</code> because it contains three elements, not
+two.</p>
+<p>We often use tuples to return multiple values from a function. We can
+also use them any time we need a fixed-size collection of values, if the
+circumstances don't require a custom container type.</p>
+<h2 data-number="6.1" id="exercises"><span
+class="header-section-number">6.1</span> Exercises</h2>
+<ol>
+<li><p>What are the types of the following expressions?</p>
+<ul>
+<li><code>False</code></li>
+<li><code>(["foo", "bar"], 'a')</code></li>
+<li><code>[(True, []), (False, [['a']])]</code></li>
+</ul></li>
+</ol>
+<h1 data-number="7" id="functions-over-lists-and-tuples"><span
+class="header-section-number">7</span> Functions over lists and
+tuples</h1>
+<p>Our discussion of lists and tuples mentioned how we can construct
+them, but little about how we do anything with them afterwards. We have
+only been introduced to two list functions so far, <code>head</code> and
+<code>tail</code>.</p>
+<p>A related pair of list functions, <code>take</code> and
+<code>drop</code>, take two arguments. Given a number <code>n</code> and
+a list, <code>take</code> returns the first <code>n</code> elements of
+the list, while <code>drop</code> returns all <em>but</em> the first
+<code>n</code> elements of the list. (As these functions take two
+arguments, notice that we separate each function and its arguments using
+white space.)</p>
+<pre class="screen"><code>ghci&gt; take 2 [1,2,3,4,5]
+[1,2]
+ghci&gt; drop 3 [1,2,3,4,5]
+[4,5]
+</code></pre>
+<p>For tuples, the <code>fst</code> and <code>snd</code> functions
+return the first and second element of a pair, respectively.</p>
+<pre class="screen"><code>ghci&gt; fst (1,&#39;a&#39;)
+1
+ghci&gt; snd (1,&#39;a&#39;)
+&#39;a&#39;
+</code></pre>
+<p>If your background is in any of a number of other languages, each of
+these may look like an application of a function to two arguments. Under
+Haskell's convention for function application, each one is an
+application of a function to a single pair.</p>
+<div class="NOTE">
+<p>Haskell tuples aren't immutable lists</p>
+<p>If you are coming from the Python world, you'll probably be used to
+lists and tuples being almost interchangeable. Although the elements of
+a Python tuple are immutable, it can be indexed and iterated over using
+the same methods as a list. This isn't the case in Haskell, so don't try
+to carry that idea with you into unfamiliar linguistic territory.</p>
+<p>As an illustration, take a look at the type signatures of
+<code>fst</code> and <code>snd</code>: they're defined <em>only</em> for
+pairs, and can't be used with tuples of other sizes. Haskell's type
+system makes it tricky to write a generalised "get the second element
+from any tuple, no matter how wide" function.</p>
+</div>
+<h2 data-number="7.1" id="passing-an-expression-to-a-function"><span
+class="header-section-number">7.1</span> Passing an expression to a
+function</h2>
+<p>In Haskell, function application is left associative. This is best
+illustrated by example: the expression <code>a b c d</code> is
+equivalent to <code>(((a b) c) d)</code>. If we want to use one
+expression as an argument to another, we have to use explicit
+parentheses to tell the parser what we really mean. Here's an
+example.</p>
+<pre class="screen"><code>ghci&gt; head (drop 4 &quot;azerty&quot;)
+&#39;t&#39;
+</code></pre>
+<p>We can read this as "pass the expression <code>drop 4 "azerty"</code>
+as the argument to <code>head</code>". If we were to leave out the
+parentheses, the offending expression would be similar to passing three
+arguments to <code>head</code>. Compilation would fail with a type
+error, as <code>head</code> requires a single argument, a list.</p>
+<h1 data-number="8" id="function-types-and-purity"><span
+class="header-section-number">8</span> Function types and purity</h1>
+<p>Let's take a look at a function's type.</p>
+<pre class="screen"><code>ghci&gt; :type lines
+lines :: String -&gt; [String]
+</code></pre>
+<p>We can read the <code>-&gt;</code> above as "to", which loosely
+translates to "returns". The signature as a whole thus reads as
+"<code>lines</code> has the type <code>String</code> to
+list-of-<code>String</code>". Let's try applying the function.</p>
+<pre class="screen"><code>ghci&gt; lines &quot;the quick\nbrown fox\njumps&quot;
+[&quot;the quick&quot;,&quot;brown fox&quot;,&quot;jumps&quot;]
+</code></pre>
+<p>The <code>lines</code> function splits a string on line boundaries.
+Notice that its type signature gave us a hint as to what the function
+might actually do: it takes one <code>String</code>, and returns many.
+This is an incredibly valuable property of types in a functional
+language.</p>
+<p>A <em>side effect</em> introduces a dependency between the global
+state of the system and the behaviour of a function. For example, let's
+step away from Haskell for a moment and think about an imperative
+programming language. Consider a function that reads and returns the
+value of a global variable. If some other code can modify that global
+variable, then the result of a particular application of our function
+depends on the current value of the global variable. The function has a
+side effect, even though it never modifies the variable itself.</p>
+<p>Side effects are essentially invisible inputs to, or outputs from,
+functions. In Haskell, the default is for functions to <em>not</em> have
+side effects: the result of a function depends only on the inputs that
+we explicitly provide. We call these functions <em>pure</em>; functions
+with side effects are <em>impure</em>.</p>
+<p>If a function has side effects, we can tell by reading its type
+signature: the type of the function's result will begin with
+<code>IO</code>.</p>
+<pre class="screen"><code>ghci&gt; :type readFile
+readFile :: FilePath -&gt; IO String
+</code></pre>
+<p>Haskell's type system prevents us from accidentally mixing pure and
+impure code.</p>
+<h1 data-number="9"
+id="haskell-source-files-and-writing-simple-functions"><span
+class="header-section-number">9</span> Haskell source files, and writing
+simple functions</h1>
+<p>Now that we know how to apply functions, it's time we turned our
+attention to writing them. While we can write functions in
+<code>ghci</code>, it's not a good environment for this. It only accepts
+a highly restricted subset of Haskell: most importantly, the syntax it
+uses for defining functions is not the same as we use in a Haskell
+source file<a href="#fn4" class="footnote-ref" id="fnref4"
+role="doc-noteref"><sup>4</sup></a>. Instead, we'll finally break down
+and create a source file.</p>
+<p>Haskell source files are usually identified with a suffix of
+<code>.hs</code>. Here's a simple function definition: open up a file
+named <code>add.hs</code>, and add these contents to it.</p>
+<div class="captioned-content">
+<div class="caption">
+add.hs
+</div>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>add a b <span class="ot">=</span> a <span class="op">+</span> b</span></code></pre></div>
+</div>
+<p>On the left hand side of the <code>=</code> is the name of the
+function, followed by the arguments to the function. On the right hand
+side is the body of the function. With our source file saved, we can
+load it into <code>ghci</code>, and use our new <code>add</code>
+function straight away. (The prompt that <code>ghci</code> displays will
+change after you load your file.)</p>
+<pre class="screen"><code>ghci&gt; :load add.hs
+[1 of 1] Compiling Main             ( add.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; add 1 2
+3
+</code></pre>
+<div class="NOTE">
+<p>What if <code>ghci</code> cannot find your source file?</p>
+<p>When you run <code>ghci</code> it may not be able to find your source
+file. It will search for source files in whatever directory it was run.
+If this is not the directory that your source file is actually in, you
+can use <code>ghci</code>'s <code>:cd</code> command to change its
+working directory.</p>
+<pre class="screen"><code>ghci&gt; :cd /tmp
+</code></pre>
+<p>Alternatively, you can provide the path to your Haskell source file
+as the argument to <code>:load</code>. This path can be either absolute
+or relative to <code>ghci</code>'s current directory.</p>
+</div>
+<p>When we apply <code>add</code> to the values <code>1</code> and
+<code>2</code>, the variables <code>a</code> and <code>b</code> on the
+left hand side of our definition are given (or "bound to") the values
+<code>1</code> and <code>2</code>, so the result is the expression
+<code>1 + 2</code>.</p>
+<p>Haskell doesn't have a <code>return</code> keyword, as a function is
+a single expression, not a sequence of statements. The value of the
+expression is the result of the function. (Haskell does have a function
+called <code>return</code>, but we won't discuss it for a while; it has
+a different meaning than in imperative languages.)</p>
+<p>When you see an <code>=</code> symbol in Haskell code, it represents
+"meaning": the name on the left is defined to be the expression on the
+right.</p>
+<h2 data-number="9.1" id="just-what-is-a-variable-anyway"><span
+class="header-section-number">9.1</span> Just what is a variable,
+anyway?</h2>
+<p>In Haskell, a variable provides a way to give a name to an
+expression. Once a variable is <em>bound to</em> (i.e. associated with)
+a particular expression, its value does not change: we can always use
+the name of the variable instead of writing out the expression, and get
+the same result either way.</p>
+<p>If you're used to imperative programming languages, you're likely to
+think of a variable as a way of identifying a <em>memory location</em>
+(or some equivalent) that can hold different values at different times.
+In an imperative language we can change a variable's value at any time,
+so that examining the memory location repeatedly can potentially give
+different results each time.</p>
+<p>The critical difference between these two notions of a variable is
+that in Haskell, once we've bound a variable to an expression, we know
+that we can always substitute it for that expression, because it will
+not change. In an imperative language, this notion of substitutability
+does not hold.</p>
+<p>For example, if we run the following tiny Python script, it will
+print the number 11.</p>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> <span class="dv">10</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> <span class="dv">11</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="pp"># value of x is now 11</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span> x</span></code></pre></div>
+<p>In contrast, trying the equivalent in Haskell results in an
+error.</p>
+<div class="captioned-content">
+<div class="caption">
+Assign.hs
+</div>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> <span class="dv">10</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> <span class="dv">11</span></span></code></pre></div>
+</div>
+<p>We cannot assign a value to <code>x</code> twice.</p>
+<pre class="screen"><code>ghci&gt; :load Assign
+[1 of 1] Compiling Main             ( Assign.hs, interpreted )
+
+Assign.hs:5:1: error:
+    Multiple declarations of ‘x’
+    Declared at: Assign.hs:4:1
+                 Assign.hs:5:1
+  |
+5 | x = 11
+  | ^
+Failed, no modules loaded.
+</code></pre>
+<h2 data-number="9.2" id="conditional-evaluation"><span
+class="header-section-number">9.2</span> Conditional evaluation</h2>
+<p>Like many other languages, Haskell has an <code>if</code> expression.
+Let's see it in action, then we'll explain what's going on. As an
+example, we'll write our own version of the standard <code>drop</code>
+function. Before we begin, let's probe a little into how
+<code>drop</code> behaves, so we can replicate its behaviour.</p>
+<pre class="screen"><code>ghci&gt; drop 2 &quot;foobar&quot;
+&quot;obar&quot;
+ghci&gt; drop 4 &quot;foobar&quot;
+&quot;ar&quot;
+ghci&gt; drop 4 [1,2]
+[]
+ghci&gt; drop 0 [1,2]
+[1,2]
+ghci&gt; drop 7 []
+[]
+ghci&gt; drop (-2) &quot;foo&quot;
+&quot;foo&quot;
+</code></pre>
+<p>From the above, it seems that <code>drop</code> returns the original
+list if the number to remove is less than or equal to zero. Otherwise,
+it removes elements until either it runs out or reaches the given
+number. Here's a <code>myDrop</code> function that has the same
+behaviour, and uses Haskell's <code>if</code> expression to decide what
+to do. The <code>null</code> function below checks whether a list is
+empty.</p>
+<div class="captioned-content">
+<div class="caption">
+MyDrop.hs
+</div>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>myDrop n xs <span class="ot">=</span> <span class="kw">if</span> n <span class="op">&lt;=</span> <span class="dv">0</span> <span class="op">||</span> <span class="fu">null</span> xs</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>              <span class="kw">then</span> xs</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>              <span class="kw">else</span> myDrop (n <span class="op">-</span> <span class="dv">1</span>) (<span class="fu">tail</span> xs)</span></code></pre></div>
+</div>
+<p>In Haskell, indentation is important: it <em>continues</em> an
+existing definition, instead of starting a new one. Don't omit the
+indentation!</p>
+<p>You might wonder where the variable name <code>xs</code> comes from
+in the Haskell function. This is a common naming pattern for lists: you
+can read the <code>s</code> as a suffix, so the name is essentially
+"plural of <code>x</code>".</p>
+<p>Let's save our Haskell function in a file named
+<code>myDrop.hs</code>, then load it into <code>ghci</code>.</p>
+<pre class="screen"><code>ghci&gt; :load MyDrop.hs
+[1 of 1] Compiling Main             ( myDrop.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; myDrop 2 &quot;foobar&quot;
+&quot;obar&quot;
+ghci&gt; myDrop 4 &quot;foobar&quot;
+&quot;ar&quot;
+ghci&gt; myDrop 4 [1,2]
+[]
+ghci&gt; myDrop 0 [1,2]
+[1,2]
+ghci&gt; myDrop 7 []
+[]
+ghci&gt; myDrop (-2) &quot;foo&quot;
+&quot;foo&quot;
+</code></pre>
+<p>Now that we've seen <code>myDrop</code> in action, let's return to
+the source code and look at all the novelties we've introduced.</p>
+<p>First of all, we have introduced <code>--</code>, the beginning of a
+single-line comment. This comment extends to the end of the line.</p>
+<p>Next is the <code>if</code> keyword itself. It introduces an
+expression that has three components.</p>
+<ul>
+<li>An expression of type Bool, immediately following the
+<code>if</code>. We refer to this as a <em>predicate</em>.</li>
+<li>A <code>then</code> keyword, followed by another expression. This
+expression will be used as the value of the <code>if</code> expression
+if the predicate evaluates to <code>True</code>.</li>
+<li>An <code>else</code> keyword, followed by another expression. This
+expression will be used as the value of the <code>if</code> expression
+if the predicate evaluates to <code>False</code>.</li>
+</ul>
+<p>We'll refer to the expressions after the <code>then</code> and
+<code>else</code> keywords as "branches". The branches must have the
+same types; the <code>if</code> expression will also have this type. An
+expression such as <code>if True then 1 else "foo"</code> has different
+types for its branches, so it is ill typed and will be rejected by a
+compiler or interpreter.</p>
+<p>Recall that Haskell is an expression-oriented language. In an
+imperative language, it can make sense to omit the <code>else</code>
+branch from an <code>if</code>, because we're working with
+<em>statements</em>, not expressions. However, when we're working with
+expressions, an <code>if</code> that was missing an <code>else</code>
+wouldn't have a result or type if the predicate evaluated to
+<code>False</code>, so it would be nonsensical.</p>
+<p>Our predicate contains a few more novelties. The <code>null</code>
+function indicates whether a list is empty, while the <code>(||)</code>
+operator performs a logical "or" of its Bool-typed arguments.</p>
+<pre class="screen"><code>ghci&gt; :type null
+null :: Foldable t =&gt; t a -&gt; Bool
+ghci&gt; :type (||)
+(||) :: Bool -&gt; Bool -&gt; Bool
+</code></pre>
+<div class="TIP">
+<p>Operators are not special</p>
+<p>Notice that we were able to find the type of <code>(||)</code> by
+wrapping it in parentheses. The <code>(||)</code> operator isn't "built
+into" the language: it's an ordinary function.</p>
+<p>The <code>(||)</code> operator "short circuits": if its left operand
+evaluates to <code>True</code>, it doesn't evaluate its right operand.
+In most languages, short-circuit evaluation requires special support,
+but not in Haskell. We'll see why shortly.</p>
+</div>
+<p>Next, our function applies itself recursively. This is our first
+example of recursion, which we'll talk about in some detail shortly.</p>
+<p>Finally, our <code>if</code> expression spans several lines. We align
+the <code>then</code> and <code>else</code> branches under the
+<code>if</code> for neatness. So long as we use some indentation, the
+exact amount is not important. If we wish, we can write the entire
+expression on a single line.</p>
+<div class="captioned-content">
+<div class="caption">
+MyDrop.hs
+</div>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>myDropX n xs <span class="ot">=</span> <span class="kw">if</span> n <span class="op">&lt;=</span> <span class="dv">0</span> <span class="op">||</span> <span class="fu">null</span> xs <span class="kw">then</span> xs <span class="kw">else</span> myDropX (n <span class="op">-</span> <span class="dv">1</span>) (<span class="fu">tail</span> xs)</span></code></pre></div>
+</div>
+<p>The length of this version makes it more difficult to read. We will
+usually break an <code>if</code> expression across several lines to keep
+the predicate and each of the branches easier to follow.</p>
+<p>For comparison, here is a Python equivalent of the Haskell
+<code>myDrop</code>. The two are structured similarly: each decrements a
+counter while removing an element from the head of the list.</p>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>def myDrop(n, elts)<span class="op">:</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    while n <span class="op">&gt;</span> <span class="dv">0</span> <span class="fu">and</span> elts<span class="op">:</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>        n <span class="ot">=</span> n <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>        elts <span class="ot">=</span> elts[<span class="dv">1</span><span class="op">:</span>]</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span> elts</span></code></pre></div>
+<h1 data-number="10" id="understanding-evaluation-by-example"><span
+class="header-section-number">10</span> Understanding evaluation by
+example</h1>
+<p>In our description of <code>myDrop</code>, we have so far focused on
+surface features. We need to go deeper, and develop a useful mental
+model of how function application works. To do this, we'll first work
+through a few simple examples, until we can walk through the evaluation
+of the expression <code>myDrop 2 "abcd"</code>.</p>
+<p>We've talked several times about substituting an expression for a
+variable, and we'll make use of this capability here. Our procedure will
+involve rewriting expressions over and over, substituting expressions
+for variables until we reach a final result. This would be a good time
+to fetch a pencil and paper, so that you can follow our descriptions by
+trying them yourself.</p>
+<h2 data-number="10.1" id="lazy-evaluation"><span
+class="header-section-number">10.1</span> Lazy evaluation</h2>
+<p>We will begin by looking at the definition of a simple, nonrecursive
+function.</p>
+<div class="captioned-content">
+<div class="caption">
+RoundToEven.hs
+</div>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>isOdd n <span class="ot">=</span> <span class="fu">mod</span> n <span class="dv">2</span> <span class="op">==</span> <span class="dv">1</span></span></code></pre></div>
+</div>
+<p>Here, <code>mod</code> is the standard modulo function. The first big
+step to understanding how evaluation works in Haskell is figuring out
+what the result of evaluating the expression <code>isOdd (1 + 2)</code>
+is.</p>
+<p>Before we explain how evaluation proceeds in Haskell, let us recap
+the sort of evaluation strategy used by more familiar languages. First,
+evaluate the subexpression <code>1 + 2</code>, to give <code>3</code>.
+Then apply the <code>odd</code> function with <code>n</code> bound to
+<code>3</code>. Finally, evaluate <code>mod 3 2</code> to give
+<code>1</code>, and <code>1 == 1</code> to give <code>True</code>.</p>
+<p>In a language that uses <em>strict</em> evaluation, the arguments to
+a function are evaluated before the function is applied. Haskell chooses
+another path: <em>non-strict</em> evaluation.</p>
+<p>In Haskell, the subexpression <code>1 + 2</code> is <em>not</em>
+reduced to the value <code>3</code>. Instead, we create a "promise" that
+when the value of the expression <code>isOdd (1 + 2)</code> is needed,
+we'll be able to compute it. The record that we use to track an
+unevaluated expression is referred to as a <em>thunk</em>. This is
+<em>all</em> that happens: we create a thunk, and defer the actual
+evaluation until it's really needed. If the result of this expression is
+never subsequently used, we will not compute its value at all.</p>
+<p>Non-strict evaluation is often referred to as <em>lazy
+evaluation</em><a href="#fn5" class="footnote-ref" id="fnref5"
+role="doc-noteref"><sup>5</sup></a>.</p>
+<h2 data-number="10.2" id="a-more-involved-example"><span
+class="header-section-number">10.2</span> A more involved example</h2>
+<p>Let us now look at the evaluation of the expression
+<code>myDrop 2 "abcd"</code>, where we use <code>print</code> to ensure
+that it will be evaluated.</p>
+<pre class="screen"><code>ghci&gt; print (myDrop 2 &quot;abcd&quot;)
+&quot;cd&quot;
+</code></pre>
+<p>Our first step is to attempt to apply <code>print</code>, which needs
+its argument to be evaluated. To do that, we apply the function
+<code>myDrop</code> to the values <code>2</code> and
+<code>"abcd"</code>. We bind the variable <code>n</code> to the value
+<code>2</code>, and <code>xs</code> to <code>"abcd"</code>. If we
+substitute these values into <code>myDrop</code>'s predicate, we get the
+following expression.</p>
+<pre class="screen"><code>ghci&gt; :type  2 &lt;= 0 || null &quot;abcd&quot;
+2 &lt;= 0 || null &quot;abcd&quot; :: Bool
+</code></pre>
+<p>We then evaluate enough of the predicate to find out what its value
+is. This requires that we evaluate the <code>(||)</code> expression. To
+determine its value, the <code>(||)</code> operator needs to examine the
+value of its left operand first.</p>
+<pre class="screen"><code>ghci&gt; 2 &lt;= 0
+False
+</code></pre>
+<p>Substituting that value into the <code>(||)</code> expression leads
+to the following expression.</p>
+<pre class="screen"><code>ghci&gt; :type False || null &quot;abcd&quot;
+False || null &quot;abcd&quot; :: Bool
+</code></pre>
+<p>If the left operand had evaluated to <code>True</code>,
+<code>(||)</code> would not need to evaluate its right operand, since it
+could not affect the result of the expression. Since it evaluates to
+<code>False</code>, <code>(||)</code> must evaluate the right
+operand.</p>
+<pre class="screen"><code>ghci&gt; null &quot;abcd&quot;
+False
+</code></pre>
+<p>We now substitute this value back into the <code>(||)</code>
+expression. Since both operands evaluate to <code>False</code>, the
+<code>(||)</code> expression does too, and thus the predicate evaluates
+to <code>False</code>.</p>
+<pre class="screen"><code>ghci&gt; False || False
+False
+</code></pre>
+<p>This causes the <code>if</code> expression's <code>else</code> branch
+to be evaluated. This branch contains a recursive application of
+<code>myDrop</code>.</p>
+<div class="NOTE">
+<p>Short circuiting for free</p>
+<p>Many languages need to treat the logical-or operator specially so
+that it short circuits if its left operand evaluates to
+<code>True</code>. In Haskell, <code>(||)</code> is an ordinary
+function: non-strict evaluation builds this capability into the
+language.</p>
+<p>In Haskell, we can easily define a new function that short
+circuits.</p>
+<div class="captioned-content">
+<div class="caption">
+ShortCircuit.hs
+</div>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>newOr a b <span class="ot">=</span> <span class="kw">if</span> a <span class="kw">then</span> a <span class="kw">else</span> b</span></code></pre></div>
+</div>
+<p>If we write an expression like
+<code>newOr True (length [1..] &gt; 0)</code>, it will not evaluate its
+second argument. (This is just as well: that expression tries to compute
+the length of an infinite list. If it were evaluated, it would hang
+<code>ghci</code>, looping infinitely until we killed it.)</p>
+<p>Were we to write a comparable function in, say, Python, strict
+evaluation would bite us: both arguments would be evaluated before being
+passed to <code>newOr</code>, and we would not be able to avoid the
+infinite loop on the second argument.</p>
+</div>
+<h2 data-number="10.3" id="recursion"><span
+class="header-section-number">10.3</span> Recursion</h2>
+<p>When we apply <code>myDrop</code> recursively, <code>n</code> is
+bound to the thunk <code>2 - 1</code>, and <code>xs</code> to
+<code>tail "abcd"</code>.</p>
+<p>We're now evaluating <code>myDrop</code> from the beginning again. We
+substitute the new values of <code>n</code> and <code>xs</code> into the
+predicate.</p>
+<pre class="screen"><code>ghci&gt; :type (2 - 1) &lt;= 0 || null (tail &quot;abcd&quot;)
+(2 - 1) &lt;= 0 || null (tail &quot;abcd&quot;) :: Bool
+</code></pre>
+<p>Here's a condensed version of the evaluation of the left operand.</p>
+<pre class="screen"><code>ghci&gt; :type (2 - 1) &lt;= 0
+(2 - 1) &lt;= 0 :: Bool
+ghci&gt; 2 - 1
+1
+ghci&gt; 1 &lt;= 0
+False
+</code></pre>
+<p>As we should now expect, we didn't evaluate the expression
+<code>2 - 1</code> until we needed its value. We also evaluate the right
+operand lazily, deferring <code>tail "abcd"</code> until we need its
+value.</p>
+<pre class="screen"><code>ghci&gt; :type null (tail &quot;abcd&quot;)
+null (tail &quot;abcd&quot;) :: Bool
+ghci&gt; tail &quot;abcd&quot;
+&quot;bcd&quot;
+ghci&gt; null &quot;bcd&quot;
+False
+</code></pre>
+<p>The predicate again evaluates to <code>False</code>, causing the
+<code>else</code> branch to be evaluated once more.</p>
+<p>Because we've had to evaluate the expressions for <code>n</code> and
+<code>xs</code> to evaluate the predicate, we now know that in this
+application of <code>myDrop</code>, <code>n</code> has the value
+<code>1</code> and <code>xs</code> has the value <code>"bcd"</code>.</p>
+<h2 data-number="10.4" id="ending-the-recursion"><span
+class="header-section-number">10.4</span> Ending the recursion</h2>
+<p>In the next recursive application of <code>myDrop</code>, we bind
+<code>n</code> to <code>1 - 1</code> and <code>xs</code> to
+<code>tail "bcd"</code>.</p>
+<pre class="screen"><code>ghci&gt; :type (1 - 1) &lt;= 0 || null (tail &quot;bcd&quot;)
+(1 - 1) &lt;= 0 || null (tail &quot;bcd&quot;) :: Bool
+</code></pre>
+<p>Once again, <code>(||)</code> needs to evaluate its left operand
+first.</p>
+<pre class="screen"><code>ghci&gt; :type (1 - 1) &lt;= 0
+(1 - 1) &lt;= 0 :: Bool
+ghci&gt; 1 - 1
+0
+ghci&gt; 0 &lt;= 0
+True
+</code></pre>
+<p>Finally, this expression has evaluated to <code>True</code>!</p>
+<pre class="screen"><code>ghci&gt; True || null (tail &quot;bcd&quot;)
+True
+</code></pre>
+<p>Because the right operand cannot affect the result of
+<code>(||)</code>, it is not evaluated, and the result of the predicate
+is <code>True</code>. This causes us to evaluate the <code>then</code>
+branch.</p>
+<pre class="screen"><code>ghci&gt; :type tail &quot;bcd&quot;
+tail &quot;bcd&quot; :: [Char]
+</code></pre>
+<h2 data-number="10.5" id="returning-from-the-recursion"><span
+class="header-section-number">10.5</span> Returning from the
+recursion</h2>
+<p>Remember, we're now inside our second recursive application of
+<code>myDrop</code>. This application evaluates to
+<code>tail "bcd"</code>. We return from the application of the function,
+substituting this expression for
+<code>myDrop (1 - 1) (tail "bcd")</code>, to become the result of this
+application.</p>
+<pre class="screen"><code>ghci&gt; myDrop (1 - 1) (tail &quot;bcd&quot;) == tail &quot;bcd&quot;
+True
+</code></pre>
+<p>We then return from the first recursive application, substituting the
+result of the second recursive application for
+<code>myDrop (2 - 1) (tail "abcd")</code>, to become the result of this
+application.</p>
+<pre class="screen"><code>ghci&gt; myDrop (2 - 1) (tail &quot;abcd&quot;) == tail &quot;bcd&quot;
+True
+</code></pre>
+<p>Finally, we return from our original application, substituting the
+result of the first recursive application.</p>
+<pre class="screen"><code>ghci&gt; myDrop 2 &quot;abcd&quot; == tail &quot;bcd&quot;
+True
+</code></pre>
+<p>Notice that as we return from each successive recursive application,
+none of them needs to evaluate the expression <code>tail "bcd"</code>:
+the final result of evaluating the original expression is a
+<em>thunk</em>. The thunk is only finally evaluated when
+<code>ghci</code> needs to print it.</p>
+<pre class="screen"><code>ghci&gt; myDrop 2 &quot;abcd&quot;
+&quot;cd&quot;
+ghci&gt; tail &quot;bcd&quot;
+&quot;cd&quot;
+</code></pre>
+<h2 data-number="10.6" id="what-have-we-learned"><span
+class="header-section-number">10.6</span> What have we learned?</h2>
+<p>We have established several important points here.</p>
+<ul>
+<li>It makes sense to use substitution and rewriting to understand the
+evaluation of a Haskell expression.</li>
+<li>Laziness leads us to defer evaluation until we need a value, and to
+evaluate just enough of an expression to establish its value.</li>
+<li>The result of applying a function may be a thunk (a deferred
+expression).</li>
+</ul>
+<h1 data-number="11" id="polymorphism-in-haskell"><span
+class="header-section-number">11</span> Polymorphism in Haskell</h1>
+<p>When we introduced lists, we mentioned that the list type is
+polymorphic. We'll talk about Haskell's polymorphism in more detail
+here.</p>
+<p>If we want to fetch the last element of a list, we use the
+<code>last</code> function. The value that it returns must have the same
+type as the elements of the list, but <code>last</code> operates in the
+same way no matter what type those elements actually are.</p>
+<pre class="screen"><code>ghci&gt; last [1,2,3,4,5]
+5
+ghci&gt; last &quot;baz&quot;
+&#39;z&#39;
+</code></pre>
+<p>To capture this idea, its type signature contains a <em>type
+variable</em>.</p>
+<pre class="screen"><code>ghci&gt; :type last
+last :: [a] -&gt; a
+</code></pre>
+<p>Here, <code>a</code> is the type variable. We can read the signature
+as "takes a list, all of whose elements have some type <code>a</code>,
+and returns a value of the same type <code>a</code>".</p>
+<div class="TIP">
+<p>Identifying a type variable</p>
+<p>Type variables always start with a lowercase letter. You can always
+tell a type variable from a normal variable by context, because the
+languages of types and functions are separate: type variables live in
+type signatures, and regular variables live in normal expressions.</p>
+<p>It's common Haskell practice to keep the names of type variables very
+short. One letter is overwhelmingly common; longer names show up
+infrequently. Type signatures are usually brief; we gain more in
+readability by keeping names short than we would by making them
+descriptive.</p>
+</div>
+<p>When a function has type variables in its signature, indicating that
+some of its arguments can be of any type, we call the function
+polymorphic.</p>
+<p>When we want to apply <code>last</code> to, say, a list of
+<code>Char</code>, the compiler substitutes <code>Char</code> for each
+<code>a</code> throughout the type signature, which gives us the type of
+<code>last</code> with an input of <code>[Char]</code> as
+<code>[Char] -&gt; Char</code>.</p>
+<p>This kind of polymorphism is called <em>parametric</em> polymorphism.
+The choice of naming is easy to understand by analogy: just as a
+function can have parameters that we can later bind to real values, a
+Haskell type can have parameters that we can later bind to other
+types.</p>
+<div class="TIP">
+<p>A little nomenclature</p>
+<p>If a type contains type parameters, we say that it is a parameterised
+type, or a polymorphic type. If a function or value's type contains type
+parameters, we call it polymorphic.</p>
+</div>
+<p>When we see a parameterised type, we've already noted that the code
+doesn't care what the actual type is. However, we can make a stronger
+statement: <em>it has no way to find out what the real type is</em>, or
+to manipulate a value of that type. It can't create a value; neither can
+it inspect one. All it can do is treat it as a fully abstract "black
+box". We'll cover one reason that this is important soon.</p>
+<p>Parametric polymorphism is the most visible kind of polymorphism that
+Haskell supports. Haskell's parametric polymorphism directly influenced
+the design of the generic facilities of the Java and C# languages. A
+parameterised type in Haskell is similar to a type variable in Java
+generics. C++ templates also bear a resemblance to parametric
+polymorphism.</p>
+<p>To make it clearer how Haskell's polymorphism differs from other
+languages, here are a few forms of polymorphism that are common in other
+languages, but not present in Haskell.</p>
+<p>In mainstream object oriented languages, <em>subtype</em>
+polymorphism is more widespread than parametric polymorphism. The
+subclassing mechanisms of C++ and Java give them subtype polymorphism. A
+base class defines a set of behaviours that its subclasses can modify
+and extend. Since Haskell isn't an object oriented language, it doesn't
+provide subtype polymorphism.</p>
+<p>Also common is <em>coercion</em> polymorphism, which allows a value
+of one type to be implicitly converted into a value of another type.
+Many languages provide some form of coercion polymorphism: one example
+is automatic conversion between integers and floating point numbers.
+Haskell deliberately avoids even this kind of simple automatic
+coercion.</p>
+<p>This is not the whole story of polymorphism in Haskell: we'll return
+to the subject in <a href="6-using-typeclasses.org">Chapter 6, Using
+Type Classes</a>.</p>
+<h2 data-number="11.1" id="reasoning-about-polymorphic-functions"><span
+class="header-section-number">11.1</span> Reasoning about polymorphic
+functions</h2>
+<p>In <a
+href="2-types-and-functions.org::*Function types and purity">the section
+called "Function types and purity"</a>, we talked about figuring out the
+behaviour of a function based on its type signature. We can apply the
+same kind of reasoning to polymorphic functions. Let's look again at
+<code>fst</code>.</p>
+<pre class="screen"><code>ghci&gt; :type fst
+fst :: (a, b) -&gt; a
+</code></pre>
+<p>First of all, notice that its argument contains two type variables,
+<code>a</code> and <code>b</code>, signifying that the elements of the
+tuple can be of different types.</p>
+<p>The result type of <code>fst</code> is <code>a</code>. We've already
+mentioned that parametric polymorphism makes the real type inaccessible:
+<code>fst</code> doesn't have enough information to construct a value of
+type <code>a</code>, nor can it turn an <code>a</code> into a
+<code>b</code>. So the <em>only</em> possible valid behaviour (omitting
+infinite loops or crashes) it can have is to return the first element of
+the pair.</p>
+<ol>
+<li><p>Further reading</p>
+<p>There is a deep mathematical sense in which any non-pathological
+function of type (a,b) -&gt; a must do exactly what <code>fst</code>
+does. Moreover, this line of reasoning extends to more complicated
+polymorphic functions. The paper [<a
+href="bibliography.org::Wadler89">Wadler89</a>] covers this procedure in
+depth.</p></li>
+</ol>
+<h1 data-number="12"
+id="the-type-of-a-function-of-more-than-one-argument"><span
+class="header-section-number">12</span> The type of a function of more
+than one argument</h1>
+<p>So far, we haven't looked much at signatures for functions that take
+more than one argument. We've already used a few such functions; let's
+look at the signature of one, <code>take</code>.</p>
+<pre class="screen"><code>ghci&gt; :type take
+take :: Int -&gt; [a] -&gt; [a]
+</code></pre>
+<p>It's pretty clear that there's something going on with an
+<code>Int</code> and some lists, but why are there two
+<code>-&gt;</code> symbols in the signature? Haskell groups this chain
+of arrows from right to left; that is, <code>-&gt;</code> is
+right-associative. If we introduce parentheses, we can make it clearer
+how this type signature is interpreted.</p>
+<div class="captioned-content">
+<div class="caption">
+Take.hs
+</div>
+<div class="sourceCode" id="cb55"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">take</span><span class="ot"> ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> ([a] <span class="ot">-&gt;</span> [a])</span></code></pre></div>
+</div>
+<p>From this, it looks like we ought to read the type signature as a
+function that takes one argument, an <code>Int</code>, and returns
+another function. That other function also takes one argument, a list,
+and returns a list of the same type as its result.</p>
+<p>This is correct, but it's not easy to see what its consequences might
+be. We'll return to this topic in <a
+href="4-functional-programming.org::*Partial function application and currying">the
+section called "Partial function application and currying"</a>, once
+we've spent a bit of time writing functions. For now, we can treat the
+type following the last <code>-&gt;</code> as being the function's
+return type, and the preceding types to be those of the function's
+arguments.</p>
+<p>We can now write a type signature for the <code>myDrop</code>
+function that we defined earlier.</p>
+<div class="captioned-content">
+<div class="caption">
+MyDrop.hs
+</div>
+<div class="sourceCode" id="cb56"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="ot">myDrop ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]</span></code></pre></div>
+</div>
+<h1 data-number="13" id="exercises-1"><span
+class="header-section-number">13</span> Exercises</h1>
+<ol>
+<li>Haskell provides a standard function,
+<code>last :: [a] -&gt; a</code>, that returns the last element of a
+list. From reading the type alone, what are the possible valid
+behaviours (omitting crashes and infinite loops) that this function
+could have? What are a few things that this function clearly cannot
+do?</li>
+<li>Write a function <code>lastButOne</code>, that returns the element
+<em>before</em> the last.</li>
+<li>Load your <code>lastButOne</code> function into <code>ghci</code>,
+and try it out on lists of different lengths. What happens when you pass
+it a list that's too short?</li>
+</ol>
+<h1 data-number="14" id="why-the-fuss-over-purity"><span
+class="header-section-number">14</span> Why the fuss over purity?</h1>
+<p>Few programming languages go as far as Haskell in insisting that
+purity should be the default. This choice has profound and valuable
+consequences.</p>
+<p>Because the result of applying a pure function can only depend on its
+arguments, we can often get a strong hint of what a pure function does
+by simply reading its name and understanding its type signature. As an
+example, let's look at <code>not</code>.</p>
+<pre class="screen"><code>ghci&gt; :type not
+not :: Bool -&gt; Bool
+</code></pre>
+<p>Even if we didn't know the name of this function, its signature alone
+limits the possible valid behaviours it could have.</p>
+<ul>
+<li>Ignore its argument, and always return either <code>True</code> or
+<code>False</code>.</li>
+<li>Return its argument unmodified.</li>
+<li>Negate its argument.</li>
+</ul>
+<p>We also know that this function can <em>not</em> do some things: it
+cannot access files; it cannot talk to the network; it cannot tell what
+time it is.</p>
+<p>Purity makes the job of understanding code easier. The behaviour of a
+pure function does not depend on the value of a global variable, or the
+contents of a database, or the state of a network connection. Pure code
+is inherently modular: every function is self-contained, and has a
+well-defined interface.</p>
+<p>A non-obvious consequence of purity being the default is that working
+with <em>impure</em> code becomes easier. Haskell encourages a style of
+programming in which we separate code that <em>must</em> have side
+effects from code that doesn't need them. In this style, impure code
+tends to be simple, with the "heavy lifting" performed in pure code.</p>
+<p>Much of the risk in software lies in talking to the outside world, be
+it coping with bad or missing data, or handling malicious attacks.
+Because Haskell's type system tells us exactly which parts of our code
+have side effects, we can be appropriately on our guard. Because our
+favoured coding style keeps impure code isolated and simple, our "attack
+surface" is small.</p>
+<h1 data-number="15" id="conclusion"><span
+class="header-section-number">15</span> Conclusion</h1>
+<p>In this chapter, we've had a whirlwind overview of Haskell's type
+system and much of its syntax. We've read about the most common types,
+and discovered how to write simple functions. We've been introduced to
+polymorphism, conditional expressions, purity, and about lazy
+evaluation.</p>
+<p>This all amounts to a lot of information to absorb. In <a
+href="3-defining-types-streamlining-functions.org">Chapter 3,
+<em>Defining Types, Streamlining Functions</em></a>, we'll build on this
+basic knowledge to further enhance our understanding of Haskell.</p>
+<h1 data-number="16" id="footnotes"><span
+class="header-section-number">16</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>"If it walks like a duck, and quacks
+like a duck, then let's call it a duck."<a href="#fnref1"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>Occasionally, we need to give the
+compiler a little information to help it to make a choice in
+understanding our code.<a href="#fnref2" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>We'll talk more about polymorphism in
+<a href="2-types-and-functions.org::*Polymorphism in Haskell">the
+section called "Polymorphism in Haskell"</a>.<a href="#fnref3"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p>The environment in which
+<code>ghci</code> operates is called the IO monad. In <a
+href="7-io.org">Chapter 7, <em>I/O</em></a>, we will cover the IO monad
+in depth, and the seemingly arbitrary restrictions that
+<code>ghci</code> places on us will make more sense.<a href="#fnref4"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5" role="doc-endnote"><p>The terms "non-strict" and "lazy"
+have slightly different technical meanings, but we won't go into the
+details of the distinction here.<a href="#fnref5" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

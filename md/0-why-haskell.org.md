@@ -1,3 +1,7 @@
+---
+margin-left: 30px
+---
+
 Introduction: Why Haskell?
 ==========================
 

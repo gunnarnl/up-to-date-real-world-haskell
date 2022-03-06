@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 10: Code case study: parsing a binary data format</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 10: Code case study: parsing a binary data
+format</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#greyscale-files"><span class="toc-section-number">1</span>
+Greyscale files</a></li>
+<li><a href="#parsing-a-raw-pgm-file"><span
+class="toc-section-number">2</span> Parsing a raw PGM file</a></li>
+<li><a href="#getting-rid-of-boilerplate-code"><span
+class="toc-section-number">3</span> Getting rid of boilerplate
+code</a></li>
+<li><a href="#implicit-state"><span class="toc-section-number">4</span>
+Implicit state</a>
+<ul>
+<li><a href="#the-identity-parser"><span
+class="toc-section-number">4.1</span> The identity parser</a></li>
+<li><a href="#record-syntax-updates-and-pattern-matching"><span
+class="toc-section-number">4.2</span> Record syntax, updates, and
+pattern matching</a></li>
+<li><a href="#a-more-interesting-parser"><span
+class="toc-section-number">4.3</span> A more interesting parser</a></li>
+<li><a href="#obtaining-and-modifying-the-parse-state"><span
+class="toc-section-number">4.4</span> Obtaining and modifying the parse
+state</a></li>
+<li><a href="#reporting-parse-errors"><span
+class="toc-section-number">4.5</span> Reporting parse errors</a></li>
+<li><a href="#chaining-parsers-together"><span
+class="toc-section-number">4.6</span> Chaining parsers together</a></li>
+</ul></li>
+<li><a href="#introducing-functors"><span
+class="toc-section-number">5</span> Introducing functors</a>
+<ul>
+<li><a href="#constraints-on-type-definitions-are-bad"><span
+class="toc-section-number">5.1</span> Constraints on type definitions
+are bad</a></li>
+<li><a href="#infix-use-of-fmap"><span
+class="toc-section-number">5.2</span> Infix use of
+<code>fmap</code></a></li>
+<li><a href="#thinking-more-about-functors"><span
+class="toc-section-number">5.3</span> Thinking more about
+functors</a></li>
+</ul></li>
+<li><a href="#writing-a-functor-instance-for-parse"><span
+class="toc-section-number">6</span> Writing a functor instance for
+<code>Parse</code></a></li>
+<li><a href="#using-functors-for-parsing"><span
+class="toc-section-number">7</span> Using functors for parsing</a></li>
+<li><a href="#rewriting-our-pgm-parser"><span
+class="toc-section-number">8</span> Rewriting our PGM parser</a></li>
+<li><a href="#future-directions"><span
+class="toc-section-number">9</span> Future directions</a></li>
+<li><a href="#exercises"><span class="toc-section-number">10</span>
+Exercises</a></li>
+</ul>
+</nav>
+<p>In this chapter, we'll discuss a common task: parsing a binary file.
+We will use this task for two purposes. Our first is indeed to talk a
+little about parsing, but our main goal is to talk about program
+organisation, refactoring, and "boilerplate removal". We will
+demonstrate how you can tidy up repetitious code, and set the stage for
+our discussion of monads in <a href="15-monads.org">Chapter 14,
+Monads</a>.</p>
+<p>The file formats that we will work with come from the netpbm suite,
+an ancient and venerable collection of programs and file formats for
+working with bitmap images. These file formats have the dual advantages
+of wide use and being fairly easy, though not completely trivial, to
+parse. Most importantly for our convenience, netpbm files are not
+compressed.</p>
+<h1 data-number="1" id="greyscale-files"><span
+class="header-section-number">1</span> Greyscale files</h1>
+<p>The name of netpbm's greyscale file format is PGM ("portable grey
+map"). It is actually not one format, but two; the "plain" (or "P2")
+format is encoded as ASCII, while the more common "raw" ("P5") format is
+mostly binary.</p>
+<p>A file of either format starts with a header, which in turn begins
+with a "magic" string describing the format. For a plain file, the
+string is <code>P2</code>, and for raw, it's <code>P5</code>. The magic
+string is followed by white space, then by three numbers: the width,
+height, and maximum grey value of the image. These numbers are
+represented as ASCII decimal numbers, separated by white space.</p>
+<p>After the maximum grey value comes the image data. In a raw file,
+this is a string of binary values. In a plain file, the values are
+represented as ASCII decimal numbers separated by single space
+characters.</p>
+<p>A raw file can contain a sequence of images, one after the other,
+each with its own header. A plain file contains only one image.</p>
+<h1 data-number="2" id="parsing-a-raw-pgm-file"><span
+class="header-section-number">2</span> Parsing a raw PGM file</h1>
+<p>For our first try at a parsing function, we'll only worry about raw
+PGM files. We'll write our PGM parser as a <em>pure</em> function. It's
+not responsible for obtaining the data to parse, just for the actual
+parsing. This is a common approach in Haskell programs. By separating
+the reading of the data from what we subsequently do with it, we gain
+flexibility in where we take the data from.</p>
+<p>We'll use the <code>ByteString</code> type to store our greymap data,
+because it's compact. Since the header of a PGM file is ASCII text, but
+its body is binary, we import both the text and binary-oriented
+<code>ByteString</code> modules.</p>
+<div class="captioned-content">
+<div class="caption">
+PNM.hs
+</div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span> <span class="kw">as</span> <span class="dt">L8</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString.Lazy</span> <span class="kw">as</span> <span class="dt">L</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Char</span> (isSpace)</span></code></pre></div>
+</div>
+<p>For our purposes, it doesn't matter whether we use a lazy or strict
+<code>ByteString</code>, so we've somewhat arbitrarily chosen the lazy
+kind.</p>
+<p>We'll use a straightforward data type to represent PGM images.</p>
+<div class="captioned-content">
+<div class="caption">
+PNM.hs
+</div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Greymap</span> <span class="ot">=</span> <span class="dt">Greymap</span> {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ot">      greyWidth ::</span> <span class="dt">Int</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    ,<span class="ot"> greyHeight ::</span> <span class="dt">Int</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    ,<span class="ot"> greyMax ::</span> <span class="dt">Int</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    ,<span class="ot"> greyData ::</span> <span class="dt">L.ByteString</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    } <span class="kw">deriving</span> (<span class="dt">Eq</span>)</span></code></pre></div>
+</div>
+<p>Normally, a Haskell <code>Show</code> instance should produce a
+string representation that we can read back by calling
+<code>read</code>. However, for a bitmap graphics file, this would
+potentially produce huge text strings, for example if we were to
+<code>show</code> a photo. For this reason, we're not going to let the
+compiler automatically derive a <code>Show</code> instance for us: we'll
+write our own, and intentionally simplify it.</p>
+<div class="captioned-content">
+<div class="caption">
+PNM.hs
+</div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Greymap</span> <span class="kw">where</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">show</span> (<span class="dt">Greymap</span> w h m _) <span class="ot">=</span> <span class="st">&quot;Greymap &quot;</span> <span class="op">++</span> <span class="fu">show</span> w <span class="op">++</span> <span class="st">&quot;x&quot;</span> <span class="op">++</span> <span class="fu">show</span> h <span class="op">++</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                             <span class="st">&quot; &quot;</span> <span class="op">++</span> <span class="fu">show</span> m</span></code></pre></div>
+</div>
+<p>Because our <code>Show</code> instance intentionally avoids printing
+the bitmap data, there's no point in writing a <code>Read</code>
+instance, as we can't reconstruct a valid Greymap from the result of
+<code>show</code>.</p>
+<p>Here's an obvious type for our parsing function.</p>
+<div class="captioned-content">
+<div class="caption">
+PNM.hs
+</div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">parseP5 ::</span> <span class="dt">L.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">Greymap</span>, <span class="dt">L.ByteString</span>)</span></code></pre></div>
+</div>
+<p>This will take a <code>ByteString</code>, and if the parse succeeds,
+it will return a single parsed <code>Greymap</code>, along with the
+string that remains after parsing. That residual string will be
+available for future parses.</p>
+<p>Our parsing function has to consume a little bit of its input at a
+time. First, we need to assure ourselves that we're really looking at a
+raw PGM file; then we need to parse the numbers from the remainder of
+the header; then we consume the bitmap data. Here's an obvious way to
+express this, which we will use as a base for later improvements.</p>
+<div class="captioned-content">
+<div class="caption">
+PNM.hs
+</div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ot">matchHeader ::</span> <span class="dt">L.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">L.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">L.ByteString</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- &quot;nat&quot; here is short for &quot;natural number&quot;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ot">getNat ::</span> <span class="dt">L.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">Int</span>, <span class="dt">L.ByteString</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ot">getBytes ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">L.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">L.ByteString</span>, <span class="dt">L.ByteString</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>parseP5 s <span class="ot">=</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">case</span> matchHeader (L8.pack <span class="st">&quot;P5&quot;</span>) s <span class="kw">of</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Just</span> s1 <span class="ot">-&gt;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>      <span class="kw">case</span> getNat s1 <span class="kw">of</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Just</span> (width, s2) <span class="ot">-&gt;</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>          <span class="kw">case</span> getNat (L8.dropWhile <span class="fu">isSpace</span> s2) <span class="kw">of</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>            <span class="dt">Just</span> (height, s3) <span class="ot">-&gt;</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>              <span class="kw">case</span> getNat (L8.dropWhile <span class="fu">isSpace</span> s3) <span class="kw">of</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>                <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>                <span class="dt">Just</span> (maxGrey, s4)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>                  <span class="op">|</span> maxGrey <span class="op">&gt;</span> <span class="dv">255</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>                  <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">-&gt;</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>                      <span class="kw">case</span> getBytes <span class="dv">1</span> s4 <span class="kw">of</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">Just</span> (_, s5) <span class="ot">-&gt;</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>                          <span class="kw">case</span> getBytes (width <span class="op">*</span> height) s5 <span class="kw">of</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>                            <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>                            <span class="dt">Just</span> (bitmap, s6) <span class="ot">-&gt;</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>                              <span class="dt">Just</span> (<span class="dt">Greymap</span> width height maxGrey bitmap, s6)</span></code></pre></div>
+</div>
+<p>This is a very literal piece of code, performing all of the parsing
+in one long staircase of <code>case</code> expressions. Each function
+returns the residual <code>ByteString</code> left over after it has
+consumed all it needs from its input string. We pass each residual
+string along to the next step. We deconstruct each result in turn,
+either returning <code>Nothing</code> if the parsing step failed, or
+building up a piece of the final result as we proceed. Here are the
+bodies of the functions that we apply during parsing. Their types are
+commented out because we already presented them above.</p>
+<div class="captioned-content">
+<div class="caption">
+PNM.hs
+</div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- L.ByteString -&gt; L.ByteString -&gt; Maybe L.ByteString</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>matchHeader prefix str</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> prefix <span class="ot">`L8.isPrefixOf`</span> str</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="ot">=</span> <span class="dt">Just</span> (L8.dropWhile <span class="fu">isSpace</span> (L.drop (L.length prefix) str))</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="fu">otherwise</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">-- L.ByteString -&gt; Maybe (Int, L.ByteString)</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>getNat s <span class="ot">=</span> <span class="kw">case</span> L8.readInt s <span class="kw">of</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>             <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>             <span class="dt">Just</span> (num,rest)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                 <span class="op">|</span> num <span class="op">&lt;=</span> <span class="dv">0</span>    <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>                 <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">-&gt;</span> <span class="dt">Just</span> (<span class="fu">fromIntegral</span> num, rest)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">-- Int -&gt; L.ByteString -&gt; Maybe (L.ByteString, L.ByteString)</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>getBytes n str <span class="ot">=</span> <span class="kw">let</span> count           <span class="ot">=</span> <span class="fu">fromIntegral</span> n</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                     both<span class="op">@</span>(prefix,_) <span class="ot">=</span> L.splitAt count str</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">in</span> <span class="kw">if</span> L.length prefix <span class="op">&lt;</span> count</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">then</span> <span class="dt">Nothing</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">else</span> <span class="dt">Just</span> both</span></code></pre></div>
+</div>
+<h1 data-number="3" id="getting-rid-of-boilerplate-code"><span
+class="header-section-number">3</span> Getting rid of boilerplate
+code</h1>
+<p>While our <code>parseP5</code> function works, the style in which we
+wrote it is somehow not pleasing. Our code marches steadily to the right
+of the screen, and it's clear that a slightly more complicated function
+would soon run out of visual real estate. We repeat a pattern of
+constructing and then deconstructing <code>Maybe</code> values, only
+continuing if a particular value matches <code>Just</code>. All of the
+similar <code>case</code> expressions act as "boilerplate code",
+busywork that obscures what we're really trying to do. In short, this
+function is begging for some abstraction and refactoring.</p>
+<p>If we step back a little, we can see two patterns. First is that many
+of the functions that we apply have similar types. Each takes a
+<code>ByteString</code> as its last argument, and returns
+<code>Maybe</code> something else. Secondly, every step in the "ladder"
+of our <code>parseP5</code> function deconstructs a <code>Maybe</code>
+value, and either fails or passes the unwrapped result to a
+function.</p>
+<p>We can quite easily write a function that captures this second
+pattern.</p>
+<div class="captioned-content">
+<div class="caption">
+PNM.hs
+</div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ot">(&gt;&gt;?) ::</span> <span class="dt">Maybe</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> b) <span class="ot">-&gt;</span> <span class="dt">Maybe</span> b</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">Nothing</span> <span class="op">&gt;&gt;?</span> _ <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="dt">Just</span> v  <span class="op">&gt;&gt;?</span> f <span class="ot">=</span> f v</span></code></pre></div>
+</div>
+<p>The <code>(&gt;&gt;?)</code> function acts very simply: it takes a
+value as its left argument, and a function as its right. If the value is
+not <code>Nothing</code>, it applies the function to whatever is wrapped
+in the <code>Just</code> constructor. We have defined our function as an
+operator so that we can use it to chain functions together. Finally, we
+haven't provided a fixity declaration for <code>(&gt;&gt;?)</code>, so
+it defaults to <code>infixl 9</code> (left associative, strongest
+operator precedence). In other words,
+<code>a &gt;&gt;? b &gt;&gt;? c</code> will be evaluated from left to
+right, as <code>(a &gt;&gt;? b) &gt;&gt;? c)</code>.</p>
+<p>With this chaining function in hand, we can take a second try at our
+parsing function.</p>
+<div class="captioned-content">
+<div class="caption">
+PNM.hs
+</div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">parseP5_take2 ::</span> <span class="dt">L.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">Greymap</span>, <span class="dt">L.ByteString</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>parseP5_take2 s <span class="ot">=</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    matchHeader (L8.pack <span class="st">&quot;P5&quot;</span>) s      <span class="op">&gt;&gt;?</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    \s <span class="ot">-&gt;</span> skipSpace ((), s)           <span class="op">&gt;&gt;?</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    (getNat <span class="op">.</span> <span class="fu">snd</span>)                    <span class="op">&gt;&gt;?</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    skipSpace                         <span class="op">&gt;&gt;?</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    \(width, s) <span class="ot">-&gt;</span>   getNat s         <span class="op">&gt;&gt;?</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    skipSpace                         <span class="op">&gt;&gt;?</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    \(height, s) <span class="ot">-&gt;</span>  getNat s         <span class="op">&gt;&gt;?</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    \(maxGrey, s) <span class="ot">-&gt;</span> getBytes <span class="dv">1</span> s     <span class="op">&gt;&gt;?</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    (getBytes (width <span class="op">*</span> height) <span class="op">.</span> <span class="fu">snd</span>) <span class="op">&gt;&gt;?</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    \(bitmap, s) <span class="ot">-&gt;</span> <span class="dt">Just</span> (<span class="dt">Greymap</span> width height maxGrey bitmap, s)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="ot">skipSpace ::</span> (a, <span class="dt">L.ByteString</span>) <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (a, <span class="dt">L.ByteString</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>skipSpace (a, s) <span class="ot">=</span> <span class="dt">Just</span> (a, L8.dropWhile <span class="fu">isSpace</span> s)</span></code></pre></div>
+</div>
+<p>The key to understanding this function is to think about the
+chaining. On the left hand side of each <code>(&gt;&gt;?)</code> is a
+<code>Maybe</code> value; on the right is a function that returns a
+<code>Maybe</code> value. Each left-and-right-sides expression is thus
+of type <code>Maybe</code>, suitable for passing to the following
+<code>(&gt;&gt;?)</code> expression.</p>
+<p>The other change that we've made to improve readability is add a
+<code>skipSpace</code> function. With these changes, we've halved the
+number of lines of code compared to our original parsing function. By
+removing the boilerplate <code>case</code> expressions, we've made the
+code easier to follow.</p>
+<p>While we warned against overuse of anonymous functions in <a
+href="4-functional-programming.org::*Anonymous (lambda) functions">the
+section called "Anonymous (lambda) functions"</a> in our chain of
+functions here. Because these functions are so small, we wouldn't
+improve readability by giving them names.</p>
+<h1 data-number="4" id="implicit-state"><span
+class="header-section-number">4</span> Implicit state</h1>
+<p>We're not yet out of the woods. Our code explicitly passes pairs
+around, using one element for an intermediate part of the parsed result
+and the other for the current residual <code>ByteString</code>. If we
+want to extend the code, for example to track the number of bytes we've
+consumed so that we can report the location of a parse failure, we
+already have eight different spots that we will need to modify, just to
+pass a three-tuple around.</p>
+<p>This approach makes even a small body of code difficult to change.
+The problem lies with our use of pattern matching to pull values out of
+each pair: we have embedded the knowledge that we are always working
+with pairs straight into our code. As pleasant and helpful as pattern
+matching is, it can lead us in some undesirable directions if we do not
+use it carefully.</p>
+<p>Let's do something to address the inflexibility of our new code.
+First, we will change the type of state that our parser uses.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString.Lazy.Char8</span> <span class="kw">as</span> <span class="dt">L8</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.ByteString.Lazy</span> <span class="kw">as</span> <span class="dt">L</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Int</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">ParseState</span> <span class="ot">=</span> <span class="dt">ParseState</span> {</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="ot">      string ::</span> <span class="dt">L.ByteString</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    ,<span class="ot"> offset ::</span> <span class="dt">Int64</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    } <span class="kw">deriving</span> (<span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>In our switch to an algebraic data type, we added the ability to
+track both the current residual string and the offset into the original
+string since we started parsing. The more important change was our use
+of record syntax: we can now <em>avoid</em> pattern matching on the
+pieces of state that we pass around, and use the accessor functions
+<code>string</code> and <code>offset</code> instead.</p>
+<p>We have given our parsing state a name. When we name something, it
+can become easier to reason about. For example, we can now look at
+parsing as a kind of function: it consumes a parsing state, and produces
+both a new parsing state and some other piece of information. We can
+directly represent this as a Haskell type.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ot">simpleParse ::</span> <span class="dt">ParseState</span> <span class="ot">-&gt;</span> (a, <span class="dt">ParseState</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>simpleParse <span class="ot">=</span> <span class="fu">undefined</span></span></code></pre></div>
+</div>
+<p>To provide more help to our users, we would like to report an error
+message if parsing fails. This only requires a minor tweak to the type
+of our parser.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ot">betterParse ::</span> <span class="dt">ParseState</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">String</span> (a, <span class="dt">ParseState</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>betterParse <span class="ot">=</span> <span class="fu">undefined</span></span></code></pre></div>
+</div>
+<p>In order to future-proof our code, it is best if we do not expose the
+implementation of our parser to our users. When we explicitly used pairs
+for state earlier, we found ourselves in trouble almost immediately,
+once we considered extending the capabilities of our parser. To stave
+off a repeat of that difficulty, we will hide the details of our parser
+type using a <code>newtype</code> declaration.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Parse</span> a <span class="ot">=</span> <span class="dt">Parse</span> {</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    runParse ::</span> <span class="dt">ParseState</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">String</span> (a, <span class="dt">ParseState</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<p>Remember that the <code>newtype</code> definition is just a
+compile-time wrapper around a function, so it has no run-time overhead.
+When we want to use the function, we will apply the
+<code>runParser</code> accessor.</p>
+<p>If we do not export the <code>Parse</code> value constructor from our
+module, we can ensure that nobody else will be able to accidentally
+create a parser, nor will they be able to inspect its internals via
+pattern matching.</p>
+<h2 data-number="4.1" id="the-identity-parser"><span
+class="header-section-number">4.1</span> The identity parser</h2>
+<p>Let's try to define a simple parser, the <em>identity</em> parser.
+All it does is turn whatever it is passed into the result of the parse.
+In this way, it somewhat resembles the <code>id</code> function.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ot">identity ::</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>identity a <span class="ot">=</span> <span class="dt">Parse</span> (\s <span class="ot">-&gt;</span> <span class="dt">Right</span> (a, s))</span></code></pre></div>
+</div>
+<p>This function leaves the parse state untouched, and uses its argument
+as the result of the parse. We wrap the body of the function in our
+<code>Parse</code> type to satisfy the type checker. How can we use this
+wrapped function to parse something?</p>
+<p>The first thing we must do is peel off the <code>Parse</code> wrapper
+so that we can get at the function inside. We do so using the
+<code>runParse</code> function. We also need to construct a
+<code>ParseState</code>, then run our parsing function on that parse
+state. Finally, we'd like to separate the result of the parse from the
+final <code>ParseState</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ot">parse ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">L.ByteString</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">String</span> a</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>parse parser initState</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="ot">=</span> <span class="kw">case</span> runParse parser (<span class="dt">ParseState</span> initState <span class="dv">0</span>) <span class="kw">of</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Left</span> err          <span class="ot">-&gt;</span> <span class="dt">Left</span> err</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>        <span class="dt">Right</span> (result, _) <span class="ot">-&gt;</span> <span class="dt">Right</span> result</span></code></pre></div>
+</div>
+<p>Because neither the <code>identity</code> parser nor the
+<code>parse</code> function examines the parse state, we don't even need
+to create an input string in order to try our code.</p>
+<pre class="screen"><code>ghci&gt; :load Parse
+[1 of 1] Compiling Main             ( Parse.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; :type parse (identity 1) undefined
+parse (identity 1) undefined :: Num a =&gt; Either String a
+ghci&gt; parse (identity 1) undefined
+Right 1
+ghci&gt; parse (identity &quot;foo&quot;) undefined
+Right &quot;foo&quot;
+</code></pre>
+<p>A parser that doesn't even inspect its input might not seem
+interesting, but we will shortly see that in fact it is useful.
+Meanwhile, we have gained confidence that our types are correct and that
+we understand the basic workings of our code.</p>
+<h2 data-number="4.2"
+id="record-syntax-updates-and-pattern-matching"><span
+class="header-section-number">4.2</span> Record syntax, updates, and
+pattern matching</h2>
+<p>Record syntax is useful for more than just accessor functions: we can
+use it to copy and partly change an existing value. In use, the notation
+looks like this.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ot">modifyOffset ::</span> <span class="dt">ParseState</span> <span class="ot">-&gt;</span> <span class="dt">Int64</span> <span class="ot">-&gt;</span> <span class="dt">ParseState</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>modifyOffset initState newOffset <span class="ot">=</span> initState { offset <span class="ot">=</span> newOffset }</span></code></pre></div>
+</div>
+<p>This creates a new <code>ParseState</code> value identical to
+<code>initState</code>, but with its <code>offset</code> field set to
+whatever value we specify for <code>newOffset</code>.</p>
+<pre class="screen"><code>ghci&gt; let before = ParseState (L8.pack &quot;foo&quot;) 0
+ghci&gt; let after = modifyOffset before 3
+ghci&gt; before
+ParseState {string = &quot;foo&quot;, offset = 0}
+ghci&gt; after
+ParseState {string = &quot;foo&quot;, offset = 3}
+</code></pre>
+<p>We can set as many fields as we want inside the curly braces,
+separating them using commas.</p>
+<h2 data-number="4.3" id="a-more-interesting-parser"><span
+class="header-section-number">4.3</span> A more interesting parser</h2>
+<p>Let's focus now on writing a parser that does something meaningful.
+We're not going to get too ambitious yet: all we want to do is parse a
+single byte.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- import the Word8 type from Data.Word</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="ot">parseByte ::</span> <span class="dt">Parse</span> <span class="dt">Word8</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>parseByte <span class="ot">=</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    getState <span class="op">==&gt;</span> \initState <span class="ot">-&gt;</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> L.uncons (string initState) <span class="kw">of</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Nothing</span> <span class="ot">-&gt;</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>          bail <span class="st">&quot;no more input&quot;</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Just</span> (byte,remainder) <span class="ot">-&gt;</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>          putState newState <span class="op">==&gt;</span> \_ <span class="ot">-&gt;</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>          identity byte</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>        <span class="kw">where</span> newState <span class="ot">=</span> initState { string <span class="ot">=</span> remainder,</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>                                     offset <span class="ot">=</span> newOffset }</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>              newOffset <span class="ot">=</span> offset initState <span class="op">+</span> <span class="dv">1</span></span></code></pre></div>
+</div>
+<p>There are a number of new functions in our definition.</p>
+<p>The <code>L8.uncons</code> function takes the first element from a
+<code>ByteString</code>.</p>
+<pre class="screen"><code>ghci&gt; L8.uncons (L8.pack &quot;foo&quot;)
+Just (&#39;f&#39;,Chunk &quot;oo&quot; Empty)
+ghci&gt; L8.uncons L8.empty
+Nothing
+</code></pre>
+<p>Our <code>getState</code> function retrieves the current parsing
+state, while <code>putState</code> replaces it. The <code>bail</code>
+function terminates parsing and reports an error. The
+<code>(==&gt;)</code> function chains parsers together. We will cover
+each of these functions shortly.</p>
+<div class="TIP">
+<p>Hanging lambdas</p>
+<p>The definition of <code>parseByte</code> has a visual style that we
+haven't discussed before. It contains anonymous functions in which the
+parameters and <code>-&gt;</code> sit at the end of a line, with the
+function's body following on the next line.</p>
+<p>This style of laying out an anonymous function doesn't have an
+official name, so let's call it a "hanging lambda". Its main use is to
+make room for more text in the body of the function. It also makes it
+more visually clear that there's a relationship between one function and
+the one that follows. Often, for instance, the result of the first
+function is being passed as a parameter to the second.</p>
+</div>
+<h2 data-number="4.4" id="obtaining-and-modifying-the-parse-state"><span
+class="header-section-number">4.4</span> Obtaining and modifying the
+parse state</h2>
+<p>Our <code>parseByte</code> function doesn't take the parse state as
+an argument. Instead, it has to call <code>getState</code> to get a copy
+of the state, and <code>putState</code> to replace the current state
+with a new one.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ot">getState ::</span> <span class="dt">Parse</span> <span class="dt">ParseState</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>getState <span class="ot">=</span> <span class="dt">Parse</span> (\s <span class="ot">-&gt;</span> <span class="dt">Right</span> (s, s))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="ot">putState ::</span> <span class="dt">ParseState</span> <span class="ot">-&gt;</span> <span class="dt">Parse</span> ()</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>putState s <span class="ot">=</span> <span class="dt">Parse</span> (\_ <span class="ot">-&gt;</span> <span class="dt">Right</span> ((), s))</span></code></pre></div>
+</div>
+<p>When reading these functions, recall that the left element of the
+tuple is the result of a <code>Parse</code>, while the right is the
+current <code>ParseState</code>. This makes it easier to follow what
+these functions are doing.</p>
+<p>The <code>getState</code> function extracts the current parsing
+state, so that the caller can access the string. The
+<code>putState</code> function replaces the current parsing state with a
+new one. This becomes the state that will be seen by the next function
+in the <code>(==&gt;)</code> chain.</p>
+<p>These functions let us move explicit state handling into the bodies
+of only those functions that need it. Many functions don't need to know
+what the current state is, and so they'll never call
+<code>getState</code> or <code>putState</code>. This lets us write more
+compact code than our earlier parser, which had to pass tuples around by
+hand. We will see the effect in some of the code that follows.</p>
+<p>We've packaged up the details of the parsing state into the
+<code>ParseState</code> type, and we work with it using accessors
+instead of pattern matching. Now that the parsing state is passed around
+implicitly, we gain a further benefit. If we want to add more
+information to the parsing state, all we need to do is modify the
+definition of <code>ParseState</code>, and the bodies of whatever
+functions need the new information. Compared to our earlier parsing
+code, where all of our state was exposed through pattern matching, this
+is much more modular: the only code we affect is code that needs the new
+information.</p>
+<h2 data-number="4.5" id="reporting-parse-errors"><span
+class="header-section-number">4.5</span> Reporting parse errors</h2>
+<p>We carefully defined our <code>Parse</code> type to accommodate the
+possibility of failure. The <code>(==&gt;)</code> combinator checks for
+a parse failure and stops parsing if it runs into a failure. But we
+haven't yet introduced the <code>bail</code> function, which we use to
+report a parse error.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ot">bail ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Parse</span> a</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>bail err <span class="ot">=</span> <span class="dt">Parse</span> <span class="op">$</span> \s <span class="ot">-&gt;</span> <span class="dt">Left</span> <span class="op">$</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;byte offset &quot;</span> <span class="op">++</span> <span class="fu">show</span> (offset s) <span class="op">++</span> <span class="st">&quot;: &quot;</span> <span class="op">++</span> err</span></code></pre></div>
+</div>
+<p>After we call <code>bail</code>, <code>(==&gt;)</code> will
+successfully pattern match on the <code>Left</code> constructor that it
+wraps the error message with, and it will not invoke the next parser in
+the chain. This will cause the error message to percolate back through
+the chain of prior callers.</p>
+<h2 data-number="4.6" id="chaining-parsers-together"><span
+class="header-section-number">4.6</span> Chaining parsers together</h2>
+<p>The <code>(==&gt;)</code> function serves a similar purpose to our
+earlier <code>(&gt;&gt;?)</code> function: it is "glue" that lets us
+chain functions together.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ot">(==&gt;) ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Parse</span> b) <span class="ot">-&gt;</span> <span class="dt">Parse</span> b</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>firstParser <span class="op">==&gt;</span> secondParser <span class="ot">=</span> <span class="dt">Parse</span> chainedParser</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> chainedParser initState <span class="ot">=</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>          <span class="kw">case</span> runParse firstParser initState <span class="kw">of</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">Left</span> errMessage <span class="ot">-&gt;</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                <span class="dt">Left</span> errMessage</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>            <span class="dt">Right</span> (firstResult, newState) <span class="ot">-&gt;</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                runParse (secondParser firstResult) newState</span></code></pre></div>
+</div>
+<p>The body of <code>(==&gt;)</code> is interesting, and ever so
+slightly tricky. Recall that the <code>Parse</code> type represents
+really a function inside a wrapper. Since <code>(==&gt;)</code> lets us
+chain two <code>Parse</code> values to produce a third, it must return a
+function, in a wrapper.</p>
+<p>The function doesn't really "do" much: it just creates a
+<em>closure</em> to remember the values of <code>firstParser</code> and
+<code>secondParser</code>.</p>
+<div class="TIP">
+<p>Tip</p>
+<p>A closure is simply the pairing of a function with its
+<em>environment</em>, the bound variables that it can see. Closures are
+commonplace in Haskell. For instance, the section <code>(+5)</code> is a
+closure. An implementation must record the value <code>5</code> as the
+second argument to the <code>(+)</code> operator, so that the resulting
+function can add <code>5</code> to whatever value it is passed.</p>
+</div>
+<p>This closure will not be unwrapped and applied until we apply
+<code>parse</code>. At that point, it will be applied with a
+<code>ParseState</code>. It will apply <code>firstParser</code> and
+inspect its result. If that parse fails, the closure will fail too.
+Otherwise, it will pass the result of the parse and the new
+<code>ParseState</code> to <code>secondParser</code>.</p>
+<p>This is really quite fancy and subtle stuff: we're effectively
+passing the <code>ParseState</code> down the chain of <code>Parse</code>
+values in a hidden argument. (We'll be revisiting this kind of code in a
+few chapters, so don't fret if that description seemed dense.)</p>
+<h1 data-number="5" id="introducing-functors"><span
+class="header-section-number">5</span> Introducing functors</h1>
+<p>We're by now thoroughly familiar with the <code>map</code> function,
+which applies a function to every element of a list, returning a list of
+possibly a different type.</p>
+<pre class="screen"><code>ghci&gt; map (+1) [1,2,3]
+[2,3,4]
+ghci&gt; map show [1,2,3]
+[&quot;1&quot;,&quot;2&quot;,&quot;3&quot;]
+ghci&gt; :type map show
+map show :: (Show a) =&gt; [a] -&gt; [String]
+</code></pre>
+<p>This <code>map</code>-like activity can be useful in other instances.
+For example, consider a binary tree.</p>
+<div class="captioned-content">
+<div class="caption">
+TreeMap.hs
+</div>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Tree</span> a <span class="ot">=</span> <span class="dt">Node</span> (<span class="dt">Tree</span> a) (<span class="dt">Tree</span> a)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="dt">Leaf</span> a</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>              <span class="kw">deriving</span> (<span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>If we want to take a tree of strings and turn it into a tree
+containing the lengths of those strings, we could write a function to do
+this.</p>
+<div class="captioned-content">
+<div class="caption">
+TreeMap.hs
+</div>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>treeLengths (<span class="dt">Leaf</span> s) <span class="ot">=</span> <span class="dt">Leaf</span> (<span class="fu">length</span> s)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>treeLengths (<span class="dt">Node</span> l r) <span class="ot">=</span> <span class="dt">Node</span> (treeLengths l) (treeLengths r)</span></code></pre></div>
+</div>
+<p>Now that our eyes are attuned to looking for patterns that we can
+turn into generally useful functions, we can see a possible case of this
+here.</p>
+<div class="captioned-content">
+<div class="caption">
+TreeMap.hs
+</div>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="ot">treeMap ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> <span class="dt">Tree</span> a <span class="ot">-&gt;</span> <span class="dt">Tree</span> b</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>treeMap f (<span class="dt">Leaf</span> a)   <span class="ot">=</span> <span class="dt">Leaf</span> (f a)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>treeMap f (<span class="dt">Node</span> l r) <span class="ot">=</span> <span class="dt">Node</span> (treeMap f l) (treeMap f r)</span></code></pre></div>
+</div>
+<p>As we might hope, <code>treeLengths</code> and
+<code>treeMap length</code> give the same results.</p>
+<pre class="screen"><code>ghci&gt; :l TreeMap.hs
+[1 of 1] Compiling Main             ( TreeMap.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; let tree = Node (Leaf &quot;foo&quot;) (Node (Leaf &quot;x&quot;) (Leaf &quot;quux&quot;))
+ghci&gt; treeLengths tree
+Node (Leaf 3) (Node (Leaf 1) (Leaf 4))
+ghci&gt; treeMap length tree
+Node (Leaf 3) (Node (Leaf 1) (Leaf 4))
+ghci&gt; treeMap (odd . length) tree
+Node (Leaf True) (Node (Leaf True) (Leaf False))
+</code></pre>
+<p>Haskell provides a well-known type class to further generalise
+<code>treeMap</code>. This type class is named <code>Functor</code>, and
+it defines one function, <code>fmap</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+TreeMap.hs
+</div>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Functor</span> f <span class="kw">where</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    fmap ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> f a <span class="ot">-&gt;</span> f b</span></code></pre></div>
+</div>
+<p>We can think of <code>fmap</code> as a kind of <em>lifting</em>
+function, as we introduced in <a
+href="9-a-library-for-searching-the-file-system.org::*Avoiding boilerplate with lifting">the
+section called "Avoiding boilerplate with lifting"</a> function over
+ordinary values <code>a -&gt; b</code> and lifts it to become a function
+over a type whose constructor takes one type parameter
+<code>f a -&gt; f b</code>, where <code>f</code> is the type.</p>
+<p>If we substitute <code>Tree</code> for the type variable
+<code>f</code>, for example, the type of <code>fmap</code> is identical
+to the type of <code>treeMap</code>, and in fact we can use
+<code>treeMap</code> as the implementation of <code>fmap</code> over
+Trees.</p>
+<div class="captioned-content">
+<div class="caption">
+TreeMap.hs
+</div>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Tree</span> <span class="kw">where</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmap</span> <span class="ot">=</span> treeMap</span></code></pre></div>
+</div>
+<p><code>map</code> is actually the implementation of <code>fmap</code>
+for lists.</p>
+<div class="captioned-content">
+<div class="caption">
+TreeMap.hs
+</div>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> [] <span class="kw">where</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmap</span> <span class="ot">=</span> <span class="fu">map</span></span></code></pre></div>
+</div>
+<p>So we can use <code>fmap</code> over different types.</p>
+<pre class="screen"><code>ghci&gt; fmap length [&quot;foo&quot;,&quot;quux&quot;]
+[3,4]
+ghci&gt; fmap length (Node (Leaf &quot;Livingstone&quot;) (Leaf &quot;I presume&quot;))
+Node (Leaf 11) (Leaf 9)
+</code></pre>
+<p>The Prelude defines instances of <code>Functor</code> for several
+common types, notably lists and <code>Maybe</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+TreeMap.hs
+</div>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Maybe</span> <span class="kw">where</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmap</span> _ <span class="dt">Nothing</span>  <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmap</span> f (<span class="dt">Just</span> x) <span class="ot">=</span> <span class="dt">Just</span> (f x)</span></code></pre></div>
+</div>
+<p>The instance for <code>Maybe</code> makes it particularly clear what
+an <code>fmap</code> implementation needs to do. The implementation must
+have a sensible behaviour for each of a type's constructors. If a value
+is wrapped in <code>Just</code>, for example, the <code>fmap</code>
+implementation calls the function on the unwrapped value, then rewraps
+it in <code>Just</code>.</p>
+<p>The definition of <code>Functor</code> imposes a few obvious
+restrictions on what we can do with <code>fmap</code>. For example, we
+can only make instances of <code>Functor</code> from types that have
+exactly one type parameter.</p>
+<p>We can't write an <code>fmap</code> implementation for
+<code>Either a b</code> or <code>(a, b)</code>, for example, because
+these have two type parameters. We also can't write one for
+<code>Bool</code> or <code>Int</code>, as they have no type
+parameters.</p>
+<p>In addition, we can't place any constraints on our type definition.
+What does this mean? To illustrate, let's first look at a normal
+<code>data</code> definition and its <code>Functor</code> instance.</p>
+<div class="captioned-content">
+<div class="caption">
+ValidFunctor.hs
+</div>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Foo</span> a <span class="ot">=</span> <span class="dt">Foo</span> a</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Foo</span> <span class="kw">where</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmap</span> f (<span class="dt">Foo</span> a) <span class="ot">=</span> <span class="dt">Foo</span> (f a)</span></code></pre></div>
+</div>
+<p>When we define a new type, we can add a type constraint just after
+the <code>data</code> keyword as follows.</p>
+<div class="captioned-content">
+<div class="caption">
+ValidFunctor.hs
+</div>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> <span class="dt">Bar</span> a <span class="ot">=</span> <span class="dt">Bar</span> a</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Bar</span> <span class="kw">where</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmap</span> f (<span class="dt">Bar</span> a) <span class="ot">=</span> <span class="dt">Bar</span> (f a)</span></code></pre></div>
+</div>
+<p>This says that we can only put a type <code>a</code> into a
+<code>Foo</code> if <code>a</code> is a member of the <code>Eq</code>
+type class. However, the constraint renders it impossible to write a
+<code>Functor</code> instance for <code>Bar</code>.</p>
+<pre class="screen"><code>ghci&gt; :load ValidFunctor
+[1 of 1] Compiling Main             ( ValidFunctor.hs, interpreted )
+
+ValidFunctor.hs:1:6: error:
+    Illegal datatype context (use DatatypeContexts): Eq a =&gt;
+  |
+1 | data Eq a =&gt; Bar a = Bar a
+  |      ^^^^
+Failed, no modules loaded.
+</code></pre>
+<h2 data-number="5.1" id="constraints-on-type-definitions-are-bad"><span
+class="header-section-number">5.1</span> Constraints on type definitions
+are bad</h2>
+<p>Adding a constraint to a type definition is essentially never a good
+idea. It has the effect of forcing you to add type constraints to
+<em>every</em> function that will operate on values of that type. Let's
+say that we need a stack data structure that we want to be able to query
+to see whether its elements obey some ordering. Here's a naive
+definition of the data type.</p>
+<div class="captioned-content">
+<div class="caption">
+TypeConstraint.hs
+</div>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> (<span class="dt">Ord</span> a) <span class="ot">=&gt;</span> <span class="dt">OrdStack</span> a <span class="ot">=</span> <span class="dt">Bottom</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>                           <span class="op">|</span> <span class="dt">Item</span> a (<span class="dt">OrdStack</span> a)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>                             <span class="kw">deriving</span> (<span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>If we want to write a function that checks the stack to see whether
+it is increasing (i.e. every element is bigger than the element below
+it), we'll obviously need an <code>Ord</code> constraint to perform the
+pairwise comparisons.</p>
+<div class="captioned-content">
+<div class="caption">
+TypeConstraint.hs
+</div>
+<div class="sourceCode" id="cb37"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="ot">isIncreasing ::</span> (<span class="dt">Ord</span> a) <span class="ot">=&gt;</span> <span class="dt">OrdStack</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>isIncreasing (<span class="dt">Item</span> a rest<span class="op">@</span>(<span class="dt">Item</span> b _))</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> a <span class="op">&lt;</span> b     <span class="ot">=</span> isIncreasing rest</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> <span class="dt">False</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>isIncreasing _  <span class="ot">=</span> <span class="dt">True</span></span></code></pre></div>
+</div>
+<p>However, because we wrote the type constraint on the type definition,
+that constraint ends up infecting places where it isn't needed: we need
+to add the <code>Ord</code> constraint to <code>push</code>, which does
+not care about the ordering of elements on the stack.</p>
+<div class="captioned-content">
+<div class="caption">
+TypeConstraint.hs
+</div>
+<div class="sourceCode" id="cb38"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="ot">push ::</span> (<span class="dt">Ord</span> a) <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">OrdStack</span> a <span class="ot">-&gt;</span> <span class="dt">OrdStack</span> a</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>push a s <span class="ot">=</span> <span class="dt">Item</span> a s</span></code></pre></div>
+</div>
+<p>Try removing that <code>Ord</code> constraint above, and the
+definition of <code>push</code> will fail to type-check.</p>
+<p>This is why our attempt to write a <code>Functor</code> instance for
+<code>Bar</code> failed earlier: it would have required an
+<code>Eq</code> constraint to somehow get retroactively added to the
+signature of <code>fmap</code>.</p>
+<p>Now that we've tentatively established that putting a type constraint
+on a type definition is a misfeature of Haskell, what's a more sensible
+alternative? The answer is simply to omit type constraints from type
+definitions, and instead place them on the functions that need them.</p>
+<p>In this example, we can drop the <code>Ord</code> constraints from
+<code>OrdStack</code> and <code>push</code>. It needs to stay on
+<code>isIncreasing</code>, which otherwise couldn't call
+<code>(&lt;)</code>. We now have the constraints where they actually
+matter. This has the further benefit of making the type signatures
+better document the true requirements of each function.</p>
+<p>Several Haskell types follow this pattern. The <code>Map</code> type
+in the <code>Data.Map</code> module requires that its keys be ordered,
+but the type itself does not have such a constraint. The constraint is
+expressed on functions like <code>insert</code>, where it's actually
+needed, and not on <code>size</code>, where ordering isn't used.</p>
+<h2 data-number="5.2" id="infix-use-of-fmap"><span
+class="header-section-number">5.2</span> Infix use of
+<code>fmap</code></h2>
+<p>Quite often, you'll see <code>fmap</code> called as an operator.</p>
+<pre class="screen"><code>ghci&gt; (1+) `fmap` [1,2,3] ++ [4,5,6]
+[2,3,4,4,5,6]
+</code></pre>
+<p>Perhaps strangely, plain old <code>map</code> is almost never used in
+this way.</p>
+<p>One possible reason for the stickiness of the
+<code>fmap</code>-as-operator meme is that this use lets us omit
+parentheses from its second argument. Fewer parentheses leads to reduced
+mental juggling while reading a function.</p>
+<pre class="screen"><code>ghci&gt; fmap (1+) ([1,2,3] ++ [4,5,6])
+[2,3,4,5,6,7]
+</code></pre>
+<p>There's also a <code>(&lt;$&gt;)</code> operator that is an alias for
+<code>fmap</code>. The <code>$</code> in its name appeals to the
+similarity between applying a function to its arguments (using the
+<code>($)</code> operator) and lifting a function into a functor. We
+will see that this works well for parsing when we return to the code
+that we have been writing.</p>
+<h2 data-number="5.3" id="thinking-more-about-functors"><span
+class="header-section-number">5.3</span> Thinking more about
+functors</h2>
+<p>We've made a few implicit assumptions about how functors ought to
+work. It's helpful to make these explicit and to think of them as rules
+to follow, because this lets us treat functors as uniform, well-behaved
+objects. We have only two rules to remember, and they're simple.</p>
+<p>Our first rule is that a functor must preserve <em>identity</em>.
+That is, applying <code>fmap id</code> to a value should give us back an
+identical value.</p>
+<pre class="screen"><code>ghci&gt; fmap id (Node (Leaf &quot;a&quot;) (Leaf &quot;b&quot;))
+Node (Leaf &quot;a&quot;) (Leaf &quot;b&quot;)
+</code></pre>
+<p>Our second rule is that functors must be <em>composable</em>. That
+is, composing two uses of <code>fmap</code> should give the same result
+as one <code>fmap</code> with the same functions composed.</p>
+<pre class="screen"><code>ghci&gt; (fmap even . fmap length) (Just &quot;twelve&quot;)
+Just True
+ghci&gt; fmap (even . length) (Just &quot;twelve&quot;)
+Just True
+</code></pre>
+<p>Another way of looking at these two rules is that a functor must
+preserve <em>shape</em>. The structure of a collection should not be
+affected by a functor; only the values that it contains should
+change.</p>
+<pre class="screen"><code>ghci&gt; fmap odd (Just 1)
+Just True
+ghci&gt; fmap odd Nothing
+Nothing
+</code></pre>
+<p>If you're writing a <code>Functor</code> instance, it's useful to
+keep these rules in mind, and indeed to test them, because the compiler
+can't check the rules we've listed above. On the other hand, if you're
+simply <em>using</em> functors, the rules are "natural" enough that
+there's no need to memorise them. They just formalize a few intuitive
+notions of "do what I mean". Here is a pseudocode representation of the
+expected behavior.</p>
+<div class="captioned-content">
+<div class="caption">
+FunctorLaws.hs
+</div>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fmap</span> <span class="fu">id</span>      <span class="op">==</span> <span class="fu">id</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">fmap</span> (f <span class="op">.</span> g) <span class="op">==</span> <span class="fu">fmap</span> f <span class="op">.</span> <span class="fu">fmap</span> g</span></code></pre></div>
+</div>
+<h1 data-number="6" id="writing-a-functor-instance-for-parse"><span
+class="header-section-number">6</span> Writing a functor instance for
+<code>Parse</code></h1>
+<p>For the types we have surveyed so far, the behaviour we ought to
+expect of <code>fmap</code> has been obvious. This is a little less
+clear for <code>Parse</code>, due to its complexity. A reasonable guess
+is that the function we're ~fmap~ping should be applied to the current
+result of a parse, and leave the parse state untouched.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">Parse</span> <span class="kw">where</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmap</span> f parser <span class="ot">=</span> parser <span class="op">==&gt;</span> \result <span class="ot">-&gt;</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>                    identity (f result)</span></code></pre></div>
+</div>
+<p>This definition is easy to read, so let's perform a few quick
+experiments to see if we're following our rules for functors.</p>
+<p>First, we'll check that identity is preserved. Let's try this first
+on a parse that ought to fail: parsing a byte from an empty string
+(remember that <code>(&lt;$&gt;)</code> is <code>fmap</code>).</p>
+<pre class="screen"><code>ghci&gt; parse parseByte L.empty
+Left &quot;byte offset 0: no more input&quot;
+ghci&gt; parse (id &lt;$&gt; parseByte) L.empty
+Left &quot;byte offset 0: no more input&quot;
+</code></pre>
+<p>Good. Now for a parse that should succeed.</p>
+<pre class="screen"><code>ghci&gt; input = L8.pack &quot;foo&quot;
+ghci&gt; L.head input
+102
+ghci&gt; parse parseByte input
+Right 102
+ghci&gt; parse (id &lt;$&gt; parseByte) input
+Right 102
+</code></pre>
+<p>By inspecting the results above, we can also see that our functor
+instance is obeying our second rule, that of preserving shape. Failure
+is preserved as failure, and success as success.</p>
+<p>Finally, we'll ensure that composability is preserved.</p>
+<pre class="screen"><code>ghci&gt; parse ((chr . fromIntegral) &lt;$&gt; parseByte) input
+Right &#39;f&#39;
+ghci&gt; parse (chr &lt;$&gt; fromIntegral &lt;$&gt; parseByte) input
+Right &#39;f&#39;
+</code></pre>
+<p>On the basis of this brief inspection, our <code>Functor</code>
+instance appears to be well behaved.</p>
+<h1 data-number="7" id="using-functors-for-parsing"><span
+class="header-section-number">7</span> Using functors for parsing</h1>
+<p>All this talk of functors had a purpose: they often let us write
+tidy, expressive code. Recall the <code>parseByte</code> function that
+we introduced earlier. In recasting our PGM parser to use our new parser
+infrastructure, we'll often want to work with ASCII characters instead
+of <code>Word8</code> values.</p>
+<p>While we could write a <code>parseChar</code> function that has a
+similar structure to <code>parseByte</code>, we can now avoid this code
+duplication by taking advantage of the functor nature of
+<code>Parse</code>. Our functor takes the result of a parse and applies
+a function to it, so what we need is a function that turns a
+<code>Word8</code> into a <code>Char</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb49"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- import Data.Char</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="ot">w2c ::</span> <span class="dt">Word8</span> <span class="ot">-&gt;</span> <span class="dt">Char</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>w2c <span class="ot">=</span> <span class="fu">chr</span> <span class="op">.</span> <span class="fu">fromIntegral</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a><span class="ot">parseChar ::</span> <span class="dt">Parse</span> <span class="dt">Char</span></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>parseChar <span class="ot">=</span> w2c <span class="op">&lt;$&gt;</span> parseByte</span></code></pre></div>
+</div>
+<p>We can also use functors to write a compact "peek" function. This
+returns <code>Nothing</code> if we're at the end of the input string.
+Otherwise, it returns the next character without consuming it (i.e. it
+inspects, but doesn't disturb, the current parsing state).</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb50"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="ot">peekByte ::</span> <span class="dt">Parse</span> (<span class="dt">Maybe</span> <span class="dt">Word8</span>)</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>peekByte <span class="ot">=</span> (<span class="fu">fmap</span> <span class="fu">fst</span> <span class="op">.</span> L.uncons <span class="op">.</span> string) <span class="op">&lt;$&gt;</span> getState</span></code></pre></div>
+</div>
+<p>The same lifting trick that let us define <code>parseChar</code> lets
+us write a compact definition for <code>peekChar</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb51"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="ot">peekChar ::</span> <span class="dt">Parse</span> (<span class="dt">Maybe</span> <span class="dt">Char</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>peekChar <span class="ot">=</span> <span class="fu">fmap</span> w2c <span class="op">&lt;$&gt;</span> peekByte</span></code></pre></div>
+</div>
+<p>Notice that <code>peekByte</code> and <code>peekChar</code> each make
+two calls to <code>fmap</code>, one of which is disguised as
+<code>(&lt;$&gt;)</code>. This is necessary because the type
+<code>Parse (Maybe a)</code> is a functor within a functor. We thus have
+to lift a function twice to "get it into" the inner functor.</p>
+<p>Finally, we'll write another generic combinator, which is the
+<code>Parse</code> analogue of the familiar <code>takeWhile</code>: it
+consumes its input while its predicate returns <code>True</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb52"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="ot">parseWhile ::</span> (<span class="dt">Word8</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> <span class="dt">Parse</span> [<span class="dt">Word8</span>]</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>parseWhile p <span class="ot">=</span> (<span class="fu">fmap</span> p <span class="op">&lt;$&gt;</span> peekByte) <span class="op">==&gt;</span> \mp <span class="ot">-&gt;</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>               <span class="kw">if</span> mp <span class="op">==</span> <span class="dt">Just</span> <span class="dt">True</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>               <span class="kw">then</span> parseByte <span class="op">==&gt;</span> \b <span class="ot">-&gt;</span></span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>                    (b<span class="op">:</span>) <span class="op">&lt;$&gt;</span> parseWhile p</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>               <span class="kw">else</span> identity []</span></code></pre></div>
+</div>
+<p>Once again, we're using functors in several places (doubled up, when
+necessary) to reduce the verbosity of our code. Here's a rewrite of the
+same function in a more direct style that does not use functors.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb53"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>parseWhileVerbose p <span class="ot">=</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>    peekByte <span class="op">==&gt;</span> \mc <span class="ot">-&gt;</span></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> mc <span class="kw">of</span></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Nothing</span> <span class="ot">-&gt;</span> identity []</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Just</span> c <span class="op">|</span> p c <span class="ot">-&gt;</span></span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>                 parseByte <span class="op">==&gt;</span> \b <span class="ot">-&gt;</span></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>                 parseWhileVerbose p <span class="op">==&gt;</span> \bs <span class="ot">-&gt;</span></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>                 identity (b<span class="op">:</span>bs)</span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a>             <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">-&gt;</span></span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a>                 identity []</span></code></pre></div>
+</div>
+<p>The more verbose definition is likely easier to read when you are
+less familiar with functors. However, use of functors is sufficiently
+common in Haskell code that the more compact representation should
+become second nature (both to read and to write) fairly quickly.</p>
+<h1 data-number="8" id="rewriting-our-pgm-parser"><span
+class="header-section-number">8</span> Rewriting our PGM parser</h1>
+<p>With our new parsing code, what does the raw PGM parsing function
+look like now?</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb54"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- import PNM</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>parseRawPGM <span class="ot">=</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>    parseWhileWith w2c notWhite <span class="op">==&gt;</span> \header <span class="ot">-&gt;</span> skipSpaces <span class="op">==&gt;&amp;</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>    assert (header <span class="op">==</span> <span class="st">&quot;P5&quot;</span>) <span class="st">&quot;invalid raw header&quot;</span> <span class="op">==&gt;&amp;</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>    parseNat <span class="op">==&gt;</span> \width <span class="ot">-&gt;</span> skipSpaces <span class="op">==&gt;&amp;</span></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>    parseNat <span class="op">==&gt;</span> \height <span class="ot">-&gt;</span> skipSpaces <span class="op">==&gt;&amp;</span></span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>    parseNat <span class="op">==&gt;</span> \maxGrey <span class="ot">-&gt;</span></span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>    parseByte <span class="op">==&gt;&amp;</span></span>
+<span id="cb54-10"><a href="#cb54-10" aria-hidden="true" tabindex="-1"></a>    parseBytes (width <span class="op">*</span> height) <span class="op">==&gt;</span> \bitmap <span class="ot">-&gt;</span></span>
+<span id="cb54-11"><a href="#cb54-11" aria-hidden="true" tabindex="-1"></a>    identity (<span class="dt">Greymap</span> width height maxGrey bitmap)</span>
+<span id="cb54-12"><a href="#cb54-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> notWhite <span class="ot">=</span> (<span class="ot">`notElem`</span> <span class="st">&quot; \r\n\t&quot;</span>)</span></code></pre></div>
+</div>
+<p>This definition makes use of a few more helper functions that we
+present here, following a pattern that should by now be familiar.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb55"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="ot">parseWhileWith ::</span> (<span class="dt">Word8</span> <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> <span class="dt">Parse</span> [a]</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>parseWhileWith f p <span class="ot">=</span> <span class="fu">fmap</span> f <span class="op">&lt;$&gt;</span> parseWhile (p <span class="op">.</span> f)</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a><span class="ot">parseNat ::</span> <span class="dt">Parse</span> <span class="dt">Int</span></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>parseNat <span class="ot">=</span> parseWhileWith w2c <span class="fu">isDigit</span> <span class="op">==&gt;</span> \digits <span class="ot">-&gt;</span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>           <span class="kw">if</span> <span class="fu">null</span> digits</span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>           <span class="kw">then</span> bail <span class="st">&quot;no more input&quot;</span></span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>           <span class="kw">else</span> <span class="kw">let</span> n <span class="ot">=</span> <span class="fu">read</span> digits</span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>                <span class="kw">in</span> <span class="kw">if</span> n <span class="op">&lt;</span> <span class="dv">0</span></span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>                   <span class="kw">then</span> bail <span class="st">&quot;integer overflow&quot;</span></span>
+<span id="cb55-11"><a href="#cb55-11" aria-hidden="true" tabindex="-1"></a>                   <span class="kw">else</span> identity n</span>
+<span id="cb55-12"><a href="#cb55-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-13"><a href="#cb55-13" aria-hidden="true" tabindex="-1"></a><span class="ot">(==&gt;&amp;) ::</span> <span class="dt">Parse</span> a <span class="ot">-&gt;</span> <span class="dt">Parse</span> b <span class="ot">-&gt;</span> <span class="dt">Parse</span> b</span>
+<span id="cb55-14"><a href="#cb55-14" aria-hidden="true" tabindex="-1"></a>p <span class="op">==&gt;&amp;</span> f <span class="ot">=</span> p <span class="op">==&gt;</span> \_ <span class="ot">-&gt;</span> f</span>
+<span id="cb55-15"><a href="#cb55-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-16"><a href="#cb55-16" aria-hidden="true" tabindex="-1"></a><span class="ot">skipSpaces ::</span> <span class="dt">Parse</span> ()</span>
+<span id="cb55-17"><a href="#cb55-17" aria-hidden="true" tabindex="-1"></a>skipSpaces <span class="ot">=</span> parseWhileWith w2c <span class="fu">isSpace</span> <span class="op">==&gt;&amp;</span> identity ()</span>
+<span id="cb55-18"><a href="#cb55-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-19"><a href="#cb55-19" aria-hidden="true" tabindex="-1"></a><span class="ot">assert ::</span> <span class="dt">Bool</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Parse</span> ()</span>
+<span id="cb55-20"><a href="#cb55-20" aria-hidden="true" tabindex="-1"></a>assert <span class="dt">True</span>  _   <span class="ot">=</span> identity ()</span>
+<span id="cb55-21"><a href="#cb55-21" aria-hidden="true" tabindex="-1"></a>assert <span class="dt">False</span> err <span class="ot">=</span> bail err</span></code></pre></div>
+</div>
+<p>The <code>(==&gt;&amp;)</code> combinator chains parsers like
+<code>(==&gt;)</code>, but the right hand side ignores the result from
+the left. The <code>assert</code> function lets us check a property, and
+abort parsing with a useful error message if the property is
+<code>False</code>.</p>
+<p>Notice how few of the functions that we have written make any
+reference to the current parsing state. Most notably, where our old
+<code>parseP5</code> function explicitly passed two-tuples down the
+chain of dataflow, all of the state management in
+<code>parseRawPGM</code> is hidden from us.</p>
+<p>Of course, we can't completely avoid inspecting and modifying the
+parsing state. Here's a case in point, the last of the helper functions
+needed by <code>parseRawPGM</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Parse.hs
+</div>
+<div class="sourceCode" id="cb56"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="ot">parseBytes ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Parse</span> <span class="dt">L.ByteString</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>parseBytes n <span class="ot">=</span></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>    getState <span class="op">==&gt;</span> \st <span class="ot">-&gt;</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> n&#39; <span class="ot">=</span> <span class="fu">fromIntegral</span> n</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>        (h, t) <span class="ot">=</span> L.splitAt n&#39; (string st)</span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>        st&#39; <span class="ot">=</span> st { offset <span class="ot">=</span> offset st <span class="op">+</span> L.length h, string <span class="ot">=</span> t }</span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">in</span> putState st&#39; <span class="op">==&gt;&amp;</span></span>
+<span id="cb56-8"><a href="#cb56-8" aria-hidden="true" tabindex="-1"></a>       assert (L.length h <span class="op">==</span> n&#39;) <span class="st">&quot;end of input&quot;</span> <span class="op">==&gt;&amp;</span></span>
+<span id="cb56-9"><a href="#cb56-9" aria-hidden="true" tabindex="-1"></a>       identity h</span></code></pre></div>
+</div>
+<h1 data-number="9" id="future-directions"><span
+class="header-section-number">9</span> Future directions</h1>
+<p>Our main theme in this chapter has been abstraction. We found passing
+explicit state down a chain of functions to be unsatisfactory, so we
+abstracted this detail away. We noticed some recurring needs as we
+worked out our parsing code, and abstracted those into common functions.
+Along the way, we introduced the notion of a functor, which offers a
+generalised way to map over a parameterised type.</p>
+<p>We will revisit parsing in <a href="14-using-parsec.org">Chapter 16,
+<em>Using Parsec</em></a>, to discuss Parsec, a widely used and flexible
+parsing library. And in <a href="15-monads.org">Chapter 14, Monads</a>,
+we will return to our theme of abstraction, where we will find that much
+of the code that we have developed in this chapter can be further
+simplified by the use of monads.</p>
+<p>For efficiently parsing binary data represented as a
+<code>ByteString</code>, a number of packages are available via the
+Hackage package database. At the time of writing, the most popular is
+named <code>binary</code>, which is easy to use and offers high
+performance.</p>
+<h1 data-number="10" id="exercises"><span
+class="header-section-number">10</span> Exercises</h1>
+<ol>
+<li><p>Write a parser for "plain" PGM files.</p></li>
+<li><p>In our description of "raw" PGM files, we omitted a small detail.
+If the "maximum grey" value in the header is less than 256, each pixel
+is represented by a single byte. However, it can range up to 65535, in
+which case each pixel will be represented by two bytes, in big endian
+order (most significant byte first).</p>
+<p>Rewrite the raw PGM parser to accommodate both the single and
+double-byte pixel formats.</p></li>
+<li><p>Extend your parser so that it can identify a raw or plain PGM
+file, and parse the appropriate file type.</p></li>
+</ol>
+</body>
+</html>

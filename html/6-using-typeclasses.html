@@ -1,0 +1,2414 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 6: Using Type Classes</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 6: Using Type Classes</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#the-need-for-type-classes"><span
+class="toc-section-number">1</span> The need for type classes</a></li>
+<li><a href="#what-are-type-classes"><span
+class="toc-section-number">2</span> What are type classes?</a></li>
+<li><a href="#declaring-type-class-instances"><span
+class="toc-section-number">3</span> Declaring type class
+instances</a></li>
+<li><a href="#important-built-in-type-classes"><span
+class="toc-section-number">4</span> Important Built-In Type Classes</a>
+<ul>
+<li><a href="#show"><span class="toc-section-number">4.1</span>
+Show</a></li>
+<li><a href="#read"><span class="toc-section-number">4.2</span>
+Read</a></li>
+<li><a href="#serialization-with-read-and-show"><span
+class="toc-section-number">4.3</span> Serialization with Read and
+Show</a></li>
+<li><a href="#numeric-types"><span class="toc-section-number">4.4</span>
+Numeric Types</a></li>
+<li><a href="#equality-ordering-and-comparisons"><span
+class="toc-section-number">4.5</span> Equality, Ordering, and
+Comparisons</a></li>
+</ul></li>
+<li><a href="#automatic-derivation"><span
+class="toc-section-number">5</span> Automatic Derivation</a></li>
+<li><a href="#type-classes-at-work-making-json-easier-to-use"><span
+class="toc-section-number">6</span> Type classes at work: making JSON
+easier to use</a>
+<ul>
+<li><a href="#more-helpful-errors"><span
+class="toc-section-number">6.1</span> More helpful errors</a></li>
+<li><a href="#making-an-instance-with-a-type-synonym"><span
+class="toc-section-number">6.2</span> Making an instance with a type
+synonym</a></li>
+</ul></li>
+<li><a href="#flexible-instances"><span
+class="toc-section-number">7</span> Flexible instances</a></li>
+<li><a href="#living-in-an-open-world"><span
+class="toc-section-number">8</span> Living in an open world</a>
+<ul>
+<li><a href="#when-do-overlapping-instances-cause-problems"><span
+class="toc-section-number">8.1</span> When do overlapping instances
+cause problems?</a></li>
+<li><a href="#how-does-show-work-for-strings"><span
+class="toc-section-number">8.2</span> How does show work for
+strings?</a></li>
+</ul></li>
+<li><a href="#how-to-give-a-type-a-new-identity"><span
+class="toc-section-number">9</span> How to give a type a new
+identity</a>
+<ul>
+<li><a href="#differences-between-data-and-newtype-declarations"><span
+class="toc-section-number">9.1</span> Differences between data and
+newtype declarations</a></li>
+<li><a href="#summary-the-three-ways-of-naming-types"><span
+class="toc-section-number">9.2</span> Summary: the three ways of naming
+types</a></li>
+</ul></li>
+<li><a href="#json-type-classes-without-overlapping-instances"><span
+class="toc-section-number">10</span> JSON type classes without
+overlapping instances</a>
+<ul>
+<li><a href="#exercises"><span class="toc-section-number">10.1</span>
+Exercises</a></li>
+</ul></li>
+<li><a href="#the-dreaded-monomorphism-restriction"><span
+class="toc-section-number">11</span> The dreaded monomorphism
+restriction</a></li>
+<li><a href="#conclusion"><span class="toc-section-number">12</span>
+Conclusion</a></li>
+<li><a href="#footnotes"><span class="toc-section-number">13</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<p>Type classes are among the most powerful features in Haskell. They
+allow you to define generic interfaces that provide a common feature set
+over a wide variety of types. Type classes are at the heart of some
+basic language features such as equality testing and numeric operators.
+Before we talk about what exactly type classes are, though, we'd like to
+explain the need for them.</p>
+<h1 data-number="1" id="the-need-for-type-classes"><span
+class="header-section-number">1</span> The need for type classes</h1>
+<p>Let's imagine that for some unfathomable reason, the designers of the
+Haskell language neglected to implement the equality test
+<code>==</code>. Once you got over your shock at hearing this, you
+resolved to implement your own equality tests. Your application
+consisted of a simple <code>Color</code> type, and so your first
+equality test is for this type. Your first attempt might look like
+this:</p>
+<div class="captioned-content">
+<div class="caption">
+NaiveEq.hs
+</div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Color</span> <span class="ot">=</span> <span class="dt">Red</span> <span class="op">|</span> <span class="dt">Green</span> <span class="op">|</span> <span class="dt">Blue</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ot">colorEq ::</span> <span class="dt">Color</span> <span class="ot">-&gt;</span> <span class="dt">Color</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>colorEq <span class="dt">Red</span>   <span class="dt">Red</span>   <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>colorEq <span class="dt">Green</span> <span class="dt">Green</span> <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>colorEq <span class="dt">Blue</span>  <span class="dt">Blue</span>  <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>colorEq _     _     <span class="ot">=</span> <span class="dt">False</span></span></code></pre></div>
+</div>
+<p>You can test this with <code>ghci</code>:</p>
+<pre class="screen"><code>ghci&gt; :l NaiveEq.hs
+[1 of 1] Compiling Main             ( NaiveEq.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; colorEq Red Red
+True
+ghci&gt; colorEq Red Green
+False
+</code></pre>
+<p>Now, let's say that you want to add an equality test for
+<code>String~s. Since a Haskell ~String</code> is a list of characters,
+we can write a simple function to perform that test. For simplicity, we
+cheat a bit and use the <code>==</code> operator here to illustrate.</p>
+<div class="captioned-content">
+<div class="caption">
+NaiveEq.hs
+</div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ot">stringEq ::</span> [<span class="dt">Char</span>] <span class="ot">-&gt;</span> [<span class="dt">Char</span>] <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- Match if both are empty</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>stringEq [] [] <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">-- If both start with the same char, check the rest</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>stringEq (x<span class="op">:</span>xs) (y<span class="op">:</span>ys) <span class="ot">=</span> x <span class="op">==</span> y <span class="op">&amp;&amp;</span> stringEq xs ys</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- Everything else doesn&#39;t match</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>stringEq _ _ <span class="ot">=</span> <span class="dt">False</span></span></code></pre></div>
+</div>
+<p>You should now be able to see a problem: we have to use a function
+with a different name for every different type that we want to be able
+to compare. That's inefficient and annoying. It's much more convenient
+to be able to just use <code>==</code> to compare anything. It may also
+be useful to write generic functions such as <code>/=</code> that could
+be implemented in terms of <code>==</code>, and valid for almost
+anything. By having a generic function that can compare anything, we can
+also make our code generic: if a piece of code only needs to compare
+things, then it ought to be able to accept any data type that the
+compiler knows how to compare. And, what's more, if new data types are
+added later, the existing code shouldn't have to be modified.</p>
+<p>Haskell's type classes are designed to address all of these
+things.</p>
+<h1 data-number="2" id="what-are-type-classes"><span
+class="header-section-number">2</span> What are type classes?</h1>
+<p>Type classes define a set of functions that can have different
+implementations depending on the type of data they are given. Type
+classes may look like the objects of object-oriented programming, but
+they are truly quite different.</p>
+<p>Let's use type classes to solve our equality dilemma from earlier in
+the chapter. To begin with, we must define the type class itself. We
+want a function that takes two parameters, both the same type, and
+returns a <code>Bool</code> indicating whether or not they are equal. We
+don't care what that type is, but we just want two items of that type.
+Here's our first definition of a type class:</p>
+<div class="captioned-content">
+<div class="caption">
+EqClasses.hs
+</div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">BasicEq</span> a <span class="kw">where</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    isEqual ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span></code></pre></div>
+</div>
+<p>This says that we are declaring a type class named
+<code>BasicEq</code>, and we'll refer to instance types with the letter
+<code>a</code>. An instance type of this type class is any type that
+implements the functions defined in the type class. This type class
+defines one function. That function takes two parameters–both
+corresponding to instance types–and returns a <code>Bool</code>.</p>
+<div class="NOTE">
+<p>When is a class not a class?</p>
+<p>The keywoard to define a type class in Haskell is <code>class</code>.
+Unfortunately, this may be confusing for those of you coming from an
+object-oriented background, as we are not really defining the same
+thing.</p>
+</div>
+<p>On the first line, the name of the parameter <code>a</code> was
+chosen arbitrarily. We could have used any name. The key is that, when
+you list the types of your functions, you must use that name to refer to
+instance types.</p>
+<p>Let's look at this in <code>ghci</code>. Recall that you can type
+<code>:type</code> in <code>ghci</code> to have it show you the type of
+something. Let's see what it says about <code>isEqual</code>:</p>
+<pre class="screen"><code>*Main&gt; :type isEqual
+isEqual :: BasicEq a =&gt; a -&gt; a -&gt; Bool
+</code></pre>
+<p>You can read that this way: "For all types <code>a</code>, so long as
+<code>a</code> is an instance of <code>BasicEq</code>,
+<code>isEqual</code> takes two parameters of type <code>a</code> and
+returns a <code>Bool</code>". Let's take a quick look at defining
+<code>isEqual</code> for a particular type.</p>
+<div class="captioned-content">
+<div class="caption">
+EqClasses.hs
+</div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">BasicEq</span> <span class="dt">Bool</span> <span class="kw">where</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    isEqual <span class="dt">True</span>  <span class="dt">True</span>  <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    isEqual <span class="dt">False</span> <span class="dt">False</span> <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    isEqual _     _     <span class="ot">=</span> <span class="dt">False</span></span></code></pre></div>
+</div>
+<p>You can also use <code>ghci</code> to verify that we can now use
+<code>isEqual</code> on ~Bool~s, but not on any other type:</p>
+<pre class="screen"><code>Prelude&gt; :l EqClasses.hs
+[1 of 1] Compiling Main             ( EqClasses.hs, interpreted )
+Ok, one module loaded.
+*Main&gt; isEqual False False
+True
+*Main&gt; isEqual False True
+False
+*Main&gt; isEqual &quot;Hi&quot; &quot;Hi&quot;
+
+&lt;interactive&gt;:1:1: error:
+    • No instance for (BasicEq [Char]) arising from a use of ‘isEqual’
+    • In the expression: isEqual &quot;Hi&quot; &quot;Hi&quot;
+      In an equation for ‘it’: it = isEqual &quot;Hi&quot; &quot;Hi&quot;
+</code></pre>
+<p>Notice that when we tried to compare two strings, <code>ghci</code>
+noticed that we hadn't provided an instance of <code>BasicEq</code> for
+<code>String</code>. It therefore didn't know how to compare a
+<code>String</code>, and suggested that we could fix the problem by
+defining an instance of <code>BasicEq</code> for <code>[Char]</code>,
+which is the same as <code>String</code>.</p>
+<p>We'll go into more detail on defining instances in <a
+href="6-using-typeclasses.org::*Declaring type class instances">the
+section called "Declaring type class instances"</a> let's continue to
+look at ways to define type classes. In this example, a not-equal-to
+function might be useful. Here's what we might say to define a type
+class with two functions:</p>
+<div class="captioned-content">
+<div class="caption">
+EqClasses.hs
+</div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">BasicEq2</span> a <span class="kw">where</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    isEqual2    ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ot">    isNotEqual2 ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span></code></pre></div>
+</div>
+<p>Someone providing an instance of <code>BasicEq2</code> will be
+required to define two functions: <code>isEqual2</code> and
+<code>isNotEqual2</code>.</p>
+<p>While our definition of <code>BasicEq2</code> is fine, it seems that
+we're making extra work for ourselves. Logically speaking, if we know
+what <code>isEqual</code> or <code>isNotEqual</code> would return, we
+know how to figure out what the other function would return, for all
+types. Rather than making users of the type class define both functions
+for all types, we can provide default implementations for them. Then,
+users will only have to implement one function.<a href="#fn1"
+class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>
+Here's an example that shows how to do this.</p>
+<div class="captioned-content">
+<div class="caption">
+EqClasses.hs
+</div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">BasicEq3</span> a <span class="kw">where</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    isEqual3 ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    isEqual3 x y <span class="ot">=</span> <span class="fu">not</span> (isNotEqual3 x y)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="ot">    isNotEqual3 ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    isNotEqual3 x y <span class="ot">=</span> <span class="fu">not</span> (isEqual3 x y)</span></code></pre></div>
+</div>
+<p>People implementing this class must provide an implementation of at
+least one function. They can implement both if they wish, but they will
+not be required to. While we did provide defaults for both functions,
+each function depends on the presence of the other to calculate an
+answer. If we don't specify at least one, the resulting code would be an
+endless loop. Therefore, at least one function must always be
+implemented.</p>
+<p>With <code>BasicEq3</code>, we have provided a class that does very
+much the same thing as Haskell's built-in <code>==</code> and
+<code>/=</code> operators. In fact, these operators are defined by a
+type class that looks almost identical to <code>BasicEq3</code>. The
+Haskell 2010 Report defines a type class that implements equality
+comparison. Here is the code for the built-in <code>Eq</code> type
+class. Note how similar it is to our <code>BasicEq3</code> type
+class.</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Eq</span> a <span class="kw">where</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    (<span class="op">==</span>),<span class="ot"> (/=) ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Minimal complete definition:</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- (==) or (/=)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    x <span class="op">/=</span> y <span class="ot">=</span> <span class="fu">not</span> (x <span class="op">==</span> y)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    x <span class="op">==</span> y <span class="ot">=</span> <span class="fu">not</span> (x <span class="op">/=</span> y)</span></code></pre></div>
+<h1 data-number="3" id="declaring-type-class-instances"><span
+class="header-section-number">3</span> Declaring type class
+instances</h1>
+<p>Now that you know how to define type classes, it's time to learn how
+to define instances of type classes. Recall that types are made
+instances of a particular type class by implementing the functions
+necessary for that type class.</p>
+<p>Recall our attempt to create a test for equality over a
+<code>Color</code> type back in <a
+href="6-using-typeclasses.org::*The need for type classes">the section
+called "The need for type classes"</a> let's see how we could make that
+same <code>Color</code> type a member of the <code>BasicEq3</code>
+class.</p>
+<div class="captioned-content">
+<div class="caption">
+EqClasses.hs
+</div>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Color</span> <span class="ot">=</span> <span class="dt">Red</span> <span class="op">|</span> <span class="dt">Green</span> <span class="op">|</span> <span class="dt">Blue</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">BasicEq3</span> <span class="dt">Color</span> <span class="kw">where</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    isEqual3 <span class="dt">Red</span> <span class="dt">Red</span> <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    isEqual3 <span class="dt">Green</span> <span class="dt">Green</span> <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    isEqual3 <span class="dt">Blue</span> <span class="dt">Blue</span> <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    isEqual3 _ _ <span class="ot">=</span> <span class="dt">False</span></span></code></pre></div>
+</div>
+<p>Notice that we provide essentially the same function as we used back
+in <a href="6-using-typeclasses.org::*The need for type classes">the
+section called "The need for type classes"</a> the implementation is
+identical. However, in this case, we can use <code>isEqual3</code> on
+<em>any</em> type that we declare is an instance of
+<code>BasicEq3</code>, not just this one color type. We could define
+equality tests for anything from numbers to graphics using the same
+basic pattern. In fact, as you will see in <a
+href="6-using-typeclasses.org::*Equality, Ordering, and Comparisons">the
+section called "Equality, Ordering, and Comparisons"</a> exactly how you
+can make Haskell's <code>==</code> operator work for your own custom
+types.</p>
+<p>Note also that the <code>BasicEq3</code> class defined both
+<code>isEqual3</code> and <code>isNotEqual3</code>, but we implemented
+only one of them in the <code>Color</code> instance. That's because of
+the default implementation contained in <code>BasicEq3</code>. Since we
+didn't explicitly define <code>isNotEqual3</code>, the compiler
+automatically uses the default implementation given in the
+<code>BasicEq3</code> declaration.</p>
+<h1 data-number="4" id="important-built-in-type-classes"><span
+class="header-section-number">4</span> Important Built-In Type
+Classes</h1>
+<p>Now that we've discussed defining your own type classes and making
+your types instances of type classes, it's time to introduce you to type
+classes that are a standard part of the Haskell prelude. As we mentioned
+at the beginning of this chapter, type classes are at the core of some
+important aspects of the language. We'll cover the most common ones
+here. For more details, the Haskell library reference is a good
+resource. It will give you a description of the type classes, and
+usually also will tell you which functions you must implement to have a
+complete definition.</p>
+<h2 data-number="4.1" id="show"><span
+class="header-section-number">4.1</span> Show</h2>
+<p>The <code>Show</code> type class is used to convert values to
+~String~s. It is perhaps most commonly used to convert numbers to
+~String~s, but it is defined for so many types that it can be used to
+convert quite a bit more. If you have defined your own types, making
+them instances of <code>Show</code> will make it easy to display them in
+<code>ghci</code> or print them out in programs.</p>
+<p>The most important function of <code>Show</code> is
+<code>show</code>. It takes one argument: the data to convert. It
+returns a <code>String</code> representing that data. <code>ghci</code>
+reports the type of <code>show</code> like this:</p>
+<pre class="screen"><code>ghci&gt; :type show
+show :: Show a =&gt; a -&gt; String
+</code></pre>
+<p>Let's look at some examples of converting values to strings:</p>
+<pre class="screen"><code>ghci&gt; show 1
+&quot;1&quot;
+ghci&gt; show [1, 2, 3]
+&quot;[1,2,3]&quot;
+ghci&gt; show (1, 2)
+&quot;(1,2)&quot;
+</code></pre>
+<p>Remember that <code>ghci</code> displays results as they would be
+entered into a Haskell program. So the expression <code>show 1</code>
+returns a single-character string containing the digit <code>1</code>.
+That is, the quotes are not part of the string itself. We can make that
+clear by using <code>putStrLn</code>:</p>
+<pre class="screen"><code>ghci&gt; putStrLn (show 1)
+1
+ghci&gt; putStrLn (show [1,2,3])
+[1,2,3]
+</code></pre>
+<p>You can also use <code>show</code> on ~String~s:</p>
+<pre class="screen"><code>ghci&gt; show &quot;Hello!&quot;
+&quot;\&quot;Hello!\&quot;&quot;
+ghci&gt; putStrLn (show &quot;Hello!&quot;)
+&quot;Hello!&quot;
+ghci&gt; show [&#39;H&#39;, &#39;i&#39;]
+&quot;\&quot;Hi\&quot;&quot;
+ghci&gt; putStrLn (show &quot;Hi&quot;)
+&quot;Hi&quot;
+ghci&gt; show &quot;Hi, \&quot;Jane\&quot;&quot;
+&quot;\&quot;Hi, \\\&quot;Jane\\\&quot;\&quot;&quot;
+ghci&gt; putStrLn (show &quot;Hi, \&quot;Jane\&quot;&quot;)
+&quot;Hi, \&quot;Jane\&quot;&quot;
+</code></pre>
+<p>Running <code>show</code> on
+<code>String~s can be confusing. Since ~show</code> generates a result
+that is suitable for a Haskell literal, <code>show</code> adds quotes
+and escaping suitable for inclusion in a Haskell program.
+<code>ghci</code> also uses <code>show</code> to display results, so
+quotes and escaping get added twice. Using <code>putStrLn</code> can
+help make this difference clear.</p>
+<p>You can define a <code>Show</code> instance for your own types
+easily. Here's an example:</p>
+<div class="captioned-content">
+<div class="caption">
+EqClasses.hs
+</div>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">Color</span> <span class="kw">where</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">show</span> <span class="dt">Red</span>   <span class="ot">=</span> <span class="st">&quot;Red&quot;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">show</span> <span class="dt">Green</span> <span class="ot">=</span> <span class="st">&quot;Green&quot;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">show</span> <span class="dt">Blue</span>  <span class="ot">=</span> <span class="st">&quot;Blue&quot;</span></span></code></pre></div>
+</div>
+<p>This example defines an instance of <code>Show</code> for our type
+<code>Color</code> (see <a
+href="6-using-typeclasses.org::*The need for type classes">the section
+called "The need for type classes"</a> implementation is simple: we
+define a function <code>show</code> and that's all that's needed.</p>
+<div class="NOTE">
+<p>The Show type class</p>
+<p><code>Show</code> is usually used to define a <code>String</code>
+representation for data that is useful for a machine to parse back with
+<code>Read</code>. Haskell programmers generally write custom functions
+to format data in pretty ways for displaying to end users, if this
+representation would be different than expected via
+<code>Show</code>.</p>
+</div>
+<h2 data-number="4.2" id="read"><span
+class="header-section-number">4.2</span> Read</h2>
+<p>The <code>Read</code> type class is essentially the opposite of
+<code>Show</code>: it defines functions that will take a
+<code>String</code>, parse it, and return data in any type that is a
+member of <code>Read</code>. The most useful function in
+<code>Read</code> is <code>read</code>. You can ask <code>ghci</code>
+for its type like this:</p>
+<pre class="screen"><code>ghci&gt; :type read
+read :: (Read a) =&gt; String -&gt; a
+</code></pre>
+<p>Here's an example illustrating the use of <code>read</code> and
+<code>show</code>:</p>
+<div class="captioned-content">
+<div class="caption">
+Read.hs
+</div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">putStrLn</span> <span class="st">&quot;Please enter a Double:&quot;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    inpStr <span class="ot">&lt;-</span> <span class="fu">getLine</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> inpDouble <span class="ot">=</span> (<span class="fu">read</span> inpStr)<span class="ot"> ::</span> <span class="dt">Double</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">putStrLn</span> (<span class="st">&quot;Twice &quot;</span> <span class="op">++</span> <span class="fu">show</span> inpDouble <span class="op">++</span> <span class="st">&quot; is &quot;</span> <span class="op">++</span> <span class="fu">show</span> (inpDouble <span class="op">*</span> <span class="dv">2</span>))</span></code></pre></div>
+</div>
+<p>This is a simple example of <code>read</code> and <code>show</code>
+together. Notice that we gave an explicit type of <code>Double</code>
+when processing the <code>read</code>. That's because <code>read</code>
+returns a value of type <code>Read a =&gt; a</code> and
+<code>show</code> expects a value of type <code>Show a =&gt; a</code>.
+There are many types that have instances defined for both
+<code>Read</code> and <code>Show</code>. Without knowing a specific
+type, the compiler must guess from these many types which one is needed.
+In situations like this, it may often choose <code>Integer</code>. If we
+wanted to accept floating-point input, this wouldn't work, so we
+provided an explicit type.</p>
+<div class="TIP">
+<p>A note about defaulting</p>
+<p>In most cases, if the explicit <code>Double</code> type annotation
+were omitted, the compiler would refuse to guess a common type and
+simply give an error. The fact that it could default to
+<code>Integer</code> here is a special case arising from the fact that
+the literal <code>2</code> is treated as an <code>Integer</code> unless
+a different type of expected for it.</p>
+</div>
+<p>You can see the same effect at work if you try to use
+<code>read</code> on the <code>ghci</code> command line.
+<code>ghci</code> internally uses <code>show</code> to display results,
+meaning that you can hit this ambiguous typing problem there as well.
+You'll need to explicitly give types for your <code>read</code> results
+in <code>ghci</code> as shown here:</p>
+<pre class="screen"><code>ghci&gt; read &quot;5&quot;
+*** Exception: Prelude.read: no parse
+ghci&gt; :type (read &quot;5&quot;)
+(read &quot;5&quot;) :: Read a =&gt; a
+ghci&gt; (read &quot;5&quot;) :: Integer
+5
+ghci&gt; (read &quot;5&quot;) :: Double
+5.0
+</code></pre>
+<p>Recall the type of <code>read</code>:
+<code>(Read a) =&gt; String -&gt; a</code>. The <code>a</code> here is
+the type of each instance of <code>Read</code>. Which particular parsing
+function is called depends upon the type that is expected from the
+return value of <code>read</code>. Let's see how that works:</p>
+<pre class="screen"><code>ghci&gt; (read &quot;5.0&quot;) :: Double
+5.0
+ghci&gt; (read &quot;5.0&quot;) :: Integer
+*** Exception: Prelude.read: no parse
+</code></pre>
+<p>Notice the error when trying to parse <code>5.0</code> as an
+<code>Integer</code>. The interpreter selected a different instance of
+<code>Read</code> when the return value was expected to be
+<code>Integer</code> than it did when a <code>Double</code> was
+expected. The <code>Integer</code> parser doesn't accept decimal points,
+and caused an exception to be raised.</p>
+<p>The <code>Read</code> class provides for some fairly complicated
+parsers. You can define a simple parser by providing an implementation
+for the <code>readsPrec</code> function. Your implementation can return
+a list containing exactly one tuple on a successful parse, or an empty
+list on an unsuccessful parse. Here's an example implementation:</p>
+<div class="captioned-content">
+<div class="caption">
+EqClasses.hs
+</div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Read</span> <span class="dt">Color</span> <span class="kw">where</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- readsPrec is the main function for parsing input</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">readsPrec</span> _ value <span class="ot">=</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- We pass tryParse a list of pairs. Each pair has a string</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- and the desired return value. tryParse will try to match</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- the input to one of these strings.</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>        tryParse [(<span class="st">&quot;Red&quot;</span>, <span class="dt">Red</span>), (<span class="st">&quot;Green&quot;</span>, <span class="dt">Green</span>), (<span class="st">&quot;Blue&quot;</span>, <span class="dt">Blue</span>)]</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">where</span> tryParse [] <span class="ot">=</span> [] <span class="co">-- If there is nothing left to try, fail</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>              tryParse ((attempt, result)<span class="op">:</span>xs) <span class="ot">=</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>                  <span class="co">-- Compare the start of the string to be parsed to the</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>                  <span class="co">-- text we are looking for.</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">if</span> (<span class="fu">take</span> (<span class="fu">length</span> attempt) value) <span class="op">==</span> attempt</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>                      <span class="co">-- If we have a match, return the result and the</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>                      <span class="co">-- remaining input</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>                      <span class="kw">then</span> [(result, <span class="fu">drop</span> (<span class="fu">length</span> attempt) value)]</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>                      <span class="co">-- If we don&#39;t have a match, try the next pair</span></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>                      <span class="co">-- in the list of attempts.</span></span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>                      <span class="kw">else</span> tryParse xs</span></code></pre></div>
+</div>
+<p>This example handles the known cases for the three colors. It returns
+an empty list (resulting in a "no parse" message) for others. The
+function is supposed to return the part of the input that was not
+parsed, so that the system can integrate the parsing of different types
+together. Here's an example of using this new instance of
+<code>Read</code>:</p>
+<pre class="screen"><code>ghci&gt; (read &quot;Red&quot;)::Color
+Red
+ghci&gt; (read &quot;Green&quot;)::Color
+Green
+ghci&gt; (read &quot;Blue&quot;)::Color
+Blue
+ghci&gt; (read &quot;[Red]&quot;)::[Color]
+[Red]
+ghci&gt; (read &quot;[Red,Red,Blue]&quot;)::[Color]
+[Red,Red,Blue]
+ghci&gt; (read &quot;[Red, Red, Blue]&quot;)::[Color]
+*** Exception: Prelude.read: no parse
+</code></pre>
+<p>Notice the error on the final attempt. That's because our parser is
+not smart enough to handle leading spaces yet. If we modified it to
+accept leading spaces, that attempt would work. You could rectify this
+by modifying your <code>Read</code> instance to discard any leading
+spaces, which is common practice in Haskell programs.</p>
+<div class="TIP">
+<p>Read is not widely used</p>
+<p>While it is possible to build sophisticated parsers using the
+<code>Read</code> type class, many people find it easier to do so using
+Parsec, and rely on <code>Read</code> only for simpler tasks. Parsec is
+covered in detail in <a href="14-using-parsec.org">Chapter 16, <em>Using
+Parsec</em></a>.</p>
+</div>
+<h2 data-number="4.3" id="serialization-with-read-and-show"><span
+class="header-section-number">4.3</span> Serialization with Read and
+Show</h2>
+<p>You may often have a data structure in memory that you need to store
+on disk for later retrieval or to send across the network. The process
+of converting data in memory to a flat series of bits for storage is
+called <em>serialization</em>.</p>
+<p>It turns out that <code>read</code> and <code>show</code> make
+excellent tools for serialization. <code>show</code> produces output
+that is both human-readable and machine-readable. Most <code>show</code>
+output is also syntactically-valid Haskell, though it is up to people
+that write <code>Show</code> instances to make it so.</p>
+<div class="TIP">
+<p>Parsing large strings</p>
+<p>String handling in Haskell is normally lazy, so <code>read</code> and
+<code>show</code> can be used on quite large data structures without
+incident. The built-in <code>read</code> and <code>show</code> instances
+in Haskell are efficient and implemented in pure Haskell. For
+information on how to handle parsing exceptions, refer to <a
+href="19-error-handling.org">Chapter 19, <em>Error
+handling</em></a>.</p>
+</div>
+<p>Let's try it out in <code>ghci</code>:</p>
+<pre class="screen"><code>ghci&gt; d1 = [Just 5, Nothing, Nothing, Just 8, Just 9] :: [Maybe Int]
+ghci&gt; putStrLn (show d1)
+[Just 5,Nothing,Nothing,Just 8,Just 9]
+ghci&gt; writeFile &quot;test&quot; (show d1)
+</code></pre>
+<p>First, we assign <code>d1</code> to be a list. Next, we print out the
+result of <code>show d1</code> so we can see what it generates. Then, we
+write the result of <code>show d1</code> to a file named
+<code>test</code>.</p>
+<p>Let's try reading it back.</p>
+<pre class="screen"><code>ghci&gt; input &lt;- readFile &quot;test&quot;
+ghci&gt; d2 = read input
+ghci&gt; print d2
+*** Exception: Prelude.read: no parse
+</code></pre>
+<p>First, we ask Haskell to read the file back.<a href="#fn2"
+class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>
+Then, we assign the result of <code>read input</code> to <code>d2</code>
+and try to print it. That generates an error. The reason is that the
+interpreter doesn't know what type <code>d2</code> is meant to be, so it
+doesn't know how to parse the input. If we give it an explicit type, it
+works, and we can verify that the two sets of data are equal.</p>
+<pre class="screen"><code>ghci&gt; print d1
+[Just 5,Nothing,Nothing,Just 8,Just 9]
+ghci&gt; print (d2 :: [Maybe Int])
+[Just 5,Nothing,Nothing,Just 8,Just 9]
+ghci&gt; d1 == d2
+True
+</code></pre>
+<p>Since so many different types are instances of <code>Read</code> and
+<code>Show</code> by default (and others can be made instances easily;
+see <a href="6-using-typeclasses.org::*Automatic Derivation">the section
+called "Automatic Derivation"</a> some really complex data structures.
+Here are a few examples of slightly more complex data structures:</p>
+<pre class="screen"><code>ghci&gt; putStrLn $ show [(&quot;hi&quot;, 1), (&quot;there&quot;, 3)]
+[(&quot;hi&quot;,1),(&quot;there&quot;,3)]
+ghci&gt; putStrLn $ show [[1, 2, 3], [], [4, 0, 1], [], [503]]
+[[1,2,3],[],[4,0,1],[],[503]]
+ghci&gt; putStrLn $ show [Left 5, Right &quot;three&quot;, Left 0, Right &quot;nine&quot;]
+[Left 5,Right &quot;three&quot;,Left 0,Right &quot;nine&quot;]
+ghci&gt; putStrLn $ show [Left 0, Right [1, 2, 3], Left 5, Right []]
+[Left 0,Right [1,2,3],Left 5,Right []]
+</code></pre>
+<h2 data-number="4.4" id="numeric-types"><span
+class="header-section-number">4.4</span> Numeric Types</h2>
+<p>Haskell has a powerful set of numeric types. You can use everything
+from fast 32-bit or 64-bit integers to arbitrary-precision rational
+numbers. You probably know that operators such as <code>+</code> can
+work with just about all of these. This feature is implemented using
+type classes. As a side benefit, it allows you to define your own
+numeric types and make them first-class citizens in Haskell.</p>
+<p>Let's begin our discussion of the type classes surrounding numeric
+types with an examination of the types themselves. <span
+class="spurious-link"
+target="Table%C2%A06.1.%C2%A0Selected Numeric Types"><em>Table 6.1,
+"Selected Numeric Types"</em></span> describes the most commonly-used
+numeric types in Haskell. Note that there are also many more numeric
+types available for specific purposes such as interfacing to C.</p>
+<div id="Table 6.1. Selected Numeric Types">
+<table>
+<caption>Table 6.1. Selected Numeric Types</caption>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Double</code></td>
+<td>Double-precision floating point. A common choice for floating-point
+data.</td>
+</tr>
+<tr class="even">
+<td><code>Float</code></td>
+<td>Single-precision floating point. Often used when interfacing with
+C.</td>
+</tr>
+<tr class="odd">
+<td><code>Int</code></td>
+<td>Fixed-precision signed integer; minimum range [-2²⁹..2²⁹⁻¹].
+Commonly used.</td>
+</tr>
+<tr class="even">
+<td><code>Int8</code></td>
+<td>8-bit signed integer</td>
+</tr>
+<tr class="odd">
+<td><code>Int16</code></td>
+<td>16-bit signed integer</td>
+</tr>
+<tr class="even">
+<td><code>Int32</code></td>
+<td>32-bit signed integer</td>
+</tr>
+<tr class="odd">
+<td><code>Int64</code></td>
+<td>64-bit signed integer</td>
+</tr>
+<tr class="even">
+<td><code>Integer</code></td>
+<td>Arbitrary-precision signed integer; range limited only by machine
+resources. Commonly used.</td>
+</tr>
+<tr class="odd">
+<td><code>Rational</code></td>
+<td>Arbitrary-precision rational numbers. Stored as a ratio of two
+<code>Integer~s.                  |
+| ~Word</code></td>
+</tr>
+<tr class="even">
+<td><code>Word8</code></td>
+<td>8-bit unsigned integer</td>
+</tr>
+<tr class="odd">
+<td><code>Word16</code></td>
+<td>16-bit unsigned integer</td>
+</tr>
+<tr class="even">
+<td><code>Word32</code></td>
+<td>32-bit unsigned integer</td>
+</tr>
+<tr class="odd">
+<td><code>Word64</code></td>
+<td>64-bit unsigned integer</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>These are quite a few different numeric types. There are some
+operations, such as addition, that work with all of them. There are
+others, such as <code>asin</code>, that only apply to floating-point
+types. <span class="spurious-link"
+target="Table%C2%A06.2.%C2%A0Selected Numeric Functions and Constants"><em>Table 6.2,
+"Selected Numeric Functions and Constants"</em></span> summarizes the
+different functions that operate on numeric types, and <span
+class="spurious-link"
+target="Table%C2%A06.3.%C2%A0Type Class Instances for Numeric Types"><em>Table 6.3,
+"Type Class Instances for Numeric Types"</em></span> matches the types
+with their respective type classes. As you read that table, keep in mind
+that Haskell operators are just functions: you can say either
+<code>(+) 2 3</code> or <code>2 + 3</code> with the same result. By
+convention, when referring to an operator as a function, it is written
+in parenthesis as seen in this table.</p>
+<div id="Table 6.2. Selected Numeric Functions and Constants">
+<table>
+<caption>Table 6.2. Selected Numeric Functions and Constants</caption>
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Type</th>
+<th>Module</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>(+)</code></td>
+<td><code>Num a ~&gt; a -&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Addition</td>
+</tr>
+<tr class="even">
+<td><code>(-)</code></td>
+<td><code>Num a ~&gt; a -&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Subtraction</td>
+</tr>
+<tr class="odd">
+<td><code>(*)</code></td>
+<td><code>Num a ~&gt; a -&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Multiplication</td>
+</tr>
+<tr class="even">
+<td><code>(/)</code></td>
+<td><code>Fractional a ~&gt; a -&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Fractional division</td>
+</tr>
+<tr class="odd">
+<td><code>(**)</code></td>
+<td><code>Floating a ~&gt; a -&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Raise to the power of</td>
+</tr>
+<tr class="even">
+<td><code>(^)</code></td>
+<td><code>(Num a, Integral b) ~&gt; a -&gt; b -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Raise a number to a non-negative, integral power</td>
+</tr>
+<tr class="odd">
+<td><code>(^^)</code></td>
+<td><code>(Fractional a, Integral b) ~&gt; a -&gt; b -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Raise a fractional number to any integral power</td>
+</tr>
+<tr class="even">
+<td><code>(%)</code></td>
+<td><code>Integral a ~&gt; a -&gt; a -&gt; Ratio a</code></td>
+<td><code>Data.Ratio</code></td>
+<td>Ratio composition</td>
+</tr>
+<tr class="odd">
+<td><code>(.&amp;.)</code></td>
+<td><code>Bits a ~&gt; a -&gt; a -&gt; a</code></td>
+<td><code>Data.Bits</code></td>
+<td>Bitwise and</td>
+</tr>
+<tr class="even">
+<td><code>(.|.)</code></td>
+<td><code>Bits a ~&gt; a -&gt; a -&gt; a</code></td>
+<td><code>Data.Bits</code></td>
+<td>Bitwise or</td>
+</tr>
+<tr class="odd">
+<td><code>abs</code></td>
+<td><code>Num a ~&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Absolute value</td>
+</tr>
+<tr class="even">
+<td><code>approxRational</code></td>
+<td><code>RealFrac a ~&gt; a -&gt; a -&gt; Rational</code></td>
+<td><code>Data.Ratio</code></td>
+<td>Approximate rational composition based on fractional numerators and
+denominators</td>
+</tr>
+<tr class="odd">
+<td><code>cos</code></td>
+<td><code>Floating a ~&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Cosine. Also provided are <code>acos</code>, <code>cosh</code>, and
+<code>acosh</code>, with the same type.</td>
+</tr>
+<tr class="even">
+<td><code>div</code></td>
+<td><code>Integral a ~&gt; a -&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Integer division always truncated down; see also
+<code>quot</code></td>
+</tr>
+<tr class="odd">
+<td><code>fromInteger</code></td>
+<td><code>Num a ~&gt; Integer -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Conversion from an <code>Integer</code> to any numeric type</td>
+</tr>
+<tr class="even">
+<td><code>fromIntegral</code></td>
+<td><code>(Integral a, Num b) ~&gt; a -&gt; b</code></td>
+<td><code>Prelude</code></td>
+<td>More general conversion from any <code>Integral</code> to any
+numeric type</td>
+</tr>
+<tr class="odd">
+<td><code>fromRational</code></td>
+<td><code>Fractional a ~&gt; Rational -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Conversion from a <code>Rational</code>. May be lossy.</td>
+</tr>
+<tr class="even">
+<td><code>log</code></td>
+<td><code>Floating a ~&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Natural logarithm</td>
+</tr>
+<tr class="odd">
+<td><code>logBase</code></td>
+<td><code>Floating a ~&gt; a -&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Log with explicit base</td>
+</tr>
+<tr class="even">
+<td><code>maxBound</code></td>
+<td><code>Bounded a ~&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>The maximum value of a bounded type</td>
+</tr>
+<tr class="odd">
+<td><code>minBound</code></td>
+<td><code>Bounded a ~&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>The minimum value of a bounded type</td>
+</tr>
+<tr class="even">
+<td><code>mod</code></td>
+<td><code>Integral a ~&gt; a -&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Integer modulus</td>
+</tr>
+<tr class="odd">
+<td><code>pi</code></td>
+<td><code>Floating a ~&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Mathematical constant pi</td>
+</tr>
+<tr class="even">
+<td><code>quot</code></td>
+<td><code>Integral a ~&gt; a -&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Integer division; fractional part of quotient truncated towards
+zero</td>
+</tr>
+<tr class="odd">
+<td><code>recip</code></td>
+<td><code>Fractional a ~&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Reciprocal</td>
+</tr>
+<tr class="even">
+<td><code>rem</code></td>
+<td><code>Integral a ~&gt; a -&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Remainder of integer division</td>
+</tr>
+<tr class="odd">
+<td><code>round</code></td>
+<td><code>(RealFrac a, Integral b) ~&gt; a -&gt; b</code></td>
+<td><code>Prelude</code></td>
+<td>Rounds to nearest integer</td>
+</tr>
+<tr class="even">
+<td><code>shift</code></td>
+<td><code>Bits a ~&gt; a -&gt; Int -&gt; a</code></td>
+<td><code>Bits</code></td>
+<td>Shift left by the specified number of bits, which may be negative
+for a right shift.</td>
+</tr>
+<tr class="odd">
+<td><code>sin</code></td>
+<td><code>Floating a ~&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Sine. Also provided are <code>asin</code>, <code>sinh</code>, and
+<code>asinh</code>, with the same type.</td>
+</tr>
+<tr class="even">
+<td><code>sqrt</code></td>
+<td><code>Floating a ~&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Square root</td>
+</tr>
+<tr class="odd">
+<td><code>tan</code></td>
+<td><code>Floating a ~&gt; a -&gt; a</code></td>
+<td><code>Prelude</code></td>
+<td>Tangent. Also provided are <code>atan</code>, <code>tanh</code>, and
+<code>atanh</code>, with the same type.</td>
+</tr>
+<tr class="even">
+<td><code>toInteger</code></td>
+<td><code>Integral a ~&gt; a -&gt; Integer</code></td>
+<td><code>Prelude</code></td>
+<td>Convert any <code>Integral</code> to an <code>Integer</code></td>
+</tr>
+<tr class="odd">
+<td><code>toRational</code></td>
+<td><code>Real a ~&gt; a -&gt; Rational</code></td>
+<td><code>Prelude</code></td>
+<td>Convert losslessly to <code>Rational</code></td>
+</tr>
+<tr class="even">
+<td><code>truncate</code></td>
+<td><code>(RealFrac a, Integral b) ~&gt; a -&gt; b</code></td>
+<td><code>Prelude</code></td>
+<td>Truncates number towards zero</td>
+</tr>
+<tr class="odd">
+<td><code>xor</code></td>
+<td><code>Bits a ~&gt; a -&gt; a -&gt; a</code></td>
+<td><code>Data.Bits</code></td>
+<td>Bitwise exclusive or</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="Table 6.3. Type Class Instances for Numeric Types">
+<table>
+<caption>Table 6.3. Type Class Instances for Numeric Types</caption>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th><code>Bits</code></th>
+<th><code>Bounded</code></th>
+<th><code>Floating</code></th>
+<th><code>Fractional</code></th>
+<th><code>Integral</code></th>
+<th><code>Num</code></th>
+<th><code>Real</code></th>
+<th><code>RealFrac</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Double</code></td>
+<td> </td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+</tr>
+<tr class="even">
+<td><code>Float</code></td>
+<td> </td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+</tr>
+<tr class="odd">
+<td><code>Int</code></td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+</tr>
+<tr class="even">
+<td><code>Int16</code></td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+</tr>
+<tr class="odd">
+<td><code>Int32</code></td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+</tr>
+<tr class="even">
+<td><code>Int64</code></td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+</tr>
+<tr class="odd">
+<td><code>Integer</code></td>
+<td>X</td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+</tr>
+<tr class="even">
+<td><code>Rational</code> or any <code>Ratio</code></td>
+<td> </td>
+<td> </td>
+<td> </td>
+<td>X</td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+</tr>
+<tr class="odd">
+<td><code>Word</code></td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+</tr>
+<tr class="even">
+<td><code>Word16</code></td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+</tr>
+<tr class="odd">
+<td><code>Word32</code></td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+</tr>
+<tr class="even">
+<td><code>Word64</code></td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+<td> </td>
+<td>X</td>
+<td>X</td>
+<td>X</td>
+<td> </td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Converting between numeric types is another common need. <span
+class="spurious-link"
+target="Table%C2%A06.2.%C2%A0Selected Numeric Functions and Constants"><em>Table 6.2,
+"Selected Numeric Functions and Constants"</em></span> listed many
+functions that can be used for conversion. However, it is not always
+obvious how to apply them to convert between two arbitrary types. To
+help you out, <span class="spurious-link"
+target="Table%C2%A06.4.%C2%A0Conversion Between Numeric Types"><em>Table 6.4,
+"Conversion Between Numeric Types"</em></span> provides information on
+converting between different types.</p>
+<div id="Table 6.4. Conversion Between Numeric Types">
+<table>
+<caption>Table 6.4. Conversion Between Numeric Types*</caption>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>Destination Type</td>
+</tr>
+<tr class="even">
+<td>Source Type</td>
+<td>————————————————————————————</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td><code>Double</code>, <code>Float</code></td>
+</tr>
+<tr class="even">
+<td><code>Double</code>, <code>Float</code></td>
+<td><code>fromRational . toRational</code></td>
+</tr>
+<tr class="odd">
+<td><code>Int</code>, <code>Word</code></td>
+<td><code>fromIntegral</code></td>
+</tr>
+<tr class="even">
+<td><code>Integer</code></td>
+<td><code>fromIntegral</code></td>
+</tr>
+<tr class="odd">
+<td><code>Rational</code></td>
+<td><code>fromRational</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For an extended example demonstrating the use of these numeric type
+classes, see <a
+href="13-data-structures.org::*Extended example: Numeric Types">the
+section called "Extended example: Numeric Types"</a></p>
+<h2 data-number="4.5" id="equality-ordering-and-comparisons"><span
+class="header-section-number">4.5</span> Equality, Ordering, and
+Comparisons</h2>
+<p>We've already talked about the arithmetic operators such as
+<code>+</code> that can be used for all sorts of different numbers. But
+there are some even more widely-applied operators in Haskell. The most
+obvious, of course, are the equality tests: <code>==</code> and
+<code>/=</code>. These operators are defined in the <code>Eq</code>
+class.</p>
+<p>There are also comparison operators such as <code>&gt;=</code> and
+<code>&lt;=</code>. These are declared by the <code>Ord</code> type
+class. These are in a separate type class because there are some types,
+such as <code>Handle</code>, where an equality test makes sense, but
+there is no way to express a particular ordering. Anything that is an
+instance of <code>Ord</code> can be sorted by
+<code>Data.List.sort</code>.</p>
+<p>Almost all Haskell types are instances of <code>Eq</code>, and nearly
+as many are instances of <code>Ord</code>.</p>
+<div class="TIP">
+<p>Tip</p>
+<p>Sometimes, the ordering in <code>Ord</code> is arbitrary. For
+instance, for <code>Maybe</code>, <code>Nothing</code> sorts before
+<code>Just x</code>, but this was a somewhat arbitrary decision.</p>
+</div>
+<h1 data-number="5" id="automatic-derivation"><span
+class="header-section-number">5</span> Automatic Derivation</h1>
+<p>For many simple data types, the Haskell compiler can automatically
+derive instances of <code>Read</code>, <code>Show</code>,
+<code>Bounded</code>, <code>Enum</code>, <code>Eq</code>, and
+<code>Ord</code> for us. This saves us the effort of having to manually
+write code to compare or display our own types.</p>
+<div class="captioned-content">
+<div class="caption">
+ColorDerived.hs
+</div>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Color</span> <span class="ot">=</span> <span class="dt">Red</span> <span class="op">|</span> <span class="dt">Green</span> <span class="op">|</span> <span class="dt">Blue</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>     <span class="kw">deriving</span> (<span class="dt">Read</span>, <span class="dt">Show</span>, <span class="dt">Eq</span>, <span class="dt">Ord</span>)</span></code></pre></div>
+</div>
+<div class="NOTE">
+<p>Which types can be automatically derived?</p>
+<p>The Haskell standard requires compilers to be able to automatically
+derive instances of these specific type classes. This automation is not
+available for other type classes.</p>
+</div>
+<p>Let's take a look at how these derived instances work for us:</p>
+<pre class="screen"><code>ghci&gt; show Red
+&quot;Red&quot;
+ghci&gt; (read &quot;Red&quot;)::Color
+Red
+ghci&gt; (read &quot;[Red,Red,Blue]&quot;)::[Color]
+[Red,Red,Blue]
+ghci&gt; (read &quot;[Red, Red, Blue]&quot;)::[Color]
+[Red,Red,Blue]
+ghci&gt; Red == Red
+True
+ghci&gt; Red == Blue
+False
+ghci&gt; Data.List.sort [Blue,Green,Blue,Red]
+[Red,Green,Blue,Blue]
+ghci&gt; Red &lt; Blue
+True
+</code></pre>
+<p>Notice that the sort order for <code>Color</code> was based on the
+order that the constructors were defined.</p>
+<p>Automatic derivation is not always possible. For instance, if you
+defined a type <code>data MyType = MyType (Int -&gt; Bool)</code>, the
+compiler will not be able to derive an instance of <code>Show</code>
+because it doesn't know how to render a function. We will get a
+compilation error in such a situation.</p>
+<p>When we automatically derive an instance of some type class, the
+types that we refer to in our <code>data</code> declaration must also be
+instances of that type class (manually or automatically).</p>
+<div class="captioned-content">
+<div class="caption">
+AutomaticDerivation.hs
+</div>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">CannotShow</span> <span class="ot">=</span> <span class="dt">CannotShow</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- will not compile, since CannotShow is not an instance of Show</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">CannotDeriveShow</span> <span class="ot">=</span> <span class="dt">CannotDeriveShow</span> <span class="dt">CannotShow</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>                        <span class="kw">deriving</span> (<span class="dt">Show</span>)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">OK</span> <span class="ot">=</span> <span class="dt">OK</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">OK</span> <span class="kw">where</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">show</span> _ <span class="ot">=</span> <span class="st">&quot;OK&quot;</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">ThisWorks</span> <span class="ot">=</span> <span class="dt">ThisWorks</span> <span class="dt">OK</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">deriving</span> (<span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<h1 data-number="6"
+id="type-classes-at-work-making-json-easier-to-use"><span
+class="header-section-number">6</span> Type classes at work: making JSON
+easier to use</h1>
+<p>The <code>JValue</code> type that we introduced in <a
+href="5-writing-a-library.org::*Representing JSON data in Haskell">the
+section called "Representing JSON data in Haskell"</a> especially easy
+to work with. Here is a truncated and tidied snippet of some real JSON
+data, produced by a well known search engine.</p>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;query&quot;</span><span class="op">:</span> <span class="st">&quot;awkward squad haskell&quot;</span>,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;estimatedCount&quot;</span><span class="op">:</span> <span class="dv">3920</span>,</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;moreResults&quot;</span><span class="op">:</span> true,</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;results&quot;</span><span class="op">:</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  [{</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;title&quot;</span><span class="op">:</span> <span class="st">&quot;Simon Peyton Jones: papers&quot;</span>,</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;snippet&quot;</span><span class="op">:</span> <span class="st">&quot;Tackling the awkward squad: monadic input/output ...&quot;</span>,</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;url&quot;</span><span class="op">:</span> <span class="st">&quot;http://research.microsoft.com/~simonpj/papers/marktoberdorf/&quot;</span>,</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>   },</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>   {</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;title&quot;</span><span class="op">:</span> <span class="st">&quot;Haskell for C Programmers | Lambda the Ultimate&quot;</span>,</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;snippet&quot;</span><span class="op">:</span> <span class="st">&quot;... the best job of all the tutorials I&#39;ve read ...&quot;</span>,</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;url&quot;</span><span class="op">:</span> <span class="st">&quot;http://lambda-the-ultimate.org/node/724&quot;</span>,</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>   }]</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>And here's a further slimmed down fragment of that data, represented
+in Haskell.</p>
+<div class="captioned-content">
+<div class="caption">
+SimpleResult.hs
+</div>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">SimpleJSON</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="ot">result ::</span> <span class="dt">JValue</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>result <span class="ot">=</span> <span class="dt">JObject</span> [</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  (<span class="st">&quot;query&quot;</span>, <span class="dt">JString</span> <span class="st">&quot;awkward squad haskell&quot;</span>),</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  (<span class="st">&quot;estimatedCount&quot;</span>, <span class="dt">JNumber</span> <span class="dv">3920</span>),</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  (<span class="st">&quot;moreResults&quot;</span>, <span class="dt">JBool</span> <span class="dt">True</span>),</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  (<span class="st">&quot;results&quot;</span>, <span class="dt">JArray</span> [</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>     <span class="dt">JObject</span> [</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>      (<span class="st">&quot;title&quot;</span>, <span class="dt">JString</span> <span class="st">&quot;Simon Peyton Jones: papers&quot;</span>),</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>      (<span class="st">&quot;snippet&quot;</span>, <span class="dt">JString</span> <span class="st">&quot;Tackling the awkward ...&quot;</span>),</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>      (<span class="st">&quot;url&quot;</span>, <span class="dt">JString</span> <span class="st">&quot;http://.../marktoberdorf/&quot;</span>)</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>     ]])</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>  ]</span></code></pre></div>
+</div>
+<p>Because Haskell doesn't natively support lists that contain types of
+different value, we can't directly represent a JSON object that contains
+values of different types. Instead, we must wrap each value with a
+<code>JValue</code> constructor. This limits our flexibility: if we want
+to change the number <code>3920</code> to a string <code>"3,920"</code>,
+we must change the constructor that we use to wrap it from
+<code>JNumber</code> to <code>JString</code>.</p>
+<p>Haskell's type classes offer a tempting solution to this problem.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">JSONClass</span> <span class="kw">where</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">JSONError</span> <span class="ot">=</span> <span class="dt">String</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">JSON</span> a <span class="kw">where</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="ot">    toJValue ::</span> a <span class="ot">-&gt;</span> <span class="dt">JValue</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="ot">    fromJValue ::</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">JSONError</span> a</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">JSON</span> <span class="dt">JValue</span> <span class="kw">where</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>    toJValue <span class="ot">=</span> <span class="fu">id</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    fromJValue <span class="ot">=</span> <span class="dt">Right</span></span></code></pre></div>
+</div>
+<p>Now, instead of applying a constructor like <code>JNumber</code> to a
+value to wrap it, we apply the <code>toJValue</code> function. If we
+change a value's type, the compiler will choose a suitable
+implementation of <code>toJValue</code> to use with it.</p>
+<p>We also provide a <code>fromJValue</code> function, which attempts to
+convert a <code>JValue</code> into a value of our desired type.</p>
+<h2 data-number="6.1" id="more-helpful-errors"><span
+class="header-section-number">6.1</span> More helpful errors</h2>
+<p>The return type of our <code>fromJValue</code> function uses the
+<code>Either</code> type. Like <code>Maybe</code>, this type is
+predefined for us, and we'll often use it to represent a computation
+that could fail.</p>
+<p>While <code>Maybe</code> is useful for this purpose, it gives us no
+information if a failure occurs: we literally have <code>Nothing</code>.
+The <code>Either</code> type has a similar structure, but instead of
+<code>Nothing</code>, the "something bad happened" constructor is named
+<code>Left</code>, and it takes a parameter.</p>
+<div class="captioned-content">
+<div class="caption">
+DataEither.hs
+</div>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Maybe</span> a <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>             <span class="op">|</span> <span class="dt">Just</span> a</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>               <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Read</span>, <span class="dt">Show</span>)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Either</span> a b <span class="ot">=</span> <span class="dt">Left</span> a</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>                <span class="op">|</span> <span class="dt">Right</span> b</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Read</span>, <span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>Quite often, the type we use for the <code>a</code> parameter value
+is <code>String</code>, so we can provide a useful description if
+something goes wrong. To see how we use the <code>Either</code> type in
+practice, let's look at a simple instance of our type class.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">JSON</span> <span class="dt">Bool</span> <span class="kw">where</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    toJValue <span class="ot">=</span> <span class="dt">JBool</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    fromJValue (<span class="dt">JBool</span> b) <span class="ot">=</span> <span class="dt">Right</span> b</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    fromJValue _ <span class="ot">=</span> <span class="dt">Left</span> <span class="st">&quot;not a JSON boolean&quot;</span></span></code></pre></div>
+</div>
+<h2 data-number="6.2" id="making-an-instance-with-a-type-synonym"><span
+class="header-section-number">6.2</span> Making an instance with a type
+synonym</h2>
+<p>The Haskell 2010 standard does not allow us to write an instance of
+the following form, even though it seems perfectly reasonable.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">JSON</span> <span class="dt">String</span> <span class="kw">where</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    toJValue               <span class="ot">=</span> <span class="dt">JString</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    fromJValue (<span class="dt">JString</span> s) <span class="ot">=</span> <span class="dt">Right</span> s</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    fromJValue _           <span class="ot">=</span> <span class="dt">Left</span> <span class="st">&quot;not a JSON string&quot;</span></span></code></pre></div>
+</div>
+<p>Recall that <code>String</code> is a synonym for <code>[Char]</code>,
+which in turn is the type <code>[a]</code> where <code>Char</code> is
+substituted for the type parameter <code>a</code>. According to Haskell
+2010's rules, we are not allowed to supply a type in place of a type
+parameter when we write an instance. In other words, it would be legal
+for us to write an instance for <code>[a]</code>, but not for
+<code>[Char]</code>.</p>
+<p>While GHC follows the Haskell 2010 standard by default, we can relax
+this particular restriction by placing a specially formatted comment at
+the top of our source file.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE TypeSynonymInstances #-}</span></span></code></pre></div>
+</div>
+<p>This comment is a directive to the compiler, called a
+<em>pragma</em>, which tells it to enable a language extension. The
+<code>TypeSynonymInstances</code> language extension makes the above
+code legal. We'll encounter a few other language extensions in this
+chapter, and a handful more later in this book.</p>
+<div class="TIP">
+<p>How to know when a language extension is needed</p>
+<p>If GHC cannot compile a piece of code because it would require some
+language extension to be enabled, it will tell us which extension we
+should use. For example, if it decides that our code needs type synonym
+support, it will suggest that we try compiling with the
+<code>TypeSynonymInstances</code> extension. An extension can be enabled
+using the <code>LANGUAGE</code> directive in the source file or with the
+<code>-X</code> option in the command line, for example:
+<code>-XTypeSynonymInstances</code>.</p>
+</div>
+<h1 data-number="7" id="flexible-instances"><span
+class="header-section-number">7</span> Flexible instances</h1>
+<p>The code above doesn't compile yet.</p>
+<pre class="scree"><code>ghci&gt; :l JSONClass.hs
+[1 of 1] Compiling JSONClass        ( JSONClass.hs, interpreted )
+
+JSONClass.hs:22:10: error:
+    • Illegal instance declaration for ‘JSON String’
+        (All instance types must be of the form (T a1 ... an)
+         where a1 ... an are *distinct type variables*,
+         and each type variable appears at most once in the instance head.
+         Use FlexibleInstances if you want to disable this.)
+    • In the instance declaration for ‘JSON String’
+   |
+22 | instance JSON String where
+   |          ^^^^^^^^^^^
+Failed, one module loaded.
+</code></pre>
+<p>The error says that instances declarations must have the form of a
+type optionally followed by a type variable (<code>[a]</code> for
+example, where <code>[]</code> is the type and <code>a</code> is the
+type variable) but we are providing a type inside another type (remember
+that <code>String</code> is an alias for <code>[Char]</code>). We can
+remove this restriction by adding the
+<code>{-# LANGUAGE FlexibleInstances #-}</code> directive at the
+beginning of the file. (We can even drop the
+<code>TypeSynonymInstances</code> directive because it is implied by
+<code>FlexibleInstances</code>.</p>
+<h1 data-number="8" id="living-in-an-open-world"><span
+class="header-section-number">8</span> Living in an open world</h1>
+<p>Haskell's type classes are intentionally designed to let us create
+new instances of a type class whenever we see fit.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb38"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="ot">doubleToJValue ::</span> (<span class="dt">Double</span> <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">JSONError</span> a</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>doubleToJValue f (<span class="dt">JNumber</span> v) <span class="ot">=</span> <span class="dt">Right</span> (f v)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>doubleToJValue _ _ <span class="ot">=</span> <span class="dt">Left</span> <span class="st">&quot;not a JSON number&quot;</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">JSON</span> <span class="dt">Int</span> <span class="kw">where</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    toJValue <span class="ot">=</span> <span class="dt">JNumber</span> <span class="op">.</span> <span class="fu">realToFrac</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>    fromJValue <span class="ot">=</span> doubleToJValue <span class="fu">round</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">JSON</span> <span class="dt">Integer</span> <span class="kw">where</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>    toJValue <span class="ot">=</span> <span class="dt">JNumber</span> <span class="op">.</span> <span class="fu">realToFrac</span></span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>    fromJValue <span class="ot">=</span> doubleToJValue <span class="fu">round</span></span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">JSON</span> <span class="dt">Double</span> <span class="kw">where</span></span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>    toJValue <span class="ot">=</span> <span class="dt">JNumber</span></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>    fromJValue <span class="ot">=</span> doubleToJValue <span class="fu">id</span></span></code></pre></div>
+</div>
+<p>We can add new instances anywhere; they are not confined to the
+module where we define a type class. This feature of the type class
+system is referred to as its <em>open world assumption</em>. If we had a
+way to express a notion of "the following are the only instances of this
+type class that can exist", we would have a <em>closed</em> world.</p>
+<p>We would like to be able to turn a list into what JSON calls an
+array. We won't worry about implementation details just yet, so let's
+use <code>undefined</code> as the bodies of the instance's methods.</p>
+<div class="captioned-content">
+<div class="caption">
+BrokenClass.hs
+</div>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE FlexibleInstances #-}</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">JSONClass</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">JSON</span> a) <span class="ot">=&gt;</span> <span class="dt">JSON</span> [a] <span class="kw">where</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    toJValue <span class="ot">=</span> <span class="fu">undefined</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>    fromJValue <span class="ot">=</span> <span class="fu">undefined</span></span></code></pre></div>
+</div>
+<p>Here the <code>(JSON a)</code> before the <code>=&gt;</code> means
+that the <code>a</code> in <code>JSON [a]</code> must be an instance of
+<code>JSON</code> too.</p>
+<p>It would also be convenient if we could turn a list of name/value
+pairs into a JSON object.</p>
+<div class="captioned-content">
+<div class="caption">
+BrokenClass.hs
+</div>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">JSON</span> a) <span class="ot">=&gt;</span> <span class="dt">JSON</span> [(<span class="dt">String</span>, a)] <span class="kw">where</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    toJValue <span class="ot">=</span> <span class="fu">undefined</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    fromJValue <span class="ot">=</span> <span class="fu">undefined</span></span></code></pre></div>
+</div>
+<h2 data-number="8.1"
+id="when-do-overlapping-instances-cause-problems"><span
+class="header-section-number">8.1</span> When do overlapping instances
+cause problems?</h2>
+<p>If we put these definitions into a source file and load them into
+<code>ghci</code>, everything initially seems fine.</p>
+<pre class="screen"><code>ghci&gt; :load BrokenClass
+[1 of 3] Compiling SimpleJSON       ( SimpleJSON.hs, interpreted )
+[2 of 3] Compiling JSONClass        ( JSONClass.hs, interpreted )
+[3 of 3] Compiling Main             ( BrokenClass.hs, interpreted )
+Ok, three modules loaded.
+</code></pre>
+<p>However, once we try to <em>use</em> the list-of-pairs instance, we
+run into trouble.</p>
+<pre class="screen"><code>ghci&gt; toJValue [(&quot;foo&quot;,&quot;bar&quot;)]
+
+&lt;interactive&gt;:2:1: error:
+    • Overlapping instances for JSON [([Char], [Char])]
+        arising from a use of ‘toJValue’
+      Matching instances:
+        instance [safe] JSON a =&gt; JSON [(String, a)]
+          -- Defined at BrokenClass.hs:9:10
+        instance [safe] JSON a =&gt; JSON [a]
+          -- Defined at BrokenClass.hs:5:10
+    • In the expression: toJValue [(&quot;foo&quot;, &quot;bar&quot;)]
+      In an equation for ‘it’: it = toJValue [(&quot;foo&quot;, &quot;bar&quot;)]
+</code></pre>
+<p>This problem of <em>overlapping instances</em> is a consequence of
+Haskell's open world assumption. Here's a simpler example that makes it
+clearer what's going on.</p>
+<div class="captioned-content">
+<div class="caption">
+Overlap.hs
+</div>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE FlexibleInstances #-}</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Borked</span> a <span class="kw">where</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="ot">    bork ::</span> a <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Borked</span> <span class="dt">Int</span> <span class="kw">where</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    bork <span class="ot">=</span> <span class="fu">show</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Borked</span> (<span class="dt">Int</span>, <span class="dt">Int</span>) <span class="kw">where</span></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>    bork (a, b) <span class="ot">=</span> bork a <span class="op">++</span> <span class="st">&quot;, &quot;</span> <span class="op">++</span> bork b</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Borked</span> a, <span class="dt">Borked</span> b) <span class="ot">=&gt;</span> <span class="dt">Borked</span> (a, b) <span class="kw">where</span></span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>    bork (a, b) <span class="ot">=</span> <span class="st">&quot;&gt;&gt;&quot;</span> <span class="op">++</span> bork a <span class="op">++</span> <span class="st">&quot; &quot;</span> <span class="op">++</span> bork b <span class="op">++</span> <span class="st">&quot;&lt;&lt;&quot;</span></span></code></pre></div>
+</div>
+<p>We have two instances of the type class <code>Borked</code> for
+pairs: one for a pair of
+<code>Int~s and another for a pair of anything else that's
+~Borked</code>.</p>
+<p>Suppose that we want to <code>bork</code> a pair of <code>Int</code>
+values. To do so, the compiler must choose an instance to use. Because
+these instances are right next to each other, it may seem that it could
+simply choose the more specific instance.</p>
+<p>However, GHC is conservative by default, and insists that there must
+be only one possible instance that it can use. It will thus report an
+error if we try to use <code>bork</code>.</p>
+<div class="NOTE">
+<p>When do overlapping instances matter?</p>
+<p>As we mentioned earlier, we can scatter instances of a type class
+across several modules. GHC does not complain about the mere existence
+of overlapping instances. Instead, it only complains when we try to use
+a method of the affected type class, when it is forced to make a
+decision about which instance to use.</p>
+</div>
+<p>GHC supports three other useful language extensions, which addresses
+this problem.</p>
+<ul>
+<li><code>OVERLAPPABLE</code>: Specifies that the instance author allows
+this instance to be overlapped by others.</li>
+<li><code>OVERLAPPING</code>: Specifies that the instance author is
+expecting this instance will overlap others.</li>
+<li><code>OVERLAPS</code>: Implies both <code>OVERLAPPABLE</code> and
+<code>OVERLAPPING</code>.</li>
+</ul>
+<div class="captioned-content">
+<div class="caption">
+SimpleClass.hs
+</div>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE FlexibleInstances #-}</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Foo</span> a <span class="kw">where</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a><span class="ot">    foo ::</span> a <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Foo</span> a <span class="ot">=&gt;</span> <span class="dt">Foo</span> [a] <span class="kw">where</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>    foo <span class="ot">=</span> <span class="fu">concat</span> <span class="op">.</span> intersperse <span class="st">&quot;, &quot;</span> <span class="op">.</span> <span class="fu">map</span> foo</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Foo</span> <span class="dt">Char</span> <span class="kw">where</span></span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>    foo c <span class="ot">=</span> [c]</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Foo</span> <span class="dt">Int</span> <span class="kw">where</span></span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>    foo i <span class="ot">=</span> <span class="fu">show</span> i</span>
+<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="ot">{-# OVERLAPPING #-}</span> <span class="dt">Foo</span> <span class="dt">String</span> <span class="kw">where</span></span>
+<span id="cb44-18"><a href="#cb44-18" aria-hidden="true" tabindex="-1"></a>    foo <span class="ot">=</span> <span class="fu">id</span></span></code></pre></div>
+</div>
+<p>If we apply <code>foo</code> to a <code>String</code>, the compiler
+will use the <code>String</code>-specific implementation. Even though we
+have an instance of <code>Foo</code> for <code>[a]</code> the instance
+for <code>String</code> is more specific, so GHC chooses it. For list of
+<code>Int</code>, we will see the behavior specified for
+<code>[a]</code>.</p>
+<h2 data-number="8.2" id="how-does-show-work-for-strings"><span
+class="header-section-number">8.2</span> How does show work for
+strings?</h2>
+<p>These language extensions are specific to GHC, and by definition were
+not present in Haskell 2010. However, the familiar <code>Show</code>
+type class from Haskell 2010 somehow renders a list of <code>Char</code>
+differently from a list of <code>Int</code>. It achieves this via a
+clever, but simple, trick.</p>
+<p>The <code>Show</code> class defines both a <code>show</code> method,
+which renders one value, and a <code>showList</code> method, which
+renders a list of values. The default implementation of
+<code>showList</code> renders a list using square brackets and
+commas.</p>
+<p>The instance of <code>Show</code> for <code>[a]</code> is implemented
+using <code>showList</code>. The instance of <code>Show</code> for
+<code>Char</code> provides a special implementation of
+<code>showList</code> that uses double quotes and escapes
+non-ASCII-printable characters.</p>
+<p>As a result, if someone applies <code>show</code> to a
+<code>[Char]</code> value, the implementation of <code>showList</code>
+will be chosen, and it will correctly render the string using
+quotes.</p>
+<p>At least sometimes, then, we can avoid the need for the
+<code>OVERLAPPABLE</code>, <code>OVERLAPPING</code> and
+<code>OVERLAPS</code> extension with a little bit of lateral
+thinking.</p>
+<h1 data-number="9" id="how-to-give-a-type-a-new-identity"><span
+class="header-section-number">9</span> How to give a type a new
+identity</h1>
+<p>In addition to the familiar <code>data</code> keyword, Haskell
+provides us with another way to create a new type, using the
+<code>newtype</code> keyword.</p>
+<div class="captioned-content">
+<div class="caption">
+Newtype.hs
+</div>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">DataInt</span> <span class="ot">=</span> <span class="dt">D</span> <span class="dt">Int</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Show</span>)</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">NewtypeInt</span> <span class="ot">=</span> <span class="dt">N</span> <span class="dt">Int</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>The purpose of a <code>newtype</code> declaration is to rename an
+existing type, giving it a distinct identity. As we can see, it is
+similar in appearance to a type declared using the <code>data</code>
+keyword.</p>
+<div class="NOTE">
+<p>The type and newtype keywords</p>
+<p>Although their names are similar, the <code>type</code> and
+<code>newtype</code> keywords have different purposes. The
+<code>type</code> keyword gives us another way of referring to a type,
+like a nickname for a friend. Both we and the compiler know that
+<code>[Char]</code> and <code>String</code> names refer to the same
+type.</p>
+<p>In contrast, the <code>newtype</code> keyword exists to <em>hide</em>
+the nature of a type. Consider a <code>UniqueID</code> type.</p>
+<div class="captioned-content">
+<div class="caption">
+Newtype.hs
+</div>
+<div class="sourceCode" id="cb46"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">UniqueID</span> <span class="ot">=</span> <span class="dt">UniqueID</span> <span class="dt">Int</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">deriving</span> (<span class="dt">Eq</span>)</span></code></pre></div>
+</div>
+<p>The compiler treats <code>UniqueID</code> as a different type from
+<code>Int</code>. As a user of a <code>UniqueID</code>, we know only
+that we have a unique identifier; we cannot see that it is implemented
+as an <code>Int</code>.</p>
+</div>
+<p>When we declare a <code>newtype</code>, we must choose which of the
+underlying type's type class instances we want to expose. Here, we've
+elected to make <code>NewtypeInt</code> provide <code>Int</code>'s
+instances for <code>Eq</code>, <code>Ord</code> and <code>Show</code>.
+As a result, we can compare and print values of type
+<code>NewtypeInt</code>.</p>
+<pre class="screen"><code>ghci&gt; N 1 &lt; N 2
+True
+</code></pre>
+<p>Since we are <em>not</em> exposing <code>Int</code>'s
+<code>Num</code> or <code>Integral</code> instances, values of type
+<code>NewtypeInt</code> are not numbers. For instance, we can't add
+them.</p>
+<pre class="screen"><code>ghci&gt; N 313 + N 37
+
+&lt;interactive&gt;:2:1: error:
+    • No instance for (Num NewtypeInt) arising from a use of ‘+’
+    • In the expression: N 313 + N 37
+      In an equation for ‘it’: it = N 313 + N 37
+</code></pre>
+<p>As with the <code>data</code> keyword, we can use a
+<code>newtype</code>'s value constructor to create a new value, or to
+pattern match on an existing value.</p>
+<p>If a <code>newtype</code> does not use automatic deriving to expose
+the underlying type's implementation of a type class, we are free to
+either write a new instance or leave the type class unimplemented.</p>
+<h2 data-number="9.1"
+id="differences-between-data-and-newtype-declarations"><span
+class="header-section-number">9.1</span> Differences between data and
+newtype declarations</h2>
+<p>The <code>newtype</code> keyword exists to give an existing type a
+new identity, and it has more restrictions on its uses than the
+<code>data</code> keyword. Specifically, a <code>newtype</code> can only
+have one value constructor, and that constructor must have exactly one
+field.</p>
+<div class="captioned-content">
+<div class="caption">
+NewtypeDiff.hs
+</div>
+<div class="sourceCode" id="cb49"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- ok: any number of fields and constructors</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">TwoFields</span> <span class="ot">=</span> <span class="dt">TwoFields</span> <span class="dt">Int</span> <span class="dt">Int</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- ok: exactly one field</span></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Okay</span> <span class="ot">=</span> <span class="dt">ExactlyOne</span> <span class="dt">Int</span></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- ok: type parameters are no problem</span></span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Param</span> a b <span class="ot">=</span> <span class="dt">Param</span> (<span class="dt">Either</span> a b)</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- ok: record syntax is fine</span></span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">Record</span> <span class="ot">=</span> <span class="dt">Record</span> {</span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a><span class="ot">      getInt ::</span> <span class="dt">Int</span></span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a><span class="co">-- bad: no fields</span></span>
+<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">TooFew</span> <span class="ot">=</span> <span class="dt">TooFew</span></span>
+<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a><span class="co">-- bad: more than one field</span></span>
+<span id="cb49-19"><a href="#cb49-19" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">TooManyFields</span> <span class="ot">=</span> <span class="dt">Fields</span> <span class="dt">Int</span> <span class="dt">Int</span></span>
+<span id="cb49-20"><a href="#cb49-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-21"><a href="#cb49-21" aria-hidden="true" tabindex="-1"></a><span class="co">-- bad: more than one constructor</span></span>
+<span id="cb49-22"><a href="#cb49-22" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">TooManyCtors</span> <span class="ot">=</span> <span class="dt">Bad</span> <span class="dt">Int</span></span>
+<span id="cb49-23"><a href="#cb49-23" aria-hidden="true" tabindex="-1"></a>                     <span class="op">|</span> <span class="dt">Worse</span> <span class="dt">Int</span></span></code></pre></div>
+</div>
+<p>Beyond this, there's another important difference between
+<code>data</code> and <code>newtype</code>. A type created with the
+<code>data</code> keyword has a book-keeping cost at runtime, for
+example to track which constructor a value was created with. A
+<code>newtype</code> value, on the other hand, can only have one
+constructor, and so does not need this overhead. This makes it more
+space– and time–efficient at runtime.</p>
+<p>Because a <code>newtype</code>'s constructor is used only at compile
+time and does not even exist at runtime, pattern matching on
+<code>undefined</code> behaves differently for types defined using
+<code>newtype</code> than for those that use <code>data</code>.</p>
+<p>To understand the difference, let's first review what we might expect
+with a normal data type. We are already familiar with the idea that if
+<code>undefined</code> is evaluated at runtime, it causes a crash.</p>
+<pre class="screen"><code>ghci&gt; undefined
+*** Exception: Prelude.undefined
+</code></pre>
+<p>Here is a pattern match where we construct a <code>DataInt</code>
+using the <code>D</code> constructor, and put <code>undefined</code>
+inside.</p>
+<pre class="screen"><code>ghci&gt; case D undefined of D _ -&gt; 1
+1
+</code></pre>
+<p>Since our pattern matches against the constructor but doesn't inspect
+the payload, the <code>undefined</code> remains unevaluated and does not
+cause an exception to be thrown.</p>
+<p>In this example, we're not using the <code>D</code> constructor, so
+the unprotected <code>undefined</code> is evaluated when the pattern
+match occurs, and we throw an exception.</p>
+<pre class="screen"><code>ghci&gt; case undefined of D _ -&gt; 1
+*** Exception: Prelude.undefined
+</code></pre>
+<p>When we use the <code>N</code> constructor for the
+<code>NewtypeInt</code> type, we see the same behaviour as with the
+<code>DataInt</code> type's <code>D</code> constructor: no
+exception.</p>
+<pre class="screen"><code>ghci&gt; case N undefined of N _ -&gt; 1
+1
+</code></pre>
+<p>The crucial difference arises when we get rid of the <code>N</code>
+constructor from the expression, and match against an unprotected
+<code>undefined</code>.</p>
+<pre class="screen"><code>ghci&gt; case undefined of N _ -&gt; 1
+1
+</code></pre>
+<p>We don't crash! Because there's no constructor present at runtime,
+matching against <code>N _</code> is in fact equivalent to matching
+against the plain wild card <code>_</code>: since the wild card always
+matches, the expression does not need to be evaluated.</p>
+<div class="TIP">
+<p>Another perspective on newtype constructors</p>
+<p>Even though we use the value constructor for a <code>newtype</code>
+in the same way as that of a type defined using the <code>data</code>
+keyword, all it does is coerce a value between its "normal" type and its
+<code>newtype</code> type.</p>
+<p>In other words, when we apply the <code>N</code> constructor in an
+expression, we coerce an expression from type <code>Int</code> to type
+<code>NewtypeInt</code> as far as we and the compiler are concerned, but
+absolutely nothing occurs at runtime.</p>
+<p>Similarly, when we match on the <code>N</code> constructor in a
+pattern, we coerce an expression from type <code>NewtypeInt</code> to
+<code>Int</code>, but again there's no overhead involved at runtime.</p>
+</div>
+<h2 data-number="9.2" id="summary-the-three-ways-of-naming-types"><span
+class="header-section-number">9.2</span> Summary: the three ways of
+naming types</h2>
+<p>Here's a brief recap of Haskell's three ways to introduce new names
+for types.</p>
+<ul>
+<li>The <code>data</code> keyword introduces a truly new albegraic data
+type.</li>
+<li>The <code>type</code> keyword gives us a synonym to use for an
+existing type. We can use the type and its synonym interchangeably.</li>
+<li>The <code>newtype</code> keyword gives an existing type a distinct
+identity. The original type and the new type are <em>not</em>
+interchangeable.</li>
+</ul>
+<h1 data-number="10"
+id="json-type-classes-without-overlapping-instances"><span
+class="header-section-number">10</span> JSON type classes without
+overlapping instances</h1>
+<p>Enabling GHC's support for overlapping instances is an effective and
+quick way to make our JSON code happy. In more complex cases, we will
+occasionally be faced with several equally good instances for some type
+class, in which case overlapping instances will not help us and we will
+need to put some <code>newtype</code> declarations into place. To see
+what's involved, let's rework our JSON type class instances to use
+~newtype~s instead of overlapping instances.</p>
+<p>Our first task, then, is to help the compiler to distinguish between
+<code>[a]</code>, the representation we use for JSON arrays, and
+<code>[(String,[a])]</code>, which we use for objects. These were the
+types that gave us problems before we learned about overlapping
+instances. We wrap up the list type so that the compiler will not see it
+as a list.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb55"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">JAry</span> a <span class="ot">=</span> <span class="dt">JAry</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>    {<span class="ot"> fromJAry ::</span> [a]</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>    } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>When we export this type from our module, we'll export the complete
+details of the type. Our module header will look like this:</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb56"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">JSONClass</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>    ( <span class="dt">JAry</span>(<span class="op">..</span>)</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>    ) <span class="kw">where</span></span></code></pre></div>
+</div>
+<p>The "<code>(..)</code>" following the <code>JAry</code> name means
+"export all details of this type".</p>
+<div class="NOTE">
+<p>A slight deviation from normal use</p>
+<p>Usually, when we export a <code>newtype</code>, we will <em>not</em>
+export its data constructor, in order to keep the details of the type
+abstract. Instead, we would define a function to apply the constructor
+for us.</p>
+<div class="sourceCode" id="cb57"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ot">jary ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">JAry</span> a</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>jary <span class="ot">=</span> <span class="dt">JAry</span></span></code></pre></div>
+<p>We would then export the type constructor, the deconstructor
+function, and our construction function, but not the data
+constructor.</p>
+<div class="sourceCode" id="cb58"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">JSONClass</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>    ( <span class="dt">JAry</span>(fromJAry)</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>    , jary</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>    ) <span class="kw">where</span></span></code></pre></div>
+<p>When we don't export a type's data constructor, clients of our
+library can only use the functions we provide to construct and
+deconstruct values of that type. This gives us, the library authors, the
+liberty to change our internal representation if we need to.</p>
+<p>If we export the data constructor, clients are likely to start
+depending on it, for instance by using it in patterns. If we later wish
+to change the innards of our type, we'll risk breaking any code that
+uses the constructor.</p>
+<p>In our circumstances here, we have nothing to gain by making the
+array wrapper abstract, so we may as well simply export the entire
+definition of the type.</p>
+</div>
+<p>We provide another wrapper type that hides our representation of a
+JSON object.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb59"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">JObj</span> a <span class="ot">=</span> <span class="dt">JObj</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>    {<span class="ot"> fromJObj ::</span> [(<span class="dt">String</span>, a)]</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>    } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>With these types defined, we make small changes to the definition of
+our <code>JValue</code> type.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb60"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">JValue</span> <span class="ot">=</span> <span class="dt">JString</span> <span class="dt">String</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="dt">JNumber</span> <span class="dt">Double</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="dt">JBool</span> <span class="dt">Bool</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="dt">JNull</span></span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="dt">JObject</span> (<span class="dt">JObj</span> <span class="dt">JValue</span>)   <span class="co">-- was [(String, JValue)]</span></span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="dt">JArray</span> (<span class="dt">JAry</span> <span class="dt">JValue</span>)    <span class="co">-- was [JValue]</span></span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>              <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>And to the module's header.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb61"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">JSONClass</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>    ( <span class="dt">JAry</span>(<span class="op">..</span>)</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>    , <span class="dt">JObj</span>(<span class="op">..</span>)</span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>    , <span class="dt">JValue</span>(<span class="op">..</span>)</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>    ) <span class="kw">where</span></span></code></pre></div>
+</div>
+<p>This change doesn't affect the instances of the JSON type class that
+we've already written, but we will want to write instances for our new
+<code>JAry</code> and <code>JObj</code> types.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb62"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="ot">jaryFromJValue ::</span> (<span class="dt">JSON</span> a) <span class="ot">=&gt;</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">JSONError</span> (<span class="dt">JAry</span> a)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="ot">jaryToJValue ::</span> (<span class="dt">JSON</span> a) <span class="ot">=&gt;</span> <span class="dt">JAry</span> a <span class="ot">-&gt;</span> <span class="dt">JValue</span></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">JSON</span> a) <span class="ot">=&gt;</span> <span class="dt">JSON</span> (<span class="dt">JAry</span> a) <span class="kw">where</span></span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>    toJValue <span class="ot">=</span> jaryToJValue</span>
+<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a>    fromJValue <span class="ot">=</span> jaryFromJValue</span></code></pre></div>
+</div>
+<p>Let's take a slow walk through the individual steps of converting a
+<code>JAry</code> a to a <code>JValue</code>. Given a list where we know
+that everything inside is a JSON instance, converting it to a list of
+<code>JValues</code> is easy.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb63"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="ot">listToJValues ::</span> (<span class="dt">JSON</span> a) <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> [<span class="dt">JValue</span>]</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>listToJValues <span class="ot">=</span> <span class="fu">map</span> toJValue</span></code></pre></div>
+</div>
+<p>Taking this and wrapping it to become a <code>JAry JValue</code> is
+just a matter of applying the <code>newtype</code>'s type
+constructor.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb64"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="ot">jvaluesToJAry ::</span> [<span class="dt">JValue</span>] <span class="ot">-&gt;</span> <span class="dt">JAry</span> <span class="dt">JValue</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>jvaluesToJAry <span class="ot">=</span> <span class="dt">JAry</span></span></code></pre></div>
+</div>
+<p>(Remember, this has no performance cost. We're just telling the
+compiler to hide the fact that we're using a list.) To turn this into a
+<code>JValue</code>, we apply another type constructor.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb65"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="ot">jaryOfJValuesToJValue ::</span> <span class="dt">JAry</span> <span class="dt">JValue</span> <span class="ot">-&gt;</span> <span class="dt">JValue</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>jaryOfJValuesToJValue <span class="ot">=</span> <span class="dt">JArray</span></span></code></pre></div>
+</div>
+<p>Assemble these pieces using function composition, and we get a
+concise one-liner for converting to a <code>JValue</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb66"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>jaryToJValue <span class="ot">=</span> <span class="dt">JArray</span> <span class="op">.</span> <span class="dt">JAry</span> <span class="op">.</span> <span class="fu">map</span> toJValue <span class="op">.</span> fromJAry</span></code></pre></div>
+</div>
+<p>We have more work to do to convert <em>from</em> a
+<code>JValue</code> to a <code>JAry a</code>, but we'll break it into
+reusable parts. The basic function is straightforward.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb67"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>jaryFromJValue (<span class="dt">JArray</span> (<span class="dt">JAry</span> a)) <span class="ot">=</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>    whenRight <span class="dt">JAry</span> (mapEithers fromJValue a)</span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>jaryFromJValue _ <span class="ot">=</span> <span class="dt">Left</span> <span class="st">&quot;not a JSON array&quot;</span></span></code></pre></div>
+</div>
+<p>The <code>whenRight</code> function inspects its argument: calls a
+function on it if it was created with the <code>Right</code>
+constructor, and leaves a <code>Left</code> value untouched.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb68"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="ot">whenRight ::</span> (b <span class="ot">-&gt;</span> c) <span class="ot">-&gt;</span> <span class="dt">Either</span> a b <span class="ot">-&gt;</span> <span class="dt">Either</span> a c</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>whenRight _ (<span class="dt">Left</span> err) <span class="ot">=</span> <span class="dt">Left</span> err</span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>whenRight f (<span class="dt">Right</span> a) <span class="ot">=</span> <span class="dt">Right</span> (f a)</span></code></pre></div>
+</div>
+<p>More complicated is <code>mapEithers</code>. It acts like the regular
+<code>map</code> function, but if it ever encounters a <code>Left</code>
+value, it returns that immediately, instead of continuing to accumulate
+a list of <code>Right</code> values.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb69"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="ot">mapEithers ::</span> (a <span class="ot">-&gt;</span> <span class="dt">Either</span> b c) <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> <span class="dt">Either</span> b [c]</span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>mapEithers f (x<span class="op">:</span>xs) <span class="ot">=</span> <span class="kw">case</span> mapEithers f xs <span class="kw">of</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">Left</span> err <span class="ot">-&gt;</span> <span class="dt">Left</span> err</span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">Right</span> ys <span class="ot">-&gt;</span> <span class="kw">case</span> f x <span class="kw">of</span></span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>                                      <span class="dt">Left</span> err <span class="ot">-&gt;</span> <span class="dt">Left</span> err</span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>                                      <span class="dt">Right</span> y <span class="ot">-&gt;</span> <span class="dt">Right</span> (y<span class="op">:</span>ys)</span>
+<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a>mapEithers _ _ <span class="ot">=</span> <span class="dt">Right</span> []</span></code></pre></div>
+</div>
+<p>Because the elements of the list hidden in the <code>JObj</code> type
+have a little more structure, the code to convert to and from a
+<code>JValue</code> is a bit more complex. Fortunately, we can reuse the
+functions that we just defined.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONClass.hs
+</div>
+<div class="sourceCode" id="cb70"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Arrow</span> (second)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">JSON</span> a) <span class="ot">=&gt;</span> <span class="dt">JSON</span> (<span class="dt">JObj</span> a) <span class="kw">where</span></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>    toJValue <span class="ot">=</span> <span class="dt">JObject</span> <span class="op">.</span> <span class="dt">JObj</span> <span class="op">.</span> <span class="fu">map</span> (second toJValue) <span class="op">.</span> fromJObj</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>    fromJValue (<span class="dt">JObject</span> (<span class="dt">JObj</span> o)) <span class="ot">=</span> whenRight <span class="dt">JObj</span> (mapEithers unwrap o)</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>      <span class="kw">where</span> unwrap (k,v) <span class="ot">=</span> whenRight ((,) k) (fromJValue v)</span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a>    fromJValue _ <span class="ot">=</span> <span class="dt">Left</span> <span class="st">&quot;not a JSON object&quot;</span></span></code></pre></div>
+</div>
+<h2 data-number="10.1" id="exercises"><span
+class="header-section-number">10.1</span> Exercises</h2>
+<ol>
+<li>Load the <code>Control.Arrow</code> module into <code>ghci</code>,
+and find out what the <code>second</code> function does.</li>
+<li>What is the type of <code>(,)</code>? When you use it in
+<code>ghci</code>, what does it do? What about <code>(,,)</code>?</li>
+</ol>
+<h1 data-number="11" id="the-dreaded-monomorphism-restriction"><span
+class="header-section-number">11</span> The dreaded monomorphism
+restriction</h1>
+<p>The Haskell 2010 standard has a subtle feature that can sometimes
+bite us in unexpected circumstances. Here's a simple function definition
+that illustrates the issue.</p>
+<div class="captioned-content">
+<div class="caption">
+Monomorphism.hs
+</div>
+<div class="sourceCode" id="cb71"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>myShow <span class="ot">=</span> <span class="fu">show</span></span></code></pre></div>
+</div>
+<p>If we try to load this definition into <code>ghci</code>, it issues a
+peculiar complaint.</p>
+<pre class="screen"><code>ghci&gt; :load Monomorphism
+[1 of 1] Compiling Main             ( Monomorphism.hs, interpreted )
+
+Monomorphism.hs:1:10: error:
+    • Ambiguous type variable ‘a0’ arising from a use of ‘show’
+      prevents the constraint ‘(Show a0)’ from being solved.
+      Relevant bindings include
+        myShow :: a0 -&gt; String (bound at Monomorphism.hs:1:1)
+      Probable fix: use a type annotation to specify what ‘a0’ should be.
+      These potential instances exist:
+        instance Show Ordering -- Defined in ‘GHC.Show’
+        instance Show Integer -- Defined in ‘GHC.Show’
+        instance Show a =&gt; Show (Maybe a) -- Defined in ‘GHC.Show’
+        ...plus 22 others
+        ...plus 11 instances involving out-of-scope types
+        (use -fprint-potential-instances to see them all)
+    • In the expression: show
+      In an equation for ‘myShow’: myShow = show
+  |
+1 | myShow = show
+  |          ^^^^
+Failed, no modules loaded.
+</code></pre>
+<p>The "monomorphism restriction" to which the error message refers is a
+part of the Haskell 2010 standard. <em>Monomorphism</em> is simply the
+opposite of polymorphism: it indicates that an expression has exactly
+one type. The <em>restriction</em> lies in the fact that Haskell
+sometimes forces a declaration to be less polymorphic than we would
+expect.</p>
+<p>We mention the monomorphism restriction here because although it
+isn't specifically related to type classes, they usually provide the
+circumstances in which it crops up.</p>
+<div class="TIP">
+<p>Tip</p>
+<p>It's possible that you will not run into the monomorphism restriction
+in real code for a long time. We don't think you need to try to remember
+the details of this section. It should suffice to make a mental note of
+its existence, until eventually GHC complains at you with something like
+the above error message. If that occurs, simply remember that you read
+about the error here, and come back for guidance.</p>
+</div>
+<p>We won't attempt to explain the monomorphism restriction.<a
+href="#fn3" class="footnote-ref" id="fnref3"
+role="doc-noteref"><sup>3</sup></a> The consensus within the Haskell
+community is that it doesn't arise often; it is tricky to explain; it
+provides almost no practical benefit; and so it mostly serves to trip
+people up. For an example of its trickiness, while the definition above
+falls afoul of it, the following two compile without problems.</p>
+<div class="captioned-content">
+<div class="caption">
+Monomorphism.hs
+</div>
+<div class="sourceCode" id="cb73"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>myShow2 value <span class="ot">=</span> <span class="fu">show</span> value</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a><span class="ot">myShow3 ::</span> <span class="dt">Show</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>myShow3 <span class="ot">=</span> <span class="fu">show</span></span></code></pre></div>
+</div>
+<p>As these alternative definitions suggest, if GHC complains about the
+monomorphism restriction, we have three easy ways to address the
+error.</p>
+<ul>
+<li>Make the function's arguments explicit, instead of leaving them
+implicit.</li>
+<li>Give the definition an explicit type signature, instead of making
+the compiler infer its type.</li>
+<li>Leave the code untouched, and compile the module with the
+<code>NoMonomorphismRestriction</code> language extension enabled. This
+disables the monomorphism restriction.</li>
+</ul>
+<p>Because the monomorphism restriction is unwanted and unloved, it will
+almost certainly be dropped from the next revision of the Haskell
+standard. This does not quite mean that compiling with
+<code>NoMonomorphismRestriction</code> is always the right thing to do:
+some Haskell compilers (including older versions of GHC) do not
+understand this extension, but they'll accept either of the other
+approaches to making the error disappear. If this degree of portability
+isn't a concern to you, then by all means enable the language
+extension.</p>
+<h1 data-number="12" id="conclusion"><span
+class="header-section-number">12</span> Conclusion</h1>
+<p>In this chapter, you learned about the need for type classes and how
+to use them. We talked about defining our own type classes and then
+covered some of the important type classes that are defined in the
+Haskell library. Finally, we showed how to have the Haskell compiler
+automatically derive instances of certain type classes for your
+types.</p>
+<h1 data-number="13" id="footnotes"><span
+class="header-section-number">13</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>We provided a default implementation
+of both functions, which gives implementers of instances choice: they
+can pick which one they implement. We could have provided a default for
+only one function, which would have forced users to implement the other
+every time. As it is, users can implement one or both, as they see
+fit.<a href="#fnref1" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>As you will see in <a
+href="7-io.org::*Lazy I/O">the section called "Lazy I/O"</a> doesn't
+actually read the entire file at this point. But for the purposes of
+this example, we can ignore that distinction.<a href="#fnref2"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>If you simply <em>must</em> read the
+gory details, see <a
+href="http://www.haskell.org/onlinereport/decls.html#sect4.5.5">section
+4.5.5</a> of the Haskell 98 Report.<a href="#fnref3"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

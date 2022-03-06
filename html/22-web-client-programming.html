@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 22. Extended Example: Web Client Programming</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 22. Extended Example: Web Client
+Programming</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#basic-types"><span class="toc-section-number">1</span>
+Basic Types</a></li>
+<li><a href="#the-database"><span class="toc-section-number">2</span>
+The Database</a></li>
+<li><a href="#the-parser"><span class="toc-section-number">3</span> The
+Parser</a></li>
+<li><a href="#downloading"><span class="toc-section-number">4</span>
+Downloading</a></li>
+<li><a href="#main-program"><span class="toc-section-number">5</span>
+Main Program</a></li>
+</ul>
+</nav>
+<p>By this point, you've seen how to interact with a database, parse
+things, and handle errors. Let's now take this a step farther and
+introduce a web client library to the mix.</p>
+<p>We'll develop a real application in this chapter: a podcast
+downloader, or "podcatcher". The idea of a podcatcher is simple. It is
+given a list of URLs to process. Downloading each of these URLs results
+in an XML file in the RSS format. Inside this XML file, we'll find
+references to URLs for audio files to download.</p>
+<p>Podcatchers usually let the user subscribe to podcasts by adding RSS
+URLs to their configuration. Then, the user can periodically run an
+update operation. The podcatcher will download the RSS documents,
+examine them for audio file references, and download any audio files
+that haven't already been downloaded on behalf of this user.</p>
+<div class="TIP">
+<p>Tip</p>
+<p>Users often call the RSS document a podcast or the podcast feed, and
+each individual audio file an episode.</p>
+</div>
+<p>To make this happen, we need to have several things:</p>
+<ul>
+<li>An HTTP client library to download files</li>
+<li>An XML parser</li>
+<li>A way to specify and persistently store which podcasts we're
+interested in</li>
+<li>A way to persistently store which podcast episodes we've already
+downloaded</li>
+</ul>
+<p>The last two items can be accommodated via a database we'll set up
+using HDBC. The first two can be accommodated via other library modules
+we'll introduce in this chapter.</p>
+<div class="TIP">
+<p>Tip</p>
+<p>The code in this chapter was written specifically for this book, but
+is based on code written for hpodder, an existing podcatcher written in
+Haskell. hpodder has many more features than the examples presented
+here, which make it too long and complex for coverage in this book. If
+you are interested in studying hpodder, its source code is freely
+available at <a
+href="http://software.complete.org/hpodder">http://software.complete.org/hpodder</a>.</p>
+</div>
+<p>We'll write the code for this chapter in pieces. Each piece will be
+its own Haskell module. You'll be able to play with each piece by itself
+in <code>ghci</code>. At the end, we'll write the final code that ties
+everything together into a finished application. We'll start with the
+basic types we'll need to use.</p>
+<h1 data-number="1" id="basic-types"><span
+class="header-section-number">1</span> Basic Types</h1>
+<p>The first thing to do is have some idea of the basic information that
+will be important to the application. This will generally be information
+about the podcasts the user is interested in, plus information about
+episodes that we have seen and processed. It's easy enough to change
+this later if needed, but since we'll be importing it just about
+everywhere, we'll define it first.</p>
+<div class="captioned-content">
+<div class="caption">
+PodTypes.hs
+</div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">PodTypes</span> <span class="kw">where</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Podcast</span> <span class="ot">=</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Podcast</span> {<span class="ot">castId ::</span> <span class="dt">Integer</span>, <span class="co">-- ^ Numeric ID for this podcast</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ot">             castURL ::</span> <span class="dt">String</span>  <span class="co">-- ^ Its feed URL</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>, <span class="dt">Read</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Episode</span> <span class="ot">=</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Episode</span> {<span class="ot">epId ::</span> <span class="dt">Integer</span>,     <span class="co">-- ^ Numeric ID for this episode</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ot">             epCast ::</span> <span class="dt">Podcast</span>, <span class="co">-- ^ The ID of the podcast it came from</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ot">             epURL ::</span> <span class="dt">String</span>,     <span class="co">-- ^ The download URL for this episode</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="ot">             epDone ::</span> <span class="dt">Bool</span>       <span class="co">-- ^ Whether or not we are done with this ep</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>, <span class="dt">Read</span>)</span></code></pre></div>
+</div>
+<p>We'll be storing this information in a database. Having a unique
+identifier for both a podcast and an episode makes it easy to find which
+episodes belong to a particular podcast, load information for a
+particular podcast or episode, or handle future cases such as changing
+URLs for podcasts.</p>
+<h1 data-number="2" id="the-database"><span
+class="header-section-number">2</span> The Database</h1>
+<p>Next, we'll write the code to make possible persistent storage in a
+database. We'll primarily be interested in moving data between the
+Haskell structures we defined in <code>PodTypes.hs</code> and the
+database on disk. Also, the first time the user runs the program, we'll
+need to create the database tables that we'll use to store our data.</p>
+<p>We'll use HDBC (see <a href="21-using-databases.org">Chapter 21,
+<em>Using Databases</em></a>) to interact with a Sqlite database. Sqlite
+is lightweight and self-contained, which makes it perfect for this
+project. For information on installing HDBC and Sqlite, consult <a
+href="21-using-databases.org::*Installing HDBC and Drivers">the section
+called "Installing HDBC and Drivers"</a></p>
+<div class="captioned-content">
+<div class="caption">
+PodDB.hs
+</div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">PodDB</span> <span class="kw">where</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Database.HDBC</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Database.HDBC.Sqlite3</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">PodTypes</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span>(when)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span>(sort)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Initialize DB and return database Connection</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ot">connect ::</span> <span class="dt">FilePath</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Connection</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>connect fp <span class="ot">=</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> dbh <span class="ot">&lt;-</span> connectSqlite3 fp</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>       prepDB dbh</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>       <span class="fu">return</span> dbh</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Prepare the database for our data.</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">We create two tables and ask the database engine to verify some pieces</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">of data consistency for us:</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">* castid and epid both are unique primary keys and must never be duplicated</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">* castURL also is unique</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">* In the episodes table, for a given podcast (epcast), there must be only</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">  one instance of each given URL or episode ID</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">-}</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="ot">prepDB ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span> conn <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>prepDB dbh <span class="ot">=</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> tables <span class="ot">&lt;-</span> getTables dbh</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>       when (<span class="fu">not</span> (<span class="st">&quot;podcasts&quot;</span> <span class="ot">`elem`</span> tables)) <span class="op">$</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>           <span class="kw">do</span> run dbh <span class="st">&quot;CREATE TABLE podcasts (\</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="st">                       \castid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="st">                       \castURL TEXT NOT NULL UNIQUE)&quot;</span> []</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>              <span class="fu">return</span> ()</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>       when (<span class="fu">not</span> (<span class="st">&quot;episodes&quot;</span> <span class="ot">`elem`</span> tables)) <span class="op">$</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>           <span class="kw">do</span> run dbh <span class="st">&quot;CREATE TABLE episodes (\</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="st">                       \epid INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="st">                       \epcastid INTEGER NOT NULL,\</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="st">                       \epurl TEXT NOT NULL,\</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="st">                       \epdone INTEGER NOT NULL,\</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="st">                       \UNIQUE(epcastid, epurl),\</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="st">                       \UNIQUE(epcastid, epid))&quot;</span> []</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>              <span class="fu">return</span> ()</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>       commit dbh</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Adds a new podcast to the database.  Ignores the castid on the</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="co">incoming podcast, and returns a new object with the castid populated.</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="co">An attempt to add a podcast that already exists is an error. -}</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="ot">addPodcast ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span> conn <span class="ot">-&gt;</span> <span class="dt">Podcast</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Podcast</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>addPodcast dbh podcast <span class="ot">=</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>    handleSql errorHandler <span class="op">$</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>      <span class="kw">do</span> <span class="co">-- Insert the castURL into the table.  The database</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>         <span class="co">-- will automatically assign a cast ID.</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>         run dbh <span class="st">&quot;INSERT INTO podcasts (castURL) VALUES (?)&quot;</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>             [toSql (castURL podcast)]</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>         <span class="co">-- Find out the castID for the URL we just added.</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>         r <span class="ot">&lt;-</span> quickQuery&#39; dbh <span class="st">&quot;SELECT castid FROM podcasts WHERE castURL = ?&quot;</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>              [toSql (castURL podcast)]</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>         <span class="kw">case</span> r <span class="kw">of</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>           [[x]] <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="op">$</span> podcast {castId <span class="ot">=</span> fromSql x}</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>           y <span class="ot">-&gt;</span> <span class="fu">fail</span> <span class="op">$</span> <span class="st">&quot;addPodcast: unexpected result: &quot;</span> <span class="op">++</span> <span class="fu">show</span> y</span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> errorHandler e <span class="ot">=</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>              <span class="kw">do</span> <span class="fu">fail</span> <span class="op">$</span> <span class="st">&quot;Error adding podcast; does this URL already exist?\n&quot;</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>                     <span class="op">++</span> <span class="fu">show</span> e</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Adds a new episode to the database.</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a><span class="co">Since this is done by automation, instead of by user request, we will</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a><span class="co">simply ignore requests to add duplicate episodes.  This way, when we are</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a><span class="co">processing a feed, each URL encountered can be fed to this function,</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a><span class="co">without having to first look it up in the DB.</span></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a><span class="co">Also, we generally won&#39;t care about the new ID here, so don&#39;t bother</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a><span class="co">fetching it. -}</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a><span class="ot">addEpisode ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span> conn <span class="ot">-&gt;</span> <span class="dt">Episode</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>addEpisode dbh ep <span class="ot">=</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>    run dbh <span class="st">&quot;INSERT OR IGNORE INTO episodes (epCastId, epURL, epDone) \</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a><span class="st">                \VALUES (?, ?, ?)&quot;</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>                [toSql (castId <span class="op">.</span> epCast <span class="op">$</span> ep), toSql (epURL ep),</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>                 toSql (epDone ep)]</span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>    <span class="op">&gt;&gt;</span> <span class="fu">return</span> ()</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Modifies an existing podcast.  Looks up the given podcast by</span></span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a><span class="co">ID and modifies the database record to match the passed Podcast. -}</span></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a><span class="ot">updatePodcast ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span> conn <span class="ot">-&gt;</span> <span class="dt">Podcast</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>updatePodcast dbh podcast <span class="ot">=</span></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>    run dbh <span class="st">&quot;UPDATE podcasts SET castURL = ? WHERE castId = ?&quot;</span></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>            [toSql (castURL podcast), toSql (castId podcast)]</span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>    <span class="op">&gt;&gt;</span> <span class="fu">return</span> ()</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Modifies an existing episode.  Looks it up by ID and modifies the</span></span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a><span class="co">database record to match the given episode. -}</span></span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a><span class="ot">updateEpisode ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span> conn <span class="ot">-&gt;</span> <span class="dt">Episode</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>updateEpisode dbh episode <span class="ot">=</span></span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>    run dbh <span class="st">&quot;UPDATE episodes SET epCastId = ?, epURL = ?, epDone = ? \</span></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a><span class="st">             \WHERE epId = ?&quot;</span></span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>             [toSql (castId <span class="op">.</span> epCast <span class="op">$</span> episode),</span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>              toSql (epURL episode),</span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>              toSql (epDone episode),</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a>              toSql (epId episode)]</span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a>    <span class="op">&gt;&gt;</span> <span class="fu">return</span> ()</span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Remove a podcast.  First removes any episodes that may exist</span></span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a><span class="co">for this podcast. -}</span></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a><span class="ot">removePodcast ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span> conn <span class="ot">-&gt;</span> <span class="dt">Podcast</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>removePodcast dbh podcast <span class="ot">=</span></span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> run dbh <span class="st">&quot;DELETE FROM episodes WHERE epcastid = ?&quot;</span></span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>         [toSql (castId podcast)]</span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>       run dbh <span class="st">&quot;DELETE FROM podcasts WHERE castid = ?&quot;</span></span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>         [toSql (castId podcast)]</span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>       <span class="fu">return</span> ()</span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Gets a list of all podcasts. -}</span></span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a><span class="ot">getPodcasts ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span> conn <span class="ot">-&gt;</span> <span class="dt">IO</span> [<span class="dt">Podcast</span>]</span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>getPodcasts dbh <span class="ot">=</span></span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> res <span class="ot">&lt;-</span> quickQuery&#39; dbh</span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;SELECT castid, casturl FROM podcasts ORDER BY castid&quot;</span> []</span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>       <span class="fu">return</span> (<span class="fu">map</span> convPodcastRow res)</span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Get a particular podcast.  Nothing if the ID doesn&#39;t match, or</span></span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a><span class="co">Just Podcast if it does. -}</span></span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a><span class="ot">getPodcast ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span> conn <span class="ot">-&gt;</span> <span class="dt">Integer</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">Podcast</span>)</span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a>getPodcast dbh wantedId <span class="ot">=</span></span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> res <span class="ot">&lt;-</span> quickQuery&#39; dbh</span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;SELECT castid, casturl FROM podcasts WHERE castid = ?&quot;</span></span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a>              [toSql wantedId]</span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a>       <span class="kw">case</span> res <span class="kw">of</span></span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a>         [x] <span class="ot">-&gt;</span> <span class="fu">return</span> (<span class="dt">Just</span> (convPodcastRow x))</span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a>         [] <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="dt">Nothing</span></span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a>         x <span class="ot">-&gt;</span> <span class="fu">fail</span> <span class="op">$</span> <span class="st">&quot;Really bad error; more than one podcast with ID&quot;</span></span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Convert the result of a SELECT into a Podcast record -}</span></span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a><span class="ot">convPodcastRow ::</span> [<span class="dt">SqlValue</span>] <span class="ot">-&gt;</span> <span class="dt">Podcast</span></span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a>convPodcastRow [svId, svURL] <span class="ot">=</span></span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Podcast</span> {castId <span class="ot">=</span> fromSql svId,</span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a>             castURL <span class="ot">=</span> fromSql svURL}</span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>convPodcastRow x <span class="ot">=</span> <span class="fu">error</span> <span class="op">$</span> <span class="st">&quot;Can&#39;t convert podcast row &quot;</span> <span class="op">++</span> <span class="fu">show</span> x</span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Get all episodes for a particular podcast. -}</span></span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a><span class="ot">getPodcastEpisodes ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span> conn <span class="ot">-&gt;</span> <span class="dt">Podcast</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> [<span class="dt">Episode</span>]</span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>getPodcastEpisodes dbh pc <span class="ot">=</span></span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> r <span class="ot">&lt;-</span> quickQuery&#39; dbh</span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;SELECT epId, epURL, epDone FROM episodes WHERE epCastId = ?&quot;</span></span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a>            [toSql (castId pc)]</span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>       <span class="fu">return</span> (<span class="fu">map</span> convEpisodeRow r)</span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> convEpisodeRow [svId, svURL, svDone] <span class="ot">=</span></span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a>              <span class="dt">Episode</span> {epId <span class="ot">=</span> fromSql svId, epURL <span class="ot">=</span> fromSql svURL,</span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a>                       epDone <span class="ot">=</span> fromSql svDone, epCast <span class="ot">=</span> pc}</span></code></pre></div>
+</div>
+<p>In the <code>PodDB</code> module, we have defined functions to
+connect to the database, create the needed database tables, add data to
+the database, query the database, and remove data from the database.
+Here is an example <code>ghci</code> session demonstrating interacting
+with the database. It will create a database file named
+<code>poddbtest.db</code> in the current working directory and add a
+podcast and an episode to it.</p>
+<pre class="screen"><code>ghci&gt; :load PodDB.hs
+[1 of 2] Compiling PodTypes         ( PodTypes.hs, interpreted )
+[2 of 2] Compiling PodDB            ( PodDB.hs, interpreted )
+Ok, modules loaded: PodDB, PodTypes.
+ghci&gt; dbh &lt;- connect &quot;poddbtest.db&quot;
+ghci&gt; :type dbh
+dbh :: Connection
+ghci&gt; getTables dbh
+[&quot;episodes&quot;,&quot;podcasts&quot;,&quot;sqlite_sequence&quot;]
+ghci&gt; let url = &quot;http://feeds.thisamericanlife.org/talpodcast&quot;
+ghci&gt; pc &lt;- addPodcast dbh (Podcast {castId=0, castURL=url})
+Podcast {castId = 1, castURL = &quot;http://feeds.thisamericanlife.org/talpodcast&quot;}
+ghci&gt; getPodcasts dbh
+[Podcast {castId = 1, castURL = &quot;http://feeds.thisamericanlife.org/talpodcast&quot;}]
+ghci&gt; addEpisode dbh (Episode {epId = 0, epCast = pc, epURL = &quot;http://www.example.com/foo.mp3&quot;, epDone = False})
+ghci&gt; getPodcastEpisodes dbh pc
+[Episode {epId = 1, epCast = Podcast {castId = 1, castURL = &quot;http://feeds.thisamericanlife.org/talpodcast&quot;}, epURL = &quot;http://www.example.com/foo.mp3&quot;, epDone = False}]
+ghci&gt; commit dbh
+ghci&gt; disconnect dbh
+</code></pre>
+<h1 data-number="3" id="the-parser"><span
+class="header-section-number">3</span> The Parser</h1>
+<p>Now that we have the database component, we need to have code to
+parse the podcast feeds. These are XML files that contain various
+information. Here's an example XML file to show you what they look
+like:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode xml"><code class="sourceCode xml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">&lt;?xml</span><span class="ot"> version=</span><span class="st">&quot;1.0&quot;</span><span class="ot"> encoding=</span><span class="st">&quot;UTF-8&quot;</span><span class="fu">?&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>&lt;<span class="kw">rss</span><span class="ot"> xmlns:itunes=</span><span class="st">&quot;http://www.itunes.com/DTDs/Podcast-1.0.dtd&quot;</span><span class="ot"> version=</span><span class="st">&quot;2.0&quot;</span>&gt;</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  &lt;<span class="kw">channel</span>&gt;</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">title</span>&gt;Haskell Radio&lt;/<span class="kw">title</span>&gt;</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">link</span>&gt;http://www.example.com/radio/&lt;/<span class="kw">link</span>&gt;</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">description</span>&gt;Description of this podcast&lt;/<span class="kw">description</span>&gt;</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">item</span>&gt;</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">title</span>&gt;Episode 2: Lambdas&lt;/<span class="kw">title</span>&gt;</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">link</span>&gt;http://www.example.com/radio/lambdas&lt;/<span class="kw">link</span>&gt;</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">enclosure</span><span class="ot"> url=</span><span class="st">&quot;http://www.example.com/radio/lambdas.mp3&quot;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="ot">       type=</span><span class="st">&quot;audio/mpeg&quot;</span><span class="ot"> length=</span><span class="st">&quot;10485760&quot;</span>/&gt;</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">item</span>&gt;</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    &lt;<span class="kw">item</span>&gt;</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">title</span>&gt;Episode 1: Parsec&lt;/<span class="kw">title</span>&gt;</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">link</span>&gt;http://www.example.com/radio/parsec&lt;/<span class="kw">link</span>&gt;</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>      &lt;<span class="kw">enclosure</span><span class="ot"> url=</span><span class="st">&quot;http://www.example.com/radio/parsec.mp3&quot;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="ot">       type=</span><span class="st">&quot;audio/mpeg&quot;</span><span class="ot"> length=</span><span class="st">&quot;10485150&quot;</span>/&gt;</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    &lt;/<span class="kw">item</span>&gt;</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  &lt;/<span class="kw">channel</span>&gt;</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>&lt;/<span class="kw">rss</span>&gt;</span></code></pre></div>
+<p>Out of these files, we are mainly interested in two things: the
+podcast title and the enclosure URLs. We use the <a
+href="http://www.cs.york.ac.uk/fp/HaXml/">HaXml toolkit</a> to parse the
+XML file. Here's the source code for this component:</p>
+<div class="captioned-content">
+<div class="caption">
+PodParser.hs
+</div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">PodParser</span> <span class="kw">where</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">PodTypes</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.XML.HaXml</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.XML.HaXml.Parse</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.XML.HaXml.Html.Generate</span>(showattr)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Char</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">PodItem</span> <span class="ot">=</span> <span class="dt">PodItem</span> {<span class="ot">itemtitle ::</span> <span class="dt">String</span>,</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="ot">                  enclosureurl ::</span> <span class="dt">String</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                  }</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>          <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>, <span class="dt">Read</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Feed</span> <span class="ot">=</span> <span class="dt">Feed</span> {<span class="ot">channeltitle ::</span> <span class="dt">String</span>,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="ot">                  items ::</span> [<span class="dt">PodItem</span>]}</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>            <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>, <span class="dt">Read</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Given a podcast and an PodItem, produce an Episode -}</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="ot">item2ep ::</span> <span class="dt">Podcast</span> <span class="ot">-&gt;</span> <span class="dt">PodItem</span> <span class="ot">-&gt;</span> <span class="dt">Episode</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>item2ep pc item <span class="ot">=</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Episode</span> {epId <span class="ot">=</span> <span class="dv">0</span>,</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>             epCast <span class="ot">=</span> pc,</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>             epURL <span class="ot">=</span> enclosureurl item,</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>             epDone <span class="ot">=</span> <span class="dt">False</span>}</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Parse the data from a given string, with the given name to use</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co">in error messages. -}</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="ot">parse ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Feed</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>parse content name <span class="ot">=</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">Feed</span> {channeltitle <span class="ot">=</span> getTitle doc,</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>          items <span class="ot">=</span> getEnclosures doc}</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> parseResult <span class="ot">=</span> xmlParse name (stripUnicodeBOM content)</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>          doc <span class="ot">=</span> getContent parseResult</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="ot">          getContent ::</span> <span class="dt">Document</span> <span class="ot">-&gt;</span> <span class="dt">Content</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>          getContent (<span class="dt">Document</span> _ _ e _) <span class="ot">=</span> <span class="dt">CElem</span> e</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>          <span class="co">{- | Some Unicode documents begin with a binary sequence;</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a><span class="co">             strip it off before processing. -}</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="ot">          stripUnicodeBOM ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>          stripUnicodeBOM (<span class="ch">&#39;\xef&#39;</span><span class="op">:</span><span class="ch">&#39;\xbb&#39;</span><span class="op">:</span><span class="ch">&#39;\xbf&#39;</span><span class="op">:</span>x) <span class="ot">=</span> x</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>          stripUnicodeBOM x <span class="ot">=</span> x</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Pull out the channel part of the document.</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="co">Note that HaXml defines CFilter as:</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a><span class="co">&gt; type CFilter = Content -&gt; [Content]</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a><span class="co">-}</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a><span class="ot">channel ::</span> <span class="dt">CFilter</span></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>channel <span class="ot">=</span> tag <span class="st">&quot;rss&quot;</span> <span class="op">/&gt;</span> tag <span class="st">&quot;channel&quot;</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a><span class="ot">getTitle ::</span> <span class="dt">Content</span> <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>getTitle doc <span class="ot">=</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>    contentToStringDefault <span class="st">&quot;Untitled Podcast&quot;</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>        (channel <span class="op">/&gt;</span> tag <span class="st">&quot;title&quot;</span> <span class="op">/&gt;</span> txt <span class="op">$</span> doc)</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a><span class="ot">getEnclosures ::</span> <span class="dt">Content</span> <span class="ot">-&gt;</span> [<span class="dt">PodItem</span>]</span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>getEnclosures doc <span class="ot">=</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>    <span class="fu">concatMap</span> procPodItem <span class="op">$</span> getPodItems doc</span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span><span class="ot"> procPodItem ::</span> <span class="dt">Content</span> <span class="ot">-&gt;</span> [<span class="dt">PodItem</span>]</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>          procPodItem item <span class="ot">=</span> <span class="fu">concatMap</span> (procEnclosure title) enclosure</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>              <span class="kw">where</span> title <span class="ot">=</span> contentToStringDefault <span class="st">&quot;Untitled Episode&quot;</span></span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>                               (keep <span class="op">/&gt;</span> tag <span class="st">&quot;title&quot;</span> <span class="op">/&gt;</span> txt <span class="op">$</span> item)</span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>                    enclosure <span class="ot">=</span> (keep <span class="op">/&gt;</span> tag <span class="st">&quot;enclosure&quot;</span>) item</span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a><span class="ot">          getPodItems ::</span> <span class="dt">CFilter</span></span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>          getPodItems <span class="ot">=</span> channel <span class="op">/&gt;</span> tag <span class="st">&quot;item&quot;</span></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a><span class="ot">          procEnclosure ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Content</span> <span class="ot">-&gt;</span> [<span class="dt">PodItem</span>]</span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>          procEnclosure title enclosure <span class="ot">=</span></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>              <span class="fu">map</span> makePodItem (showattr <span class="st">&quot;url&quot;</span> enclosure)</span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>              <span class="kw">where</span><span class="ot"> makePodItem ::</span> <span class="dt">Content</span> <span class="ot">-&gt;</span> <span class="dt">PodItem</span></span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>                    makePodItem x <span class="ot">=</span> <span class="dt">PodItem</span> {itemtitle <span class="ot">=</span> title,</span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>                                       enclosureurl <span class="ot">=</span> contentToString [x]}</span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Convert [Content] to a printable String, with a default if the</span></span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a><span class="co">passed-in [Content] is [], signifying a lack of a match. -}</span></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a><span class="ot">contentToStringDefault ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">Content</span>] <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a>contentToStringDefault msg [] <span class="ot">=</span> msg</span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>contentToStringDefault _ x <span class="ot">=</span> contentToString x</span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Convert [Content] to a printable string, taking care to unescape it.</span></span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a><span class="co">An implementation without unescaping would simply be:</span></span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a><span class="co">&gt; contentToString = concatMap (show . content)</span></span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a><span class="co">Because HaXml&#39;s unescaping only works on Elements, we must make sure that</span></span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a><span class="co">whatever Content we have is wrapped in an Element, then use txt to</span></span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a><span class="co">pull the insides back out. -}</span></span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a><span class="ot">contentToString ::</span> [<span class="dt">Content</span>] <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>contentToString <span class="ot">=</span></span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a>    <span class="fu">concatMap</span> procContent</span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> procContent x <span class="ot">=</span></span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>              verbatim <span class="op">$</span> keep <span class="op">/&gt;</span> txt <span class="op">$</span> <span class="dt">CElem</span> (unesc (fakeElem x))</span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a><span class="ot">          fakeElem ::</span> <span class="dt">Content</span> <span class="ot">-&gt;</span> <span class="dt">Element</span></span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>          fakeElem x <span class="ot">=</span> <span class="dt">Elem</span> <span class="st">&quot;fake&quot;</span> [] [x]</span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a><span class="ot">          unesc ::</span> <span class="dt">Element</span> <span class="ot">-&gt;</span> <span class="dt">Element</span></span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a>          unesc <span class="ot">=</span> xmlUnEscape stdXmlEscaper</span></code></pre></div>
+</div>
+<p>Let's look at this code. First, we declare two types:
+<code>PodItem</code> and <code>Feed</code>. We will be transforming the
+XML document into a <code>Feed</code>, which then contains items. We
+also provide a function to convert an <code>PodItem</code> into an
+<code>Episode</code> as defined in <code>PodTypes.hs</code>.</p>
+<p>Next, it is on to parsing. The <code>parse</code> function takes a
+<code>String</code> representing the XML content as well as a
+<code>String</code> representing a name to use in error messages, and
+returns a <code>Feed</code>.</p>
+<p>HaXml is designed as a "filter" converting data of one type to
+another. It can be a simple straightforward conversion of XML to XML, or
+of XML to Haskell data, or of Haskell data to XML. HaXml has a data type
+called <code>CFilter</code>, which is defined like this:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">CFilter</span> <span class="ot">=</span> <span class="dt">Content</span> <span class="ot">-&gt;</span> [<span class="dt">Content</span>]</span></code></pre></div>
+<p>That is, a <code>CFilter</code> takes a fragment of an XML document
+and returns 0 or more fragments. A <code>CFilter</code> might be asked
+to find all children of a specified tag, all tags with a certain name,
+the literal text contained within a part of an XML document, or any of a
+number of other things. There is also an operator <code>(/&gt;)</code>
+that chains <code>CFilter</code> functions together. All of the data
+that we're interested in occurs within the <code>&lt;channel&gt;</code>
+tag, so first we want to get at that. We define a simple
+<code>CFilter</code>:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>channel <span class="ot">=</span> tag <span class="st">&quot;rss&quot;</span> <span class="op">/&gt;</span> tag <span class="st">&quot;channel&quot;</span></span></code></pre></div>
+<p>When we pass a document to <code>channel</code>, it will search the
+top level for the tag named <code>rss</code>. Then, within that, it will
+look for the <code>channel</code> tag.</p>
+<p>The rest of the program follows this basic approach. <code>txt</code>
+extracts the literal text from a tag, and by using <code>CFilter</code>
+functions, we can get at any part of the document.</p>
+<h1 data-number="4" id="downloading"><span
+class="header-section-number">4</span> Downloading</h1>
+<p>The next part of our program is a module to download data. We'll need
+to download two different types of data: the content of a podcast, and
+the audio for each episode. In the former case, we'll parse the data and
+update our database. For the latter, we'll write the data out to a file
+on disk.</p>
+<p>We'll be downloading from HTTP servers, so we'll use a Haskell <a
+href="http://www.haskell.org/http/">HTTP library</a>. For downloading
+podcast feeds, we'll download the document, parse it, and update the
+database. For episode audio, we'll download the file, write it to disk,
+and mark it downloaded in the database. Here's the code:</p>
+<div class="captioned-content">
+<div class="caption">
+PodDownload.hs
+</div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">PodDownload</span> <span class="kw">where</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">PodTypes</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">PodDB</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">PodParser</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Network.HTTP</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.IO</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Database.HDBC</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Maybe</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Network.URI</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Download a URL.  (Left errorMessage) if an error,</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">(Right doc) if success. -}</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="ot">downloadURL ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Either</span> <span class="dt">String</span> <span class="dt">String</span>)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>downloadURL url <span class="ot">=</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> resp <span class="ot">&lt;-</span> simpleHTTP request</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>       <span class="kw">case</span> resp <span class="kw">of</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>         <span class="dt">Left</span> x <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="op">$</span> <span class="dt">Left</span> (<span class="st">&quot;Error connecting: &quot;</span> <span class="op">++</span> <span class="fu">show</span> x)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>         <span class="dt">Right</span> r <span class="ot">-&gt;</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>             <span class="kw">case</span> rspCode r <span class="kw">of</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>               (<span class="dv">2</span>,_,_) <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="op">$</span> <span class="dt">Right</span> (rspBody r)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>               (<span class="dv">3</span>,_,_) <span class="ot">-&gt;</span> <span class="co">-- A HTTP redirect</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">case</span> findHeader <span class="dt">HdrLocation</span> r <span class="kw">of</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="op">$</span> <span class="dt">Left</span> (<span class="fu">show</span> r)</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">Just</span> url <span class="ot">-&gt;</span> downloadURL url</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>               _ <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="op">$</span> <span class="dt">Left</span> (<span class="fu">show</span> r)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> request <span class="ot">=</span> <span class="dt">Request</span> {rqURI <span class="ot">=</span> uri,</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>                             rqMethod <span class="ot">=</span> <span class="dt">GET</span>,</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>                             rqHeaders <span class="ot">=</span> [],</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>                             rqBody <span class="ot">=</span> <span class="st">&quot;&quot;</span>}</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>          uri <span class="ot">=</span> fromJust <span class="op">$</span> parseURI url</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Update the podcast in the database. -}</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="ot">updatePodcastFromFeed ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span> conn <span class="ot">-&gt;</span> <span class="dt">Podcast</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>updatePodcastFromFeed dbh pc <span class="ot">=</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> resp <span class="ot">&lt;-</span> downloadURL (castURL pc)</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>       <span class="kw">case</span> resp <span class="kw">of</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>         <span class="dt">Left</span> x <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> x</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>         <span class="dt">Right</span> doc <span class="ot">-&gt;</span> updateDB doc</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> updateDB doc <span class="ot">=</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>              <span class="kw">do</span> <span class="fu">mapM_</span> (addEpisode dbh) episodes</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>                 commit dbh</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>              <span class="kw">where</span> feed <span class="ot">=</span> parse doc (castURL pc)</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>                    episodes <span class="ot">=</span> <span class="fu">map</span> (item2ep pc) (items feed)</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Downloads an episode, returning a String representing</span></span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a><span class="co">the filename it was placed into, or Nothing on error. -}</span></span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a><span class="ot">getEpisode ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span> conn <span class="ot">-&gt;</span> <span class="dt">Episode</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Maybe</span> <span class="dt">String</span>)</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>getEpisode dbh ep <span class="ot">=</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> resp <span class="ot">&lt;-</span> downloadURL (epURL ep)</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>       <span class="kw">case</span> resp <span class="kw">of</span></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>         <span class="dt">Left</span> x <span class="ot">-&gt;</span> <span class="kw">do</span> <span class="fu">putStrLn</span> x</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">return</span> <span class="dt">Nothing</span></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>         <span class="dt">Right</span> doc <span class="ot">-&gt;</span></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>             <span class="kw">do</span> file <span class="ot">&lt;-</span> openBinaryFile filename <span class="dt">WriteMode</span></span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>                hPutStr file doc</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>                hClose file</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>                updateEpisode dbh (ep {epDone <span class="ot">=</span> <span class="dt">True</span>})</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>                commit dbh</span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>                <span class="fu">return</span> (<span class="dt">Just</span> filename)</span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>          <span class="co">-- This function ought to apply an extension based on the filetype</span></span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> filename <span class="ot">=</span> <span class="st">&quot;pod.&quot;</span> <span class="op">++</span> (<span class="fu">show</span> <span class="op">.</span> castId <span class="op">.</span> epCast <span class="op">$</span> ep) <span class="op">++</span> <span class="st">&quot;.&quot;</span> <span class="op">++</span></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>                     (<span class="fu">show</span> (epId ep)) <span class="op">++</span> <span class="st">&quot;.mp3&quot;</span></span></code></pre></div>
+</div>
+<p>This module defines three functions: <code>downloadURL</code>, which
+simply downloads a URL and returns it as a <code>String</code>;
+<code>updatePodcastFromFeed</code>, which downloads an XML feed file,
+parses it, and updates the database; and <code>getEpisode</code>, which
+downloads a given episode and marks it done in the database.</p>
+<div class="WARNING">
+<p>Warning</p>
+<p>The HTTP library used here does not read the HTTP result lazily. As a
+result, it can result in the consumption of a large amount of RAM when
+downloading large files such as podcasts. Other libraries are available
+that do not have this limitation. We used this one because it is stable,
+easy to install, and reasonably easy to use. We suggest mini-http,
+available from Hackage, for serious HTTP needs.</p>
+</div>
+<h1 data-number="5" id="main-program"><span
+class="header-section-number">5</span> Main Program</h1>
+<p>Finally, we need a main program to tie it all together. Here's our
+main module:</p>
+<div class="captioned-content">
+<div class="caption">
+PodMain.hs
+</div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">PodDownload</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">PodDB</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">PodTypes</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Environment</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Database.HDBC</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Network.Socket</span>(withSocketsDo)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> withSocketsDo <span class="op">$</span> handleSqlError <span class="op">$</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> args <span class="ot">&lt;-</span> getArgs</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>       dbh <span class="ot">&lt;-</span> connect <span class="st">&quot;pod.db&quot;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>       <span class="kw">case</span> args <span class="kw">of</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>         [<span class="st">&quot;add&quot;</span>, url] <span class="ot">-&gt;</span> add dbh url</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>         [<span class="st">&quot;update&quot;</span>] <span class="ot">-&gt;</span> update dbh</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>         [<span class="st">&quot;download&quot;</span>] <span class="ot">-&gt;</span> download dbh</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>         [<span class="st">&quot;fetch&quot;</span>] <span class="ot">-&gt;</span> <span class="kw">do</span> update dbh</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>                         download dbh</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>         _ <span class="ot">-&gt;</span> syntaxError</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>       disconnect dbh</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>add dbh url <span class="ot">=</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> addPodcast dbh pc</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>       commit dbh</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> pc <span class="ot">=</span> <span class="dt">Podcast</span> {castId <span class="ot">=</span> <span class="dv">0</span>, castURL <span class="ot">=</span> url}</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>update dbh <span class="ot">=</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> pclist <span class="ot">&lt;-</span> getPodcasts dbh</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>       <span class="fu">mapM_</span> procPodcast pclist</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> procPodcast pc <span class="ot">=</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>              <span class="kw">do</span> <span class="fu">putStrLn</span> <span class="op">$</span> <span class="st">&quot;Updating from &quot;</span> <span class="op">++</span> (castURL pc)</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>                 updatePodcastFromFeed dbh pc</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>download dbh <span class="ot">=</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> pclist <span class="ot">&lt;-</span> getPodcasts dbh</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>       <span class="fu">mapM_</span> procPodcast pclist</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> procPodcast pc <span class="ot">=</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>              <span class="kw">do</span> <span class="fu">putStrLn</span> <span class="op">$</span> <span class="st">&quot;Considering &quot;</span> <span class="op">++</span> (castURL pc)</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>                 episodelist <span class="ot">&lt;-</span> getPodcastEpisodes dbh pc</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">let</span> dleps <span class="ot">=</span> <span class="fu">filter</span> (\ep <span class="ot">-&gt;</span> epDone ep <span class="op">==</span> <span class="dt">False</span>)</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>                             episodelist</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">mapM_</span> procEpisode dleps</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>          procEpisode ep <span class="ot">=</span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>              <span class="kw">do</span> <span class="fu">putStrLn</span> <span class="op">$</span> <span class="st">&quot;Downloading &quot;</span> <span class="op">++</span> (epURL ep)</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>                 getEpisode dbh ep</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>syntaxError <span class="ot">=</span> <span class="fu">putStrLn</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;Usage: pod command [args]\n\</span></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a><span class="st">  \\n\</span></span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a><span class="st">  \pod add url      Adds a new podcast with the given URL\n\</span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a><span class="st">  \pod download     Downloads all pending episodes\n\</span></span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a><span class="st">  \pod fetch        Updates, then downloads\n\</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a><span class="st">  \pod update       Downloads podcast feeds, looks for new episodes\n&quot;</span></span></code></pre></div>
+</div>
+<p>We have a very simple command-line parser with a function to indicate
+a command-line syntax error, plus small functions to handle the
+different command-line arguments.</p>
+<p>You can compile this program with a command like this:</p>
+<pre class="screen"><code>ghc --make -O2 -o pod -package HTTP -package HaXml -package network \
+    -package HDBC -package HDBC-sqlite3 PodMain.hs
+</code></pre>
+<p>Alternatively, you could use a Cabal file as documented in <a
+href="5-writing-a-library.org::*Creating a package">the section called
+"Creating a package"</a></p>
+<div class="captioned-content">
+<div class="caption">
+pod.cabal
+</div>
+<pre><code>Name: pod
+Version: 1.0.0
+Build-type: Simple
+Build-Depends: HTTP, HaXml, network, HDBC, HDBC-sqlite3, base
+
+Executable: pod
+Main-Is: PodMain.hs
+GHC-Options: -O2
+</code></pre>
+</div>
+<p>Also, you'll want a simple <code>Setup.hs</code> file:</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Distribution.Simple</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> defaultMain</span></code></pre></div>
+<p>Now, to build with Cabal, you just run:</p>
+<pre class="screen"><code>runghc Setup.hs configure
+runghc Setup.hs build
+</code></pre>
+<p>And you'll find a <code>dist</code> directory containing your output.
+To install the program system-wide, run
+<code>runghc Setup.hs install</code>.</p>
+</body>
+</html>

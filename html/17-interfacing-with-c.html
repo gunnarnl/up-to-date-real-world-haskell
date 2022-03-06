@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 17. Interfacing with C: the FFI</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 17. Interfacing with C: the FFI</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#foreign-language-bindings-the-basics"><span
+class="toc-section-number">1</span> Foreign language bindings: the
+basics</a>
+<ul>
+<li><a href="#be-careful-of-side-effects"><span
+class="toc-section-number">1.1</span> Be careful of side
+effects</a></li>
+<li><a href="#a-high-level-wrapper"><span
+class="toc-section-number">1.2</span> A high level wrapper</a></li>
+</ul></li>
+<li><a href="#regular-expressions-for-haskell-a-binding-for-pcre"><span
+class="toc-section-number">2</span> Regular expressions for Haskell: a
+binding for PCRE</a>
+<ul>
+<li><a href="#simple-tasks-using-the-c-preprocessor"><span
+class="toc-section-number">2.1</span> Simple tasks: using the C
+preprocessor</a></li>
+<li><a href="#binding-haskell-to-c-with-hsc2hs"><span
+class="toc-section-number">2.2</span> Binding Haskell to C with
+<code>hsc2hs</code></a></li>
+<li><a href="#adding-type-safety-to-pcre"><span
+class="toc-section-number">2.3</span> Adding type safety to
+PCRE</a></li>
+<li><a href="#binding-to-constants"><span
+class="toc-section-number">2.4</span> Binding to constants</a></li>
+<li><a href="#automating-the-binding"><span
+class="toc-section-number">2.5</span> Automating the binding</a></li>
+</ul></li>
+<li><a href="#passing-string-data-between-haskell-and-c"><span
+class="toc-section-number">3</span> Passing string data between Haskell
+and C</a>
+<ul>
+<li><a
+href="#memory-management-let-the-garbage-collector-do-the-work"><span
+class="toc-section-number">3.1</span> Memory management: let the garbage
+collector do the work</a></li>
+<li><a href="#a-high-level-interface-marshalling-data"><span
+class="toc-section-number">3.2</span> A high level interface:
+marshalling data</a></li>
+<li><a href="#mashalling-bytestrings"><span
+class="toc-section-number">3.3</span> Mashalling ByteStrings</a></li>
+<li><a href="#allocating-local-c-data-the-storable-class"><span
+class="toc-section-number">3.4</span> Allocating local C data: the
+<code>Storable</code> class</a></li>
+<li><a href="#putting-it-all-together"><span
+class="toc-section-number">3.5</span> Putting it all together</a></li>
+</ul></li>
+<li><a href="#matching-on-strings"><span
+class="toc-section-number">4</span> Matching on strings</a>
+<ul>
+<li><a href="#extracting-information-about-the-pattern"><span
+class="toc-section-number">4.1</span> Extracting information about the
+pattern</a></li>
+<li><a href="#pattern-matching-with-substrings"><span
+class="toc-section-number">4.2</span> Pattern matching with
+substrings</a></li>
+<li><a
+href="#the-real-deal-compiling-and-matching-regular-expressions"><span
+class="toc-section-number">4.3</span> The real deal: compiling and
+matching regular expressions</a></li>
+</ul></li>
+<li><a href="#footnotes"><span class="toc-section-number">5</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<p>Programming languages do not exist in perfect isolation. They inhabit
+an ecosystem of tools and libraries, built up over decades, and often
+written in a range of programming languages. Good engineering practice
+suggests we reuse that effort. The Haskell Foreign Function Interface
+(the "FFI") is the means by which Haskell code can use, and be used by,
+code written in other languages. In this chapter we'll look at how the
+FFI works, and how to produce a Haskell binding to a C library,
+including how to use an FFI preprocessor to automate much of the work.
+The challenge: take PCRE, the standard Perl-compatible regular
+expression library, and make it usable from Haskell in an efficient and
+functional way. Throughout, we'll seek to abstract out manual effort
+required by the C implementation, delegating that work to Haskell to
+make the interface more robust, yielding a clean, high level binding. We
+assume only some basic familiarity with regular expressions.</p>
+<p>Binding one language to another is a non-trivial task. The binding
+language needs to understand the calling conventions, type system, data
+structures, memory allocation mechanisms and linking strategy of the
+target language, just to get things working. The task is to carefully
+align the semantics of both languages, so that both languages can
+understand the data that passes between them.</p>
+<p>For Haskell, this technology stack is specified by <a
+href="http://www.cse.unsw.edu.au/~chak/haskell/ffi/">the Foreign
+Function Interface addendum</a> to the Haskell report. The FFI report
+describes how to correctly bind Haskell and C together, and how to
+extend bindings to other languages. The standard is designed to be
+portable, so that FFI bindings will work reliably across Haskell
+implementations, operating systems and C compilers.</p>
+<p>All implementations of Haskell support the FFI, and it is a key
+technology when using Haskell in a new field. Instead of reimplementing
+the standard libraries in a domain, we just bind to existing ones
+written in languages other than Haskell.</p>
+<p>The FFI adds a new dimension of flexibility to the language: if we
+need to access raw hardware for some reason (say we're programming new
+hardware, or implementing an operating system), the FFI lets us get
+access to that hardware. It also gives us a performance escape hatch: if
+we can't get a code hot spot fast enough, there's always the option of
+trying again in C. So let's look at what the FFI actually means for
+writing code.</p>
+<h1 data-number="1" id="foreign-language-bindings-the-basics"><span
+class="header-section-number">1</span> Foreign language bindings: the
+basics</h1>
+<p>The most common operation we'll want to do, unsurprisingly, is to
+call a C function from Haskell. So let's do that, by binding to some
+functions from the standard C math library. We'll put the binding in a
+source file, and then compile it into a Haskell binary that makes use of
+the C code.</p>
+<p>To start with, we need to enable the foreign function interface
+extension, as the FFI addendum support isn't enabled by default. We do
+this, as always, via a <code>LANGUAGE</code> pragma at the top of our
+source file:</p>
+<div class="captioned-content">
+<div class="caption">
+SimpleFFI.hs
+</div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE ForeignFunctionInterface #-}</span></span></code></pre></div>
+</div>
+<p>The <code>LANGUAGE</code> pragmas indicate which extensions to
+Haskell 98 a module uses. We bring just the FFI extension in play this
+time. It is important to track which extensions to the language you
+need. Fewer extensions generally means more portable, more robust code.
+Indeed, it is common for Haskell programs written more than a decade ago
+to compile perfectly well today, thanks to standardization, despite
+changes to the language's syntax, type system and core libraries.</p>
+<p>The next step is to import the <code>Foreign</code> modules, which
+provide useful types (such as pointers, numerical types, arrays) and
+utility functions (such as <code>malloc</code> and <code>alloca</code>),
+for writing bindings to other languages:</p>
+<div class="captioned-content">
+<div class="caption">
+SimpleFFI.hs
+</div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Foreign</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Foreign.C.Types</span></span></code></pre></div>
+</div>
+<p>For extensive work with foreign libraries, a good knowledge of the
+<code>Foreign</code> modules is essential. Other useful modules include
+<code>Foreign.C.String</code>, <code>Foreign.Ptr</code> and
+<code>Foreign.Marshal.Array</code>.</p>
+<p>Now we can get down to work calling C functions. To do this, we need
+to know three things: the name of the C function, its type, and its
+associated header file. Additionally, for code that isn't provided by
+the standard C library, we'll need to know the C library's name, for
+linking purposes. The actual binding work is done with a
+<code>foreign import</code> declaration, like so:</p>
+<div class="captioned-content">
+<div class="caption">
+SimpleFFI.hs
+</div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>foreign <span class="kw">import</span> ccall &quot;math.h sin&quot;</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ot">     c_sin ::</span> <span class="dt">CDouble</span> <span class="ot">-&gt;</span> <span class="dt">CDouble</span></span></code></pre></div>
+</div>
+<p>This defines a new Haskell function, <code>c_sin</code>, whose
+concrete implementation is in C, via the <code>sin</code> function. When
+<code>c_sin</code> is called, a call to the actual <code>sin</code> will
+be made (using the standard C calling convention, indicated by
+<code>ccall</code> keyword). The Haskell runtime passes control to C,
+which returns its results back to Haskell. The result is then wrapped up
+as a Haskell value of type <code>CDouble</code>.</p>
+<p>A common idiom when writing FFI bindings is to expose the C function
+with the prefix "c\_", distinguishing it from more user-friendly, higher
+level functions. The raw C function is specified by the
+<code>math.h</code> header, where it is declared to have the type:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>double <span class="fu">sin</span>(double x);</span></code></pre></div>
+<p>When writing the binding, the programmer has to translate C type
+signatures like this into their Haskell FFI equivalents, making sure
+that the data representations match up. For example, <code>double</code>
+in C corresponds to <code>CDouble</code> in Haskell. We need to be
+careful here, since if a mistake is made the Haskell compiler will
+happily generate incorrect code to call C! The poor Haskell compiler
+doesn't know anything about what types the C function actually requires,
+so if instructed to, it will call the C function with the wrong
+arguments. At best this will lead to C compiler warnings, and more
+likely, it will end with a runtime crash. At worst the error will
+silently go unnoticed until some critical failure occurs. So make sure
+you use the correct FFI types, and don't be wary of using QuickCheck to
+test your C code via the bindings<a href="#fn1" class="footnote-ref"
+id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
+<p>The most important primitive C types are represented in Haskell with
+the somewhat intuitive names (for signed and unsigned types)
+<code>CChar</code>, <code>CUChar</code>, <code>CInt</code>,
+<code>CUInt</code>, <code>CLong</code>, <code>CULong</code>,
+<code>CSize</code>, <code>CFloat</code>, <code>CDouble</code>. More are
+defined in the FFI standard, and can be found in the Haskell base
+library under <code>Foreign.C.Types</code>. It is also possible to
+define your own Haskell-side representation types for C, as we'll see
+later.</p>
+<h2 data-number="1.1" id="be-careful-of-side-effects"><span
+class="header-section-number">1.1</span> Be careful of side effects</h2>
+<p>One point to note is that we bound <code>sin</code> as a pure
+function in Haskell, one with no side effects. That's fine in this case,
+since the <code>sin</code> function in C is referentially transparent.
+By binding pure C functions to pure Haskell functions, the Haskell
+compiler is taught something about the C code, namely that it has no
+side effects, making optimisations easier. Pure code is also more
+flexible code for the Haskell programmer, as it yields naturally
+persistent data structures, and threadsafe functions. However, while
+pure Haskell code is always threadsafe, this is harder to guarantee of
+C. Even if the documentation indicates the function is likely to expose
+no side effects, there's little to ensure it is also threadsafe, unless
+explicitly documented as "reentrant". Pure, threadsafe C code, while
+rare, is a valuable commodity. It is the easiest flavor of C to use from
+Haskell.</p>
+<p>Of course, code with side effects is more common in imperative
+languages, where the explicit sequencing of statements encourages the
+use of effects. It is much more common in C for functions to return
+different values, given the same arguments, due to changes in global or
+local state, or to have other side effects. Typically this is signalled
+in C by the function returning only a status value, or some void type,
+rather than a useful result value. This indicates that the real work of
+the function was in its side effects. For such functions, we'll need to
+capture those side effects in the <code>IO</code> monad (by changing the
+return type to <code>IO
+CDouble</code>, for example). We also need to be very careful with pure
+C functions that aren't also reentrant, as multiple threads are
+extremely common in Haskell code, in comparison to C. We might need to
+make non-reentrant code safe for use by moderating access to the FFI
+binding with a transactional lock, or duplicating the underlying C
+state.</p>
+<h2 data-number="1.2" id="a-high-level-wrapper"><span
+class="header-section-number">1.2</span> A high level wrapper</h2>
+<p>With the foreign imports out of the way, the next step is to convert
+the C types we pass to and receive from the foreign language call into
+native Haskell types, wrapping the binding so it appears as a normal
+Haskell function:</p>
+<div class="captioned-content">
+<div class="caption">
+SimpleFFI.hs
+</div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fastsin ::</span> <span class="dt">Double</span> <span class="ot">-&gt;</span> <span class="dt">Double</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>fastsin x <span class="ot">=</span> <span class="fu">realToFrac</span> (c_sin (<span class="fu">realToFrac</span> x))</span></code></pre></div>
+</div>
+<p>The main thing to remember when writing convenient wrappers over
+bindings like this is to convert input and output back to normal Haskell
+types correctly. To convert between floating point values, we can use
+<code>realToFrac</code>, which lets us translate different floating
+point values to each other (and these conversions, such as from
+<code>CDouble</code> to <code>double</code>, are usually free, as the
+underlying representations are unchanged). For integer values
+<code>fromIntegral</code> is available. For other common C data types,
+such as arrays, we may need to unpack the data to a more workable
+Haskell type (such as a list), or possibly leave the C data opaque, and
+operate on it only indirectly (perhaps via a <code>ByteString</code>).
+The choice depends on how costly the transformation is, and on what
+functions are available on the source and destination types.</p>
+<p>We can now proceed to use the bound function in a program. For
+example, we can apply the C <code>sin</code> function to a Haskell list
+of tenths:</p>
+<div class="captioned-content">
+<div class="caption">
+SimpleFFI.hs
+</div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> <span class="fu">mapM_</span> (<span class="fu">print</span> <span class="op">.</span> fastsin) [<span class="dv">0</span><span class="op">/</span><span class="dv">10</span>, <span class="dv">1</span><span class="op">/</span><span class="dv">10</span> <span class="op">..</span> <span class="dv">10</span><span class="op">/</span><span class="dv">10</span>]</span></code></pre></div>
+</div>
+<p>This simple program prints each result as it is computed. Putting the
+complete binding in the file <code>SimpleFFI.hs</code> we can run it in
+GHCi:</p>
+<pre class="screen"><code>$ ghci SimpleFFI.hs
+*Main&gt; main
+0.0
+9.983341664682815e-2
+0.19866933079506122
+0.2955202066613396
+0.3894183423086505
+0.479425538604203
+0.5646424733950354
+0.644217687237691
+0.7173560908995227
+0.7833269096274833
+0.8414709848078964
+</code></pre>
+<p>Alternatively, we can compile the code to an executable, dynamically
+linked against the corresponding C library:</p>
+<pre class="screen"><code>$ ghc -O --make SimpleFFI.hs
+[1 of 1] Compiling Main             ( SimpleFFI.hs, SimpleFFI.o )
+Linking SimpleFFI ...
+</code></pre>
+<p>and then run that:</p>
+<pre class="screen"><code>$ ./SimpleFFI
+0.0
+9.983341664682815e-2
+0.19866933079506122
+0.2955202066613396
+0.3894183423086505
+0.479425538604203
+0.5646424733950354
+0.644217687237691
+0.7173560908995227
+0.7833269096274833
+0.8414709848078964
+</code></pre>
+<p>We're well on our way now, with a full program, statically linked
+against C, which interleaves C and Haskell code, and passes data across
+the language boundary. Simple bindings like the above are almost
+trivial, as the standard <code>Foreign</code> library provides
+convenient aliases for common types like <code>CDouble</code>. In the
+next section we'll look at a larger engineering task: binding to the
+PCRE library, which brings up issues of memory management and type
+safety.</p>
+<h1 data-number="2"
+id="regular-expressions-for-haskell-a-binding-for-pcre"><span
+class="header-section-number">2</span> Regular expressions for Haskell:
+a binding for PCRE</h1>
+<p>As we've seen in previous sections, Haskell programs have something
+of a bias towards lists as a foundational data structure. List functions
+are a core part of the base library, and convenient syntax for
+constructing and taking apart list structures is wired into the
+language. Strings are, of course, simply lists of characters (rather
+than, for example, flat arrays of characters). This flexibility is all
+well and good, but it results in a tendency for the standard library to
+favour polymorphic list operations at the expense of string-specific
+operations.</p>
+<p>Indeed, many common tasks can be solved via regular-expression-based
+string processing, yet support for regular expressions isn't part of the
+Haskell <code>Prelude</code>. So let's look at how we'd take an
+off-the-shelf regular expression library, PCRE, and provide a natural,
+convenient Haskell binding to it, giving us useful regular expressions
+for Haskell.</p>
+<p>PCRE itself is a ubiquitous C library implementing Perl-style regular
+expressions. It is widely available, and preinstalled on many systems.
+If not, it can be found at <a
+href="http://www.pcre.org/">http://www.pcre.org/</a>. In the following
+sections we'll assume the PCRE library and headers are available on the
+machine.</p>
+<h2 data-number="2.1" id="simple-tasks-using-the-c-preprocessor"><span
+class="header-section-number">2.1</span> Simple tasks: using the C
+preprocessor</h2>
+<p>The simplest task when setting out to write a new FFI binding from
+Haskell to C is to bind constants defined in C headers to equivalent
+Haskell values. For example, PCRE provides a set of flags for modifying
+how the core pattern matching system works (such as ignoring case, or
+allowing matching on newlines). These flags appear as numeric constants
+in the PCRE header files:</p>
+<div class="sourceCode" id="cb10" data-org-language="C"><pre
+class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* Options */</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#define PCRE_CASELESS           0x00000001</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define PCRE_MULTILINE          0x00000002</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define PCRE_DOTALL             0x00000004</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#define PCRE_EXTENDED           0x00000008</span></span></code></pre></div>
+<p>To export these values to Haskell we need to insert them into a
+Haskell source file somehow. One obvious way to do this is by using the
+C preprocessor to substitute definitions from C into the Haskell source,
+which we then compile as a normal Haskell source file. Using the
+preprocessor we can even declare simple constants, via textual
+substitutions on the Haskell source file:</p>
+<div class="captioned-content">
+<div class="caption">
+Enum1.hs
+</div>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE CPP #-}</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#define N 16</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> <span class="fu">print</span> [ <span class="dv">1</span> <span class="op">..</span> <span class="dt">N</span> ]</span></code></pre></div>
+</div>
+<p>The file is processed with the preprocessor in a similar manner to C
+source (with CPP run for us by the Haskell compiler, when it spots the
+<code>LANGUAGE</code> pragma), resulting in program output:</p>
+<pre class="screen"><code>$ runhaskell Enum.hs
+[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+</code></pre>
+<p>However, relying on <code>CPP</code> is a rather fragile approach.
+The C preprocessor isn't aware it is processing a Haskell source file,
+and will happily include text, or transform source, in such a way as to
+make our Haskell code invalid. We need to be careful not to confuse
+<code>CPP</code>. If we were to include C headers we risk substituting
+unwanted symbols, or inserting C type information and prototypes into
+the Haskell source, resulting in a broken mess.</p>
+<p>To solve these problems, the binding preprocessor <code>hsc2hs</code>
+is distributed with GHC. It provides a convenient syntax for including C
+binding information in Haskell, as well as letting us safely operate
+with headers. It is the tool of choice for the majority of Haskell FFI
+bindings.</p>
+<h2 data-number="2.2" id="binding-haskell-to-c-with-hsc2hs"><span
+class="header-section-number">2.2</span> Binding Haskell to C with
+<code>hsc2hs</code></h2>
+<p>To use <code>hsc2hs</code> as an intelligent binding tool for
+Haskell, we need to create an <code>.hsc</code> file,
+<code>Regex.hsc</code>, which will hold the Haskell source for our
+binding, along with <code>hsc2hs</code> processing rules, C headers and
+C type information. To start off, we need some pragmas and imports:</p>
+<div class="captioned-content">
+<div class="caption">
+Regex-hsc.hs
+</div>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE CPP, ForeignFunctionInterface #-}</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Regex</span> <span class="kw">where</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Foreign</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Foreign.C.Types</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#include &lt;pcre.h&gt;</span></span></code></pre></div>
+</div>
+<p>The module begins with a typical preamble for an FFI binding: enable
+<code>CPP</code>, enable the foreign function interface syntax, declare
+a module name, and then import some things from the base library. The
+unusual item is the final line, where we include the C header for PCRE.
+This wouldn't be valid in a <code>.hs</code> source file, but is fine in
+<code>.hsc</code> code.</p>
+<h2 data-number="2.3" id="adding-type-safety-to-pcre"><span
+class="header-section-number">2.3</span> Adding type safety to PCRE</h2>
+<p>Next we need a type to represent PCRE compile-time flags. In C, these
+are integer flags to the <code>compile</code> function, so we could just
+use <code>CInt</code> to represent them. All we know about the flags is
+that they're C numeric constants, so <code>CInt</code> is the
+appropriate representation.</p>
+<p>As a Haskell library writer though, this feels sloppy. The type of
+values that can be used as regex flags contains fewer values than
+<code>CInt</code> allows for. Nothing would prevent the end user passing
+illegal integer values as arguments, or mixing up flags that should be
+passed only at regex compile time, with runtime flags. It is also
+possible to do arbitrary math on flags, or make other mistakes where
+integers and flags are confused. We really need to more precisely
+specify that the type of flags is distinct from its runtime
+representation as a numeric value. If we can do this, we can statically
+prevent a class of bugs relating to misuse of flags.</p>
+<p>Adding such a layer of type safety is relatively easy, and a great
+use case for <code>newtype</code>, the type introduction declaration.
+What <code>newtype</code> lets us do is create a type with an identical
+runtime representation type to another type, but which is treated as a
+separate type at compile time. We can represent flags as
+<code>CInt</code> values, but at compile time they'll be tagged
+distinctly for the type checker. This makes it a type error to use
+invalid flag values (as we specify only those valid flags, and prevent
+access to the data constructor), or to pass flags to functions expecting
+integers. We get to use the Haskell type system to introduce a layer of
+type safety to the C PCRE API.</p>
+<p>To do this, we define a <code>newtype</code> for PCRE compile time
+options, whose representation is actually that of a <code>CInt</code>
+value, like so:</p>
+<div class="captioned-content">
+<div class="caption">
+Regex-hsc.hs
+</div>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- | A type for PCRE compile-time options. These are newtyped CInts,</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- which can be bitwise-or&#39;d together, using &#39;(Data.Bits..|.)&#39;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">--</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">PCREOption</span> <span class="ot">=</span> <span class="dt">PCREOption</span> {<span class="ot"> unPCREOption ::</span> <span class="dt">CInt</span> }</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">deriving</span> (<span class="dt">Eq</span>,<span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>The type name is <code>PCREOption</code>, and it has a single
+constructor, also named <code>PCREOption</code>, which lifts a
+<code>CInt</code> value into a new type by wrapping it in a constructor.
+We can also happily define an accessor, <code>unPCREOption</code>, using
+the Haskell record syntax, to the underlying <code>CInt</code>. That's a
+lot of convenience in one line. While we're here, we can also derive
+some useful type class operations for flags (equality and printing). We
+also need to remember export the data constructor abstractly from the
+source module, ensuring users can't construct their own
+<code>PCREOption</code> values.</p>
+<h2 data-number="2.4" id="binding-to-constants"><span
+class="header-section-number">2.4</span> Binding to constants</h2>
+<p>Now we've pulled in the required modules, turned on the language
+features we need, and defined a type to represent PCRE options, we need
+to actually define some Haskell values corresponding to those PCRE
+constants.</p>
+<p>We can do this in two ways with <code>hsc2hs</code>. The first way is
+to use the <code>#const</code> keyword <code>hsc2hs</code> provides.
+This lets us name constants to be provided by the C preprocessor. We can
+bind to the constants manually, by listing the <code>CPP</code> symbols
+for them using the <code>#const</code> keyword:</p>
+<div class="captioned-content">
+<div class="caption">
+Regex-hsc-const.hs
+</div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ot">caseless       ::</span> <span class="dt">PCREOption</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>caseless       <span class="ot">=</span> <span class="dt">PCREOption</span> <span class="op">#</span>const <span class="dt">PCRE_CASELESS</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="ot">dollar_endonly ::</span> <span class="dt">PCREOption</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>dollar_endonly <span class="ot">=</span> <span class="dt">PCREOption</span> <span class="op">#</span>const <span class="dt">PCRE_DOLLAR_ENDONLY</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="ot">dotall         ::</span> <span class="dt">PCREOption</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>dotall         <span class="ot">=</span> <span class="dt">PCREOption</span> <span class="op">#</span>const <span class="dt">PCRE_DOTALL</span></span></code></pre></div>
+</div>
+<p>This introduces three new constants on the Haskell side,
+<code>caseless</code>, <code>dollar_endonly</code> and
+<code>dotall</code>, corresponding to the similarly named C definitions.
+We immediately wrap the constants in a <code>newtype</code> constructor,
+so they're exposed to the programmer as abstract <code>PCREOption</code>
+types only.</p>
+<p>This is the first step, creating a <code>.hsc</code> file. We now
+need to actually create a Haskell source file, with the C preprocessing
+done. Time to run <code>hsc2hs</code> over the <code>.hsc</code>
+file:</p>
+<pre class="screen"><code>$ hsc2hs Regex.hsc
+</code></pre>
+<p>This creates a new output file, <code>Regex.hs</code>, where the
+<code>CPP</code> variables have been expanded, yielding valid Haskell
+code:</p>
+<div class="captioned-content">
+<div class="caption">
+Regex-hsc-const-generated.hs
+</div>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ot">caseless       ::</span> <span class="dt">PCREOption</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>caseless       <span class="ot">=</span> <span class="dt">PCREOption</span> <span class="dv">1</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LINE 21 &quot;Regex.hsc&quot; #-}</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="ot">dollar_endonly ::</span> <span class="dt">PCREOption</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>dollar_endonly <span class="ot">=</span> <span class="dt">PCREOption</span> <span class="dv">32</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LINE 24 &quot;Regex.hsc&quot; #-}</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="ot">dotall         ::</span> <span class="dt">PCREOption</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>dotall         <span class="ot">=</span> <span class="dt">PCREOption</span> <span class="dv">4</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LINE 27 &quot;Regex.hsc&quot; #-}</span></span></code></pre></div>
+</div>
+<p>Notice also how the original line in the <code>.hsc</code> is listed
+next to each expanded definition via the <code>LINE</code> pragma. The
+compiler uses this information to report errors in terms of their
+source, in the original file, rather than the generated one. We can load
+this generated <code>.hs</code> file into the interpreter, and play with
+the results:</p>
+<pre class="screen"><code>$ ghci Regex.hs
+*Regex&gt; caseless
+PCREOption {unPCREOption = 1}
+*Regex&gt; unPCREOption caseless
+1
+*Regex&gt; unPCREOption caseless + unPCREOption caseless
+2
+*Regex&gt; caseless + caseless
+interactive&gt;:1:0:
+    No instance for (Num PCREOption)
+</code></pre>
+<p>So things are working as expected. The values are opaque, we get type
+errors if we try to break the abstraction, and we can unwrap them and
+operate on them if needed. The <code>unPCREOption</code> accessor is
+used to unwrap the boxes. That's a good start, but let's see how we can
+simplify this task further.</p>
+<h2 data-number="2.5" id="automating-the-binding"><span
+class="header-section-number">2.5</span> Automating the binding</h2>
+<p>Clearly, manually listing all the C defines, and wrapping them is
+tedious, and error prone. The work of wrapping all the literals in
+<code>newtype</code> constructors is also annoying. This kind of binding
+is such a common task that <code>hsc2hs</code> provides convenient
+syntax to automate it: the <code>#enum</code> construct.</p>
+<p>We can replace our list of top level bindings with the
+equivalent:</p>
+<div class="captioned-content">
+<div class="caption">
+Regex-hsc.hs
+</div>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- PCRE compile options</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#{enum PCREOption, PCREOption</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  , caseless             <span class="ot">=</span> <span class="dt">PCRE_CASELESS</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  , dollar_endonly       <span class="ot">=</span> <span class="dt">PCRE_DOLLAR_ENDONLY</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  , dotall               <span class="ot">=</span> <span class="dt">PCRE_DOTALL</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
+</div>
+<p>This is much more concise! The <code>#enum</code> construct gives us
+three fields to work with. The first is the name of the type we'd like
+the C defines to be treated as. This lets us pick something other than
+just <code>CInt</code> for the binding. We chose
+<code>PCREOption</code>'s to construct.</p>
+<p>The second field is an optional constructor to place in front of the
+symbols. This is specifically for the case we want to construct
+<code>newtype</code> values, and where much of the grunt work is saved.
+The final part of the <code>#enum</code> syntax is self explanatory: it
+just defines Haskell names for constants to be filled in via
+<code>CPP</code>.</p>
+<p>Running this code through <code>hsc2hs</code>, as before, generates a
+Haskell file with the following binding code produced (with
+<code>LINE</code> pragmas removed for brevity):</p>
+<div class="captioned-content">
+<div class="caption">
+Regex.hs
+</div>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ot">caseless              ::</span> <span class="dt">PCREOption</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>caseless              <span class="ot">=</span> <span class="dt">PCREOption</span> <span class="dv">1</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="ot">dollar_endonly        ::</span> <span class="dt">PCREOption</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>dollar_endonly        <span class="ot">=</span> <span class="dt">PCREOption</span> <span class="dv">32</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="ot">dotall                ::</span> <span class="dt">PCREOption</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>dotall                <span class="ot">=</span> <span class="dt">PCREOption</span> <span class="dv">4</span></span></code></pre></div>
+</div>
+<p>Perfect. Now we can do something in Haskell with these values. Our
+aim here is to treat flags as abstract types, not as bit fields in
+integers in C. Passing multiple flags in C would be done by bitwise
+or-ing multiple flags together. For an abstract type though, that would
+expose too much information. Preserving the abstraction, and giving it a
+Haskell flavor, we'd prefer users passed in flags in a list that the
+library itself combined. This is achievable with a simple fold:</p>
+<div class="captioned-content">
+<div class="caption">
+Regex.hs
+</div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Combine a list of options into a single option, using bitwise (.|.)</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ot">combineOptions ::</span> [<span class="dt">PCREOption</span>] <span class="ot">-&gt;</span> <span class="dt">PCREOption</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>combineOptions <span class="ot">=</span> <span class="dt">PCREOption</span> <span class="op">.</span> <span class="fu">foldr</span> ((<span class="op">.|.</span>) <span class="op">.</span> unPCREOption) <span class="dv">0</span></span></code></pre></div>
+</div>
+<p>This simple loop starts with an initial value of 0, unpacks each
+flag, and uses bitwise-or, <code>(.|.)</code> on the underlying
+<code>CInt</code>, to combine each value with the loop accumulator. The
+final accumulated state is then wrapped up in the
+<code>PCREOption</code> constructor.</p>
+<p>Let's turn now to actually compiling some regular expressions.</p>
+<h1 data-number="3" id="passing-string-data-between-haskell-and-c"><span
+class="header-section-number">3</span> Passing string data between
+Haskell and C</h1>
+<p>The next task is to write a binding to the PCRE regular expression
+<code>compile</code> function. Let's look at its type, straight from the
+<code>pcre.h</code> header file:</p>
+<div class="sourceCode" id="cb22" data-org-language="C"><pre
+class="sourceCode c"><code class="sourceCode c"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>pcre <span class="op">*</span>pcre_compile<span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>pattern<span class="op">,</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">int</span> options<span class="op">,</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">const</span> <span class="dt">char</span> <span class="op">**</span>errptr<span class="op">,</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">int</span> <span class="op">*</span>erroffset<span class="op">,</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>                   <span class="dt">const</span> <span class="dt">unsigned</span> <span class="dt">char</span> <span class="op">*</span>tableptr<span class="op">);</span></span></code></pre></div>
+<p>This function compiles a regular expression pattern into some
+internal format, taking the pattern as an argument, along with some
+flags, and some variables for returning status information.</p>
+<p>We need to work out what Haskell types to represent each argument
+with. Most of these types are covered by equivalents defined for us by
+the FFI standard, and available in <code>Foreign.C.Types</code>. The
+first argument, the regular expression itself, is passed as a
+null-terminated char pointer to C, equivalent to the Haskell
+<code>CString</code> type. PCRE compile time options we've already
+chosen to represent as the abstract <code>PCREOption</code> new type,
+whose runtime representation is a <code>CInt</code>. As the
+representations are guaranteed to be identical, we can pass the
+<code>newtype</code> safely. The other arguments are a little more
+complicated and require some work to construct and take apart.</p>
+<p>The third argument, a pointer to a C string, will be used as a
+reference to any error message generated when compiling the expression.
+The value of the pointer will be modified by the C function to point to
+a custom error string. This we can represent with a
+<code>Ptr CString</code> type. Pointers in Haskell are heap allocated
+containers for raw addresses, and can be created and operated on with a
+number of allocation primitives in the FFI library. For example, we can
+represent a pointer to a C <code>int</code> as <code>Ptr CInt</code>,
+and a pointer to an unsigned char as a <code>Ptr Word8</code>.</p>
+<div class="NOTE">
+<p>Once we have a Haskell <code>Ptr</code> value handy, we can do
+various pointer-like things with it. We can compare it for equality with
+the null pointer, represented with the special <code>nullPtr</code>
+constant. We can cast a pointer from one type to a pointer to another,
+or we can advance a pointer by an offset in bytes with
+<code>plusPtr</code>. We can even modify the value pointed to, using
+<code>poke</code>, and of course dereference a pointer yielding that
+which it points to, with <code>peek</code>. In the majority of
+circumstances, a Haskell programmer doesn't need to operate on pointers
+directly, but when they are needed these tools come in handy.
+#+END<sub>NOTE</sub></p>
+<p>The question then is how to represent the abstract <code>pcre</code>
+pointer returned when we compile the regular expression. We need to find
+a Haskell type that is as abstract as the C type. Since the C type is
+treated abstractly, we can assign any heap-allocated Haskell type to the
+data, as long as it has few or no operations on it. This is a common
+trick for arbitrarily typed foreign data. The idiomatic simple type to
+use to represent unknown foreign data is a pointer to the
+<code>()</code> type. We can use a type synonym to remember the
+binding:</p>
+<div class="captioned-content">
+<div class="caption">
+PCRE-compile.hs
+</div>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">PCRE</span> <span class="ot">=</span> ()</span></code></pre></div>
+</div>
+<p>That is, the foreign data is some unknown, opaque object, and we'll
+just treat it as a pointer to <code>()</code>, knowing full well that
+we'll never actually dereference that pointer. This gives us the
+following foreign import binding for <code>pcre_compile</code>, which
+must be in <code>IO</code>, as the pointer returned will vary on each
+call, even if the returned object is functionally equivalent:</p>
+<div class="captioned-content">
+<div class="caption">
+PCRE-compile.hs
+</div>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>foreign <span class="kw">import</span> ccall unsafe &quot;pcre.h pcre_compile&quot;</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    c_pcre_compile  ::</span> <span class="dt">CString</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">PCREOption</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">Ptr</span> <span class="dt">CString</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">Ptr</span> <span class="dt">CInt</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">Ptr</span> <span class="dt">Word8</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">Ptr</span> <span class="dt">PCRE</span>)</span></code></pre></div>
+</div>
+</div>
+<p>We can increase safety in the binding further by using a "typed"
+pointer, instead of using the <code>()</code> type. That is, a unique
+type, distinct from the unit type, that has no meaningful runtime
+representation. A type for which no data can be constructed, making
+dereferencing it a type error. One good way to build such provably
+uninspectable data types is with a nullary data type:</p>
+<div class="captioned-content">
+<div class="caption">
+PCRE-nullary.hs
+</div>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">PCRE</span></span></code></pre></div>
+</div>
+<p>This requires the <code>EmptyDataDecls</code> language extension.
+This type clearly contains no values! We can only ever construct
+pointers to such values, as there are no concrete values (other than
+bottom) that have this type.</p>
+<p>We can also achieve the same thing, without requiring a language
+extension, using a recursive <code>newtype</code>:</p>
+<div class="captioned-content">
+<div class="caption">
+PCRE-recursive.hs
+</div>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">PCRE</span> <span class="ot">=</span> <span class="dt">PCRE</span> (<span class="dt">Ptr</span> <span class="dt">PCRE</span>)</span></code></pre></div>
+</div>
+<p>Again, we can't really do anything with a value of this type, as it
+has no runtime representation. Using typed pointers in these ways is
+just another way to add safety to a Haskell layer over what C provides.
+What would require discipline on the part of the C programmer
+(remembering never to dereference a PCRE pointer) can be enforced
+statically in the type system of the Haskell binding. If this code
+compiles, the type checker has given us a proof that the PCRE objects
+returned by C are never dereferenced on the Haskell side.</p>
+<p>We have the foreign import declaration sorted out now, the next step
+is to marshal data into the right form, so that we can finally call the
+C code.</p>
+<h2 data-number="3.1"
+id="memory-management-let-the-garbage-collector-do-the-work"><span
+class="header-section-number">3.1</span> Memory management: let the
+garbage collector do the work</h2>
+<p>One question that isn't resolved yet is how to manage the memory
+associated with the abstract <code>pcre</code> structure returned by the
+C library. The caller didn't have to allocate it: the library took care
+of that by allocating memory on the C side. At some point though we'll
+need to deallocate it. This, again, is an opportunity to abstract the
+tedium of using the C library by hiding the complexity inside the
+Haskell binding.</p>
+<p>We'll use the Haskell garbage collector to automatically deallocate
+the C structure once it is no longer in use. To do this, we'll make use
+of Haskell garbage collector finalizers, and the <code>ForeignPtr</code>
+type.</p>
+<p>We don't want users to have to manually deallocate the
+<code>Ptr PCRE</code> value returned by the foreign call. The PCRE
+library specifically states that structures are allocated on the C side
+with <code>malloc</code>, and need to be freed when no longer in use, or
+we risk leaking memory. The Haskell garbage collector already goes to
+great lengths to automate the task of managing memory for Haskell
+values. Cleverly, we can also assign our hardworking garbage collector
+the task of looking after C's memory for us. The trick is to associate a
+piece of Haskell data with the foreign allocator data, and give the
+Haskell garbage collector an arbitrary function that is to deallocate
+the C resource once it notices that the Haskell data is done with.</p>
+<p>We have two tools at our disposal here, the opaque
+<code>ForeignPtr</code> data type, and the <code>NewForeignPtr</code>
+function, which has type:</p>
+<div class="captioned-content">
+<div class="caption">
+ForeignPtr.hs
+</div>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ot">newForeignPtr ::</span> <span class="dt">FinalizerPtr</span> a <span class="ot">-&gt;</span> <span class="dt">Ptr</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> (<span class="dt">ForeignPtr</span> a)</span></code></pre></div>
+</div>
+<p>The function takes two arguments, a finalizer to run when the data
+goes out of scope, and a pointer to the associated C data. It returns a
+new managed pointer which will have its finalizer run once the garbage
+collector decides the data is no longer in use. What a lovely
+abstraction!</p>
+<p>These finalizable pointers are appropriate whenever a C library
+requires the user to explicitly deallocate, or otherwise clean up a
+resource, when it is no longer in use. It is a simple piece of equipment
+that goes a long way towards making the C library binding more natural,
+more functional, in flavor.</p>
+<p>So with this in mind, we can hide the manually managed
+<code>Ptr PCRE</code> type inside an automatically managed data
+structure, yielding us the data type used to represent regular
+expressions that users will see:</p>
+<div class="captioned-content">
+<div class="caption">
+PCRE-compile.hs
+</div>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Regex</span> <span class="ot">=</span> <span class="dt">Regex</span> <span class="op">!</span>(<span class="dt">ForeignPtr</span> <span class="dt">PCRE</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>                   <span class="op">!</span><span class="dt">ByteString</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>        <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>This new <code>Regex</code> data types consists of two parts. The
+first is an abstract <code>ForeignPtr</code>, that we'll use to manage
+the underlying <code>pcre</code> data allocated in C. The second
+component is a strict <code>ByteString</code>, which is the string
+representation of the regular expression that we compiled. By keeping it
+the user-level representation of the regular expression handy inside the
+<code>Regex</code> type, it'll be easier to print friendly error
+messages, and show the <code>Regex</code> itself in a meaningful
+way.</p>
+<h2 data-number="3.2" id="a-high-level-interface-marshalling-data"><span
+class="header-section-number">3.2</span> A high level interface:
+marshalling data</h2>
+<p>The challenge when writing FFI bindings, once the Haskell types have
+been decided upon, is to convert regular data types a Haskell programmer
+will be familiar with into low level pointers to arrays and other C
+types. What would an ideal Haskell interface to regular expression
+compilation look like? We have some design intuitions to guide us.</p>
+<p>For starters, the act of compilation should be a referentially
+transparent operation: passing the same regex string will yield
+functionally the same compiled pattern each time, although the C library
+will give us observably different pointers to functionally identical
+expressions. If we can hide these memory management details, we should
+be able to represent the binding as a pure function. The ability to
+represent a C function in Haskell as a pure operation is a key step
+towards flexibility, and an indicator the interface will be easy to use
+(as it won't require complicated state to be initialized before it can
+be used).</p>
+<p>Despite being pure, the function can still fail. If the regular
+expression input provided by the user is ill-formed an error string is
+returned. A good data type to represent optional failure with an error
+value, is <code>Either</code>. That is, either we return a valid
+compiled regular expression, or we'll return an error string. Encoding
+the results of a C function in a familiar, foundational Haskell type
+like this is another useful step to make the binding more idiomatic.</p>
+<p>For the user-supplied parameters, we've already decided to pass
+compilation flags in as a list. We can choose to pass the input regular
+expression either as an efficient <code>ByteString</code>, or as a
+regular <code>String</code>. An appropriate type signature, then, for
+referentially transparent compilation success with a value or failure
+with an error string, would be:</p>
+<div class="captioned-content">
+<div class="caption">
+PCRE-compile.hs
+</div>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ot">compile ::</span> <span class="dt">ByteString</span> <span class="ot">-&gt;</span> [<span class="dt">PCREOption</span>] <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">String</span> <span class="dt">Regex</span></span></code></pre></div>
+</div>
+<p>The input is a <code>ByteString</code>, available from the
+<code>Data.ByteString.Char8</code> module (and we'll import this
+<code>qualified</code> to avoid name clashes), containing the regular
+expression, and a list of flags (or the empty list if there are no flags
+to pass). The result is either an error string, or a new, compiled
+regular expression.</p>
+<h2 data-number="3.3" id="mashalling-bytestrings"><span
+class="header-section-number">3.3</span> Mashalling ByteStrings</h2>
+<p>Given this type, we can sketch out the <code>compile</code> function:
+the high level interface to the raw C binding. At its heart, it will
+call <code>c_pcre_compile</code>. Before it does that, it has to marshal
+the input <code>ByteString</code> into a <code>CString</code>. This is
+done with the <code>ByteString</code> library's
+<code>useAsCString</code> function, which copies the input
+<code>ByteString</code> into a null-terminated C array (there is also an
+unsafe, zero copy variant, that assumes the <code>ByteString</code> is
+already null terminated):</p>
+<div class="captioned-content">
+<div class="caption">
+ForeignPtr.hs
+</div>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ot">useAsCString ::</span> <span class="dt">ByteString</span> <span class="ot">-&gt;</span> (<span class="dt">CString</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> a) <span class="ot">-&gt;</span> <span class="dt">IO</span> a</span></code></pre></div>
+</div>
+<p>This function takes a <code>ByteString</code> as input. The second
+argument is a user-defined function that will run with the resulting
+<code>CString</code>. We see here another useful idiom: data marshalling
+functions that are naturally scoped via closures. Our
+<code>useAsCString</code> function will convert the input data to a C
+string, which we can then pass to C as a pointer. Our burden then is to
+supply it with a chunk of code to call C.</p>
+<p>Code in this style is often written in a dangling "do-block"
+notation. The following pseudocode illustrates this structure:</p>
+<pre><code>useAsCString str $ \cstr -&gt; do
+   ... operate on the C string
+   ... return a result
+</code></pre>
+<p>The second argument here is an anonymous function, a lambda, with a
+monadic "do" block for a body. It is common to use the simple
+<code>($)</code> application operator to avoid the need for parentheses
+when delimiting the code block argument. This is a useful idiom to
+remember when dealing with code block parameters like this.</p>
+<h2 data-number="3.4"
+id="allocating-local-c-data-the-storable-class"><span
+class="header-section-number">3.4</span> Allocating local C data: the
+<code>Storable</code> class</h2>
+<p>We can happily marshal <code>ByteString</code> data to C compatible
+types, but the <code>pcre_compile</code> function also needs some
+pointers and arrays in which to place its other return values. These
+should only exist briefly, so we don't need complicated allocation
+strategies. Such short-lifetime C data can be created with the
+<code>alloca</code> function:</p>
+<div class="captioned-content">
+<div class="caption">
+ForeignPtr.hs
+</div>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ot">alloca ::</span> <span class="dt">Storable</span> a <span class="ot">=&gt;</span> (<span class="dt">Ptr</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> b) <span class="ot">-&gt;</span> <span class="dt">IO</span> b</span></code></pre></div>
+</div>
+<p>This function takes a code block accepting a pointer to some C type
+as an argument and arranges to call that function with the unitialised
+data of the right shape, allocated freshly. The allocation mechanism
+mirrors local stack variables in other languages. The allocated memory
+is released once the argument function exits. In this way we get
+lexically scoped allocation of low level data types, that are guaranteed
+to be released once the scope is exited. We can use it to allocate any
+data types that has an instance of the <code>Storable</code> type class.
+An implication of overloading the allocation operator like this is that
+the data type allocated can be inferred from type information, based on
+use! Haskell will know what to allocate based on the functions we use on
+that data.</p>
+<p>To allocate a pointer to a <code>CString</code>, for example, which
+will be updated to point to a particular <code>CString</code> by the
+called function, we would call <code>alloca</code>, in pseudocode
+as:</p>
+<pre><code>alloca $ \stringptr -&gt; do
+   ... call some Ptr CString function
+   peek stringptr
+</code></pre>
+<p>This locally allocates a <code>Ptr CString</code> and applies the
+code block to that pointer, which then calls a C function to modify the
+pointer contents. Finally, we dereference the pointer with the
+<code>Storable</code> class <code>peek</code> function, yielding a
+<code>CString</code>.</p>
+<p>We can now put it all together, to complete our high level PCRE
+compilation wrapper.</p>
+<h2 data-number="3.5" id="putting-it-all-together"><span
+class="header-section-number">3.5</span> Putting it all together</h2>
+<p>We've decided what Haskell type to represent the C function with,
+what the result data will be represented by, and how its memory will be
+managed. We've chosen a representation for flags to the
+<code>pcre_compile</code> function, and worked out how to get C strings
+to and from code inspecting it. So let's write the complete function for
+compiling PCRE regular expressions from Haskell:</p>
+<div class="captioned-content">
+<div class="caption">
+PCRE-compile.hs
+</div>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ot">compile ::</span> <span class="dt">ByteString</span> <span class="ot">-&gt;</span> [<span class="dt">PCREOption</span>] <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">String</span> <span class="dt">Regex</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>compile str flags <span class="ot">=</span> unsafePerformIO <span class="op">$</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  useAsCString str <span class="op">$</span> \<span class="kw">pattern</span> <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    alloca <span class="op">$</span> \errptr       <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    alloca <span class="op">$</span> \erroffset    <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>        pcre_ptr <span class="ot">&lt;-</span> c_pcre_compile <span class="kw">pattern</span> (combineOptions flags) errptr erroffset nullPtr</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> pcre_ptr <span class="op">==</span> nullPtr</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>            <span class="kw">then</span> <span class="kw">do</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>                err <span class="ot">&lt;-</span> peekCString <span class="op">=&lt;&lt;</span> peek errptr</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>                <span class="fu">return</span> (<span class="dt">Left</span> err)</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>            <span class="kw">else</span> <span class="kw">do</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>                reg <span class="ot">&lt;-</span> newForeignPtr finalizerFree pcre_ptr <span class="co">-- release with free()</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>                <span class="fu">return</span> (<span class="dt">Right</span> (<span class="dt">Regex</span> reg str))</span></code></pre></div>
+</div>
+<p>That's it! Let's carefully walk through the details here, since it is
+rather dense. The first thing that stands out is the use of
+<code>unsafePerformIO</code>, a rather infamous function, with a very
+unusual type, imported from the ominous
+<code>System.IO.Unsafe</code>:</p>
+<div class="captioned-content">
+<div class="caption">
+ForeignPtr.hs
+</div>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ot">unsafePerformIO ::</span> <span class="dt">IO</span> a <span class="ot">-&gt;</span> a</span></code></pre></div>
+</div>
+<p>This function does something odd: it takes an <code>IO</code> value
+and converts it to a pure one! After warning about the danger of effects
+for so long, here we have the very enabler of dangerous effects in one
+line. Used unwisely, this function lets us sidestep all safety
+guarantees the Haskell type system provides, inserting arbitrary side
+effects into a Haskell program, anywhere. The dangers in doing this are
+significant: we can break optimizations, modify arbitrary locations in
+memory, remove files on the user's machine, or launch nuclear missiles
+from our Fibonacci sequences. So why does this function exist at
+all?</p>
+<p>It exists precisely to enable Haskell to bind to C code that we know
+to be referentially transparent, but can't prove the case to the Haskell
+type system. It lets us say to the compiler, "I know what I'm doing -
+this code really is pure". For regular expression compilation, we know
+this to be the case: given the same pattern, we should get the same
+regular expression matcher every time. However, proving that to the
+compiler is beyond the Haskell type system, so we're forced to assert
+that this code is pure. Using <code>unsafePerformIO</code> allows us to
+do just that.</p>
+<p>However, if we know the C code is pure, why don't we just declare it
+as such, by giving it a pure type in the import declaration? For the
+reason that we have to allocate local memory for the C function to work
+with, which must be done in the <code>IO</code> monad, as it is a local
+side effect. Those effects won't escape the code surrounding the foreign
+call, though, so when wrapped, we use <code>unsafePerformIO</code> to
+reintroduce purity.</p>
+<p>The argument to <code>unsafePerformIO</code> is the actual body of
+our compilation function, which consists of four parts: marshalling
+Haskell data to C form; calling into the C library; checking the return
+values; and finally, constructing a Haskell value from the results.</p>
+<p>We marshal with <code>useAsCString</code> and <code>alloca</code>,
+setting up the data we need to pass to C, and use
+<code>combineOptions</code>, developed previously, to collapse the list
+of flags into a single <code>CInt</code>. Once that's all in place, we
+can finally call <code>c_pcre_compile</code> with the pattern, flags,
+and pointers for the results. We use <code>nullPtr</code> for the
+character encoding table, which is unused in this case.</p>
+<p>The result returned from the C call is a pointer to the abstract
+<code>pcre</code> structure. We then test this against the
+<code>nullPtr</code>. If there was a problem with the regular
+expression, we have to dereference the error pointer, yielding a
+<code>CString</code>. We then unpack that to a normal Haskell list with
+the library function, <code>peekCString</code>. The final result of the
+error path is a value of <code>Left err</code>, indicating failure to
+the caller.</p>
+<p>If the call succeeded, however, we allocate a new storage-managed
+pointer, with the C function using a <code>ForeignPtr</code>. The
+special value <code>finalizerFree</code> is bound as the finalizer for
+this data, which uses the standard C <code>free</code> to deallocate the
+data. This is then wrapped as an opaque <code>Regex</code> value. The
+successful result is tagged as such with <code>Right</code>, and
+returned to the user. And now we're done!</p>
+<p>We need to process our source file with <code>hsc2hs</code>, and then
+load the function in GHCi. However, doing this results in an error on
+the first attempt:</p>
+<pre class="screen"><code>$ hsc2hs Regex.hsc
+$ ghci Regex.hs
+
+During interactive linking, GHCi couldn&#39;t find the following symbol:
+  pcre_compile
+This may be due to you not asking GHCi to load extra object files,
+archives or DLLs needed by your current session.  Restart GHCi, specifying
+the missing library using the -L/path/to/object/dir and -lmissinglibname
+flags, or simply by naming the relevant files on the GHCi command line.
+</code></pre>
+<p>A little scary. However, this is just because we didn't link the C
+library we wanted to call to the Haskell code. Assuming the PCRE library
+has been installed on the system in the default library location, we can
+let GHCi know about it by adding <code>-lpcre</code> to the GHCi command
+line. Now we can try out the code on some regular expressions, looking
+at the success and error cases:</p>
+<pre class="screen"><code>$ ghci Regex.hs -lpcre
+*Regex&gt; :m + Data.ByteString.Char8
+*Regex Data.ByteString.Char8&gt; compile (pack &quot;a.*b&quot;) []
+Right (Regex 0x00000000028882a0 &quot;a.*b&quot;)
+*Regex Data.ByteString.Char8&gt; compile (pack &quot;a.*b[xy]+(foo?)&quot;) []
+Right (Regex 0x0000000002888860 &quot;a.*b[xy]+(foo?)&quot;)
+*Regex Data.ByteString.Char8&gt; compile (pack &quot;*&quot;) []
+Left &quot;nothing to repeat&quot;
+</code></pre>
+<p>The regular expressions are packed into byte strings and marshalled
+to C, where they are compiled by the PCRE library. The result is then
+handed back to Haskell, where we display the structure using the default
+<code>Show</code> instance. Our next step is to pattern match some
+strings with these compiled regular expressions.</p>
+<h1 data-number="4" id="matching-on-strings"><span
+class="header-section-number">4</span> Matching on strings</h1>
+<p>The second part of a good regular expression library is the matching
+function. Given a compiled regular expression, this function does the
+matching of the compiled regex against some input, indicating whether it
+matched, and if so, what parts of the string matched. In PCRE this
+function is <code>pcre_exec</code>, which has type:</p>
+<div class="sourceCode" id="cb38" data-org-language="C"><pre
+class="sourceCode c"><code class="sourceCode c"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> pcre_exec<span class="op">(</span><span class="dt">const</span> pcre <span class="op">*</span>code<span class="op">,</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>              <span class="dt">const</span> pcre_extra <span class="op">*</span>extra<span class="op">,</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>              <span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>subject<span class="op">,</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>              <span class="dt">int</span> length<span class="op">,</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>              <span class="dt">int</span> startoffset<span class="op">,</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>              <span class="dt">int</span> options<span class="op">,</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>              <span class="dt">int</span> <span class="op">*</span>ovector<span class="op">,</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>              <span class="dt">int</span> ovecsize<span class="op">);</span></span></code></pre></div>
+<p>The most important arguments are the input <code>pcre</code> pointer
+structure, which we obtained from <code>pcre_compile</code>, and the
+subject string. The other flags let us provide book keeping structures,
+and space for return values. We can directly translate this type to the
+Haskell import declaration:</p>
+<div class="captioned-content">
+<div class="caption">
+RegexExec.hs
+</div>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>foreign <span class="kw">import</span> ccall &quot;pcre.h pcre_exec&quot;</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    c_pcre_exec</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">Ptr</span> <span class="dt">PCREExtra</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">Ptr</span> <span class="dt">Word8</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">CInt</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">CInt</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">PCREExecOption</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">Ptr</span> <span class="dt">CInt</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">CInt</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">CInt</span></span></code></pre></div>
+</div>
+<p>We use the same method as before to create typed pointers for the
+<code>PCREExtra</code> structure, and a <code>newtype</code> to
+represent flags passed at regex execution time. This lets us ensure
+users don't pass compile time flags incorrectly at regex runtime.</p>
+<h2 data-number="4.1"
+id="extracting-information-about-the-pattern"><span
+class="header-section-number">4.1</span> Extracting information about
+the pattern</h2>
+<p>The main complication involved in calling <code>pcre_exec</code> is
+the array of <code>int</code> pointers used to hold the offsets of
+matching substrings found by the pattern matcher. These offsets are held
+in an offset vector, whose required size is determined by analysing the
+input regular expression to determine the number of captured patterns it
+contains. PCRE provides a function, <code>pcre_fullinfo</code>, for
+determining much information about the regular expression, including the
+number of patterns. We'll need to call this, and now, we can directly
+write down the Haskell type for the binding to
+<code>pcre_fullinfo</code> as:</p>
+<div class="captioned-content">
+<div class="caption">
+RegexExec.hs
+</div>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>foreign <span class="kw">import</span> ccall &quot;pcre.h pcre_fullinfo&quot;</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    c_pcre_fullinfo ::</span> <span class="dt">Ptr</span> <span class="dt">PCRE</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">Ptr</span> <span class="dt">PCREExtra</span></span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">PCREInfo</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">Ptr</span> a</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>                    <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">CInt</span></span></code></pre></div>
+</div>
+<p>The most important arguments to this function are the compiled
+regular expression, and the <code>PCREInfo</code> flag, indicating which
+information we're interested in. In this case, we care about the
+captured pattern count. The flags are encoded in numeric constants, and
+we need to use specifically the <code>PCRE_INFO_CAPTURECOUNT</code>
+value. There is a range of other constants which determine the result
+type of the function, which we can bind to using the <code>#enum</code>
+construct as before. The final argument is a pointer to a location to
+store the information about the pattern (whose size depends on the flag
+argument passed in!).</p>
+<p>Calling <code>pcre_fullinfo</code> to determine the captured pattern
+count is pretty easy:</p>
+<div class="captioned-content">
+<div class="caption">
+RegexExec.hs
+</div>
+<div class="sourceCode" id="cb41"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ot">capturedCount ::</span> <span class="dt">Ptr</span> <span class="dt">PCRE</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> <span class="dt">Int</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>capturedCount regex_ptr <span class="ot">=</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>    alloca <span class="op">$</span> \n_ptr <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>         c_pcre_fullinfo regex_ptr nullPtr info_capturecount n_ptr</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>         <span class="fu">return</span> <span class="op">.</span> <span class="fu">fromIntegral</span> <span class="op">=&lt;&lt;</span> peek (<span class="ot">n_ptr ::</span> <span class="dt">Ptr</span> <span class="dt">CInt</span>)</span></code></pre></div>
+</div>
+<p>This takes a raw PCRE pointer and allocates space for the
+<code>CInt</code> count of the matched patterns. We then call the
+information function and peek into the result structure, finding a
+<code>CInt</code>. Finally, we convert this to a normal Haskell
+<code>int</code> and pass it back to the user.</p>
+<h2 data-number="4.2" id="pattern-matching-with-substrings"><span
+class="header-section-number">4.2</span> Pattern matching with
+substrings</h2>
+<p>Let's now write the regex matching function. The Haskell type for
+matching is similar to that for compiling regular expressions:</p>
+<div class="captioned-content">
+<div class="caption">
+RegexExec.hs
+</div>
+<div class="sourceCode" id="cb42"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ot">match ::</span> <span class="dt">Regex</span> <span class="ot">-&gt;</span> <span class="dt">ByteString</span> <span class="ot">-&gt;</span> [<span class="dt">PCREExecOption</span>] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> [<span class="dt">ByteString</span>]</span></code></pre></div>
+</div>
+<p>This function is how users will match strings against compiled
+regular expressions. Again, the main design point is that it is a pure
+function. Matching is a pure function: given the same input regular
+expression and subject string, it will always return the same matched
+substrings. We convey this information to the user via the type
+signature, indicating no side effects will occur when you call this
+function.</p>
+<p>The arguments are a compiled <code>Regex</code>, a strict
+<code>ByteString</code>, containing the input data, and a list of flags
+that modify the regular expression engine's behaviour at runtime. The
+result is either no match at all, indicated by a <code>Nothing</code>
+value, or just a list of matched substrings. We use the
+<code>Maybe</code> type to clearly indicate in the type that matching
+may fail. By using strict ~ByteString~s for the input data we can
+extract matched substrings in constant time, without copying, making the
+interface rather efficient. If substrings are matched in the input the
+offset vector is populated with pairs of integer offsets into the
+subject string. We'll need to loop over this result vector, reading
+offsets, and building <code>ByteString</code> slices as we go.</p>
+<p>The implementation of the match wrapper can be broken into three
+parts. At the top level, our function takes apart the compiled
+<code>Regex</code> structure, yielding the underlying <code>pcre</code>
+pointer:</p>
+<div class="captioned-content">
+<div class="caption">
+RegexExec.hs
+</div>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ot">match ::</span> <span class="dt">Regex</span> <span class="ot">-&gt;</span> <span class="dt">ByteString</span> <span class="ot">-&gt;</span> [<span class="dt">PCREExecOption</span>] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> [<span class="dt">ByteString</span>]</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>match (<span class="dt">Regex</span> pcre_fp _) subject os <span class="ot">=</span> unsafePerformIO <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  withForeignPtr pcre_fp <span class="op">$</span> \pcre_ptr <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    n_capt <span class="ot">&lt;-</span> capturedCount pcre_ptr</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> ovec_size <span class="ot">=</span> (n_capt <span class="op">+</span> <span class="dv">1</span>) <span class="op">*</span> <span class="dv">3</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>        ovec_bytes <span class="ot">=</span> ovec_size <span class="op">*</span> sizeOf (<span class="fu">undefined</span><span class="ot"> ::</span> <span class="dt">CInt</span>)</span></code></pre></div>
+</div>
+<p>As it is pure, we can use <code>unsafePerformIO</code> to hide any
+allocation effects internally. After pattern matching on the
+<code>pcre</code> type, we need to take apart the
+<code>ForeignPtr</code> that hides our C-allocated raw PCRE data. We can
+use <code>withForeignPtr</code>. This holds on to the Haskell data
+associated with the PCRE value while the call is being made, preventing
+it from being collected for at least the time it is used by this call.
+We then call the information function, and use that value to compute the
+size of the offset vector (the formula for which is given in the PCRE
+documentation). The number of bytes we need is the number of elements
+multiplied by the size of a <code>CInt</code>. To portably compute C
+type sizes, the <code>Storable</code> class provides a
+<code>sizeOf</code> function, that takes some arbitrary value of the
+required type (and we can use the <code>undefined</code> value here to
+do our type dispatch).</p>
+<p>The next step is to allocate an offset vector of the size we
+computed, to convert the input <code>ByteString</code> into a pointer to
+a C <code class="verbatim">char</code> array. Finally, we call
+<code>pcre_exec</code> with all the required arguments:</p>
+<div class="captioned-content">
+<div class="caption">
+RegexExec.hs
+</div>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>allocaBytes ovec_bytes <span class="op">$</span> \ovec <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> (str_fp, off, len) <span class="ot">=</span> toForeignPtr subject</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>    withForeignPtr str_fp <span class="op">$</span> \cstr <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>        r <span class="ot">&lt;-</span> c_pcre_exec</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>                     pcre_ptr</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>                     nullPtr</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>                     (cstr <span class="ot">`plusPtr`</span> off)</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>                     (<span class="fu">fromIntegral</span> len)</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>                     <span class="dv">0</span></span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>                     (combineExecOptions os)</span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>                     ovec</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>                     (<span class="fu">fromIntegral</span> ovec_size)</span></code></pre></div>
+</div>
+<p>For the offset vector, we use <code>allocaBytes</code> to control
+exactly the size of the allocated array. It is like <code>alloca</code>,
+but rather than using the <code>Storable</code> class to determine the
+required size, it takes an explicit size in bytes to allocate. Taking
+apart <code>ByteString</code>'s, yielding the underlying pointer to
+memory they contain, is done with <code>toForeignPtr</code>, which
+converts our nice <code>ByteString</code> type into a managed pointer.
+Using <code>withForeignPtr</code> on the result gives us a raw
+<code>Ptr CChar</code>, which is exactly what we need to pass the input
+string to C. Programming in Haskell is often just solving a type
+puzzle!</p>
+<p>We then just call <code>c_pcre_exec</code> with the raw PCRE pointer,
+the input string pointer at the correct offset, its length, and the
+result vector pointer. A status code is returned, and, finally, we
+analyse the result:</p>
+<div class="captioned-content">
+<div class="caption">
+RegexExec.hs
+</div>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>          <span class="kw">if</span> r <span class="op">&lt;</span> <span class="dv">0</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>              <span class="kw">then</span> <span class="fu">return</span> <span class="dt">Nothing</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>              <span class="kw">else</span> <span class="kw">let</span> loop n o acc <span class="ot">=</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>                          <span class="kw">if</span> n <span class="op">==</span> r</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>                            <span class="kw">then</span> <span class="fu">return</span> (<span class="dt">Just</span> (<span class="fu">reverse</span> acc))</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>                            <span class="kw">else</span> <span class="kw">do</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>                                  i <span class="ot">&lt;-</span> peekElemOff ovec o</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>                                  j <span class="ot">&lt;-</span> peekElemOff ovec (o<span class="op">+</span><span class="dv">1</span>)</span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>                                  <span class="kw">let</span> s <span class="ot">=</span> substring i j subject</span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>                                  loop (n<span class="op">+</span><span class="dv">1</span>) (o<span class="op">+</span><span class="dv">2</span>) (s <span class="op">:</span> acc)</span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>                   <span class="kw">in</span> loop <span class="dv">0</span> <span class="dv">0</span> []</span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a><span class="kw">where</span></span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a><span class="ot">  substring ::</span> <span class="dt">CInt</span> <span class="ot">-&gt;</span> <span class="dt">CInt</span> <span class="ot">-&gt;</span> <span class="dt">ByteString</span> <span class="ot">-&gt;</span> <span class="dt">ByteString</span></span>
+<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a>  substring x y _ <span class="op">|</span> x <span class="op">==</span> y <span class="ot">=</span> empty</span>
+<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a>  substring a b s <span class="ot">=</span> end</span>
+<span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a>      <span class="kw">where</span></span>
+<span id="cb45-18"><a href="#cb45-18" aria-hidden="true" tabindex="-1"></a>          start <span class="ot">=</span> unsafeDrop (<span class="fu">fromIntegral</span> a) s</span>
+<span id="cb45-19"><a href="#cb45-19" aria-hidden="true" tabindex="-1"></a>          end   <span class="ot">=</span> unsafeTake (<span class="fu">fromIntegral</span> (b<span class="op">-</span>a)) start</span></code></pre></div>
+</div>
+<p>If the result value was less than zero, then there was an error, or
+no match, so we return <code>Nothing</code> to the user. Otherwise, we
+need a loop peeking pairs of offsets from the offset vector (via
+<code>peekElemOff</code>). Those offsets are used to find the matched
+substrings. To build substrings we use a helper function that, given a
+start and end offset, drops the surrounding portions of the subject
+string, yielding just the matched portion. The loop runs until it has
+extracted the number of substrings we were told were found by the
+matcher.</p>
+<p>The substrings are accumulated in a tail recursive loop, building up
+a reverse list of each string. Before returning the substrings of the
+user, we need to flip that list around and wrap it in a successful
+<code>Just</code> tag. Let's try it out!</p>
+<h2 data-number="4.3"
+id="the-real-deal-compiling-and-matching-regular-expressions"><span
+class="header-section-number">4.3</span> The real deal: compiling and
+matching regular expressions</h2>
+<p>If we take this function, its surrounding <code>hsc2hs</code>
+definitions and data wrappers, and process it with <code>hsc2hs</code>,
+we can load the resulting Haskell file in GHCi and try out our code (we
+need to import <code>Data.ByteString.Char8</code> so we can build
+~ByteString~s from string literals):</p>
+<pre class="screen"><code>$ hsc2hs Regex.hsc
+$ ghci Regex.hs -lpcre
+*Regex&gt; :t compile
+compile :: ByteString -&gt; [PCREOption] -&gt; Either String Regex
+*Regex&gt; :t match
+match :: Regex -&gt; ByteString -&gt; Maybe [ByteString]
+</code></pre>
+<p>Things seem to be in order. Now let's try some compilation and
+matching. First, something easy:</p>
+<pre class="screen"><code>*Regex&gt; :m + Data.ByteString.Char8
+*Regex Data.ByteString.Char8&gt; let Right r = compile (pack &quot;the quick brown fox&quot;) []
+*Regex Data.ByteString.Char8&gt; match r (pack &quot;the quick brown fox&quot;) []
+Just [&quot;the quick brown fox&quot;]
+*Regex Data.ByteString.Char8&gt; match r (pack &quot;The Quick Brown Fox&quot;) []
+Nothing
+*Regex Data.ByteString.Char8&gt; match r (pack &quot;What
+  do you know about the quick brown fox?&quot;) []
+Just [&quot;the quick brown fox&quot;]
+</code></pre>
+<p>(We could also avoid the <code>pack</code> calls by using the
+<code>OverloadedStrings</code> extensions). Or we can be more
+adventurous:</p>
+<pre class="screen"><code>*Regex Data.ByteString.Char8&gt; let Right r = compile (pack &quot;a*abc?xyz+pqr{3}ab{2,}xy{4,5}pq{0,6}AB{0,}zz&quot;) []
+*Regex Data.ByteString.Char8&gt; match r (pack &quot;abxyzpqrrrabbxyyyypqAzz&quot;) []
+Just [&quot;abxyzpqrrrabbxyyyypqAzz&quot;]
+*Regex Data.ByteString.Char8&gt; let Right r = compile (pack &quot;^([^!]+)!(.+)=apquxz\\.ixr\\.zzz\\.ac\\.uk$&quot;) []
+*Regex Data.ByteString.Char8&gt; match r (pack &quot;abc!pqr=apquxz.ixr.zzz.ac.uk&quot;) []
+Just [&quot;abc!pqr=apquxz.ixr.zzz.ac.uk&quot;,&quot;abc&quot;,&quot;pqr&quot;]
+</code></pre>
+<p>That's pretty awesome. The full power of Perl regular expressions, in
+Haskell at your fingertips.</p>
+<p>In this chapter we've looked at how to declare bindings that let
+Haskell code call C functions, how to marshal different data types
+between the two languages, how to allocate memory at a low level (by
+allocating locally, or via C's memory management), and how to automate
+much of the hard work of dealing with C by exploiting the Haskell type
+system and garbage collector. Finally, we looked at how FFI
+preprocessors can ease much of the labour of constructing new bindings.
+The result is a natural Haskell API, that is actually implemented
+primarily in C.</p>
+<p>The majority of FFI tasks fall into the above categories. Other
+advanced techniques that we are unable to cover include: linking Haskell
+into C programs, registering callbacks from one language to another, and
+the <code>c2hs</code> preprocessing tool. More information about these
+topics can be found online.</p>
+<h1 data-number="5" id="footnotes"><span
+class="header-section-number">5</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>Some more advanced binding tools
+provide greater degrees of type checking. For example, <code>c2hs</code>
+is able to parse the C header, and generate the binding definition for
+you, and is especially suited for large projects where the full API is
+specified.<a href="#fnref1" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

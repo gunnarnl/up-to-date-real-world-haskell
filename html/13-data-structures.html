@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 13. Data Structures</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 13. Data Structures</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#association-lists"><span
+class="toc-section-number">1</span> Association Lists</a></li>
+<li><a href="#maps"><span class="toc-section-number">2</span>
+Maps</a></li>
+<li><a href="#functions-are-data-too"><span
+class="toc-section-number">3</span> Functions Are Data, Too</a></li>
+<li><a href="#extended-example-etcpasswd"><span
+class="toc-section-number">4</span> Extended Example:
+/etc/passwd</a></li>
+<li><a href="#extended-example-numeric-types"><span
+class="toc-section-number">5</span> Extended example: Numeric Types</a>
+<ul>
+<li><a href="#first-steps"><span class="toc-section-number">5.1</span>
+First Steps</a></li>
+<li><a href="#completed-code"><span
+class="toc-section-number">5.2</span> Completed Code</a></li>
+<li><a href="#exercises"><span class="toc-section-number">5.3</span>
+Exercises</a></li>
+</ul></li>
+<li><a href="#taking-advantage-of-functions-as-data"><span
+class="toc-section-number">6</span> Taking advantage of functions as
+data</a>
+<ul>
+<li><a href="#turning-difference-lists-into-a-proper-library"><span
+class="toc-section-number">6.1</span> Turning difference lists into a
+proper library</a></li>
+<li><a href="#lists-difference-lists-and-monoids"><span
+class="toc-section-number">6.2</span> Lists, difference lists, and
+monoids</a></li>
+</ul></li>
+<li><a href="#footnotes"><span class="toc-section-number">7</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<h1 data-number="1" id="association-lists"><span
+class="header-section-number">1</span> Association Lists</h1>
+<p>Often, we have to deal with data that is unordered but is indexed by
+a key. For instance, a Unix administrator might have a list of numeric
+UIDs (user IDs) and the textual usernames that they correspond to. The
+value of this list lies in being able to look up a textual username for
+a given UID, not in the order of the data. In other words, the UID is a
+key into a database.</p>
+<p>In Haskell, there are several ways to handle data that is structured
+in this way. The two most common are association lists and the
+<code>Map</code> type provided by <code>Data.Map</code> module.
+Association lists are handy because they are simple. They are standard
+Haskell lists, so all the familiar list functions work with association
+lists. However, for large data sets, <code>Map</code> will have a
+considerable performance advantage over association lists. We'll use
+both in this chapter.</p>
+<p>An association list is just a normal list containing (key, value)
+tuples. The type of a list of mappings from UID to username might be
+<code>[(Integer, String)]</code>. We could use just about any type<a
+href="#fn1" class="footnote-ref" id="fnref1"
+role="doc-noteref"><sup>1</sup></a> for both the key and the value.</p>
+<p>We can build association lists just we do any other list. Haskell
+comes with one built-in function called <code>Data.List.lookup</code> to
+look up data in an association list. Its type is
+<code>Eq a =&gt; a -&gt; [(a, b)] -&gt; Maybe b</code>. Can you guess
+how it works from that type? Let's take a look in <code>ghci</code>.</p>
+<pre class="screen"><code>ghci&gt; al = [(1, &quot;one&quot;), (2, &quot;two&quot;), (3, &quot;three&quot;), (4, &quot;four&quot;)]
+ghci&gt; lookup 1 al
+Just &quot;one&quot;
+ghci&gt; lookup 5 al
+Nothing
+</code></pre>
+<p>The <code>lookup</code> function is really simple. Here's one way we
+could write it:</p>
+<div class="captioned-content">
+<div class="caption">
+lookup.hs
+</div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">myLookup ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> [(a, b)] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> b</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>myLookup _ [] <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>myLookup key ((thiskey,thisval)<span class="op">:</span>rest) <span class="ot">=</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">if</span> key <span class="op">==</span> thiskey</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>       <span class="kw">then</span> <span class="dt">Just</span> thisval</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>       <span class="kw">else</span> myLookup key rest</span></code></pre></div>
+</div>
+<p>This function returns <code>Nothing</code> if passed the empty list.
+Otherwise, it compares the key with the key we're looking for. If a
+match is found, the corresponding value is returned. Otherwise, it
+searches the rest of the list.</p>
+<p>Let's take a look at a more complex example of association lists. On
+Unix/Linux machines, there is a file called <code>/etc/passwd</code>
+that stores usernames, UIDs, home directories, and various other data.
+We will write a program that parses such a file, creates an association
+list, and lets the user look up a username by giving a UID.</p>
+<div class="captioned-content">
+<div class="caption">
+passwd-al.hs
+</div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.IO</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span>(when)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Exit</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Environment</span>(getArgs)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Load the command-line arguments</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    args <span class="ot">&lt;-</span> getArgs</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- If we don&#39;t have the right amount of args, give an error and abort</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    when (<span class="fu">length</span> args <span class="op">/=</span> <span class="dv">2</span>) <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">putStrLn</span> <span class="st">&quot;Syntax: passwd-al filename uid&quot;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        exitFailure</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Read the file lazily</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    content <span class="ot">&lt;-</span> <span class="fu">readFile</span> (args <span class="op">!!</span> <span class="dv">0</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Compute the username in pure code</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> username <span class="ot">=</span> findByUID content (<span class="fu">read</span> (args <span class="op">!!</span> <span class="dv">1</span>))</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Display the result</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> username <span class="kw">of</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>         <span class="dt">Just</span> x <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> x</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>         <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;Could not find that UID&quot;</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">-- Given the entire input and a UID, see if we can find a username.</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="ot">findByUID ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Integer</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">String</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>findByUID content uid <span class="ot">=</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> al <span class="ot">=</span> <span class="fu">map</span> parseline <span class="op">.</span> <span class="fu">lines</span> <span class="op">$</span> content</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        <span class="kw">in</span> <span class="fu">lookup</span> uid al</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co">-- Convert a colon-separated line into fields</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="ot">parseline ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> (<span class="dt">Integer</span>, <span class="dt">String</span>)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>parseline input <span class="ot">=</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> fields <span class="ot">=</span> split <span class="ch">&#39;:&#39;</span> input</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>        <span class="kw">in</span> (<span class="fu">read</span> (fields <span class="op">!!</span> <span class="dv">2</span>), fields <span class="op">!!</span> <span class="dv">0</span>)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Takes a delimiter and a list.  Break up the list based on the</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="co">-  delimiter. -}</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="ot">split ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [[a]]</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="co">-- If the input is empty, the result is a list of empty lists.</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>split _ [] <span class="ot">=</span> [[]]</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>split delim str <span class="ot">=</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> <span class="co">-- Find the part of the list before delim and put it in &quot;before&quot;.</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- The rest of the list, including the leading delim, goes</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- in &quot;remainder&quot;.</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>        (before, remainder) <span class="ot">=</span> <span class="fu">span</span> (<span class="op">/=</span> delim) str</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>        <span class="kw">in</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>        before <span class="op">:</span> <span class="kw">case</span> remainder <span class="kw">of</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>                      [] <span class="ot">-&gt;</span> []</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>                      x <span class="ot">-&gt;</span> <span class="co">-- If there is more data to process,</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>                           <span class="co">-- call split recursively to process it</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>                           split delim (<span class="fu">tail</span> x)</span></code></pre></div>
+</div>
+<p>Let's look at this program. The heart of it is
+<code>findByUID</code>, which is a simple function that parses the input
+one line at a time, then calls <code>lookup</code> over the result. The
+remaining program is concerned with parsing the input. The input file
+looks like this:</p>
+<pre><code>root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/bin/sh
+bin:x:2:2:bin:/bin:/bin/sh
+sys:x:3:3:sys:/dev:/bin/sh
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/bin/sh
+man:x:6:12:man:/var/cache/man:/bin/sh
+lp:x:7:7:lp:/var/spool/lpd:/bin/sh
+mail:x:8:8:mail:/var/mail:/bin/sh
+news:x:9:9:news:/var/spool/news:/bin/sh
+jgoerzen:x:1000:1000:John Goerzen,,,:/home/jgoerzen:/bin/bash
+</code></pre>
+<p>Its fields are separated by colons, and include a username, numeric
+user ID, numeric group ID, full name, home directory, and shell. No
+field may contain an internal colon.</p>
+<h1 data-number="2" id="maps"><span
+class="header-section-number">2</span> Maps</h1>
+<p>The <code>Data.Map</code> module provides a <code>Map</code> type
+with behavior that is similar to association lists, but has much better
+performance.</p>
+<p>Maps give us the same capabilities as hash tables do in other
+languages. Internally, a map is implemented as a balanced binary tree.
+Compared to a hash table, this is a much more efficient representation
+in a language with immutable data. This is the most visible example of
+how deeply pure functional programming affects how we write code: we
+choose data structures and algorithms that we can express cleanly and
+that perform efficiently, but our choices for specific tasks are often
+different their counterparts in imperative languages.</p>
+<p>Some functions in the <code>Data.Map</code> module have the same
+names as those in the prelude. Therefore, we will import it with
+<code>import qualified Data.Map as Map</code> and use
+<code>Map.name</code> to refer to names in that module. Let's start our
+tour of <code>Data.Map</code> by taking a look at some ways to build a
+map.</p>
+<div class="captioned-content">
+<div class="caption">
+buildmap.hs
+</div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.Map</span> <span class="kw">as</span> <span class="dt">Map</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">-- Functions to generate a Map that represents an association list</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- as a map</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>al <span class="ot">=</span> [(<span class="dv">1</span>, <span class="st">&quot;one&quot;</span>), (<span class="dv">2</span>, <span class="st">&quot;two&quot;</span>), (<span class="dv">3</span>, <span class="st">&quot;three&quot;</span>), (<span class="dv">4</span>, <span class="st">&quot;four&quot;</span>)]</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Create a map representation of &#39;al&#39; by converting the association</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">-  list using Map.fromList -}</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>mapFromAL <span class="ot">=</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    Map.fromList al</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Create a map representation of &#39;al&#39; by doing a fold -}</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>mapFold <span class="ot">=</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">foldl</span> (\<span class="fu">map</span> (k, v) <span class="ot">-&gt;</span> Map.insert k v <span class="fu">map</span>) Map.empty al</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Manually create a map with the elements of &#39;al&#39; in it -}</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>mapManual <span class="ot">=</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    Map.insert <span class="dv">2</span> <span class="st">&quot;two&quot;</span> <span class="op">.</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    Map.insert <span class="dv">4</span> <span class="st">&quot;four&quot;</span> <span class="op">.</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    Map.insert <span class="dv">1</span> <span class="st">&quot;one&quot;</span> <span class="op">.</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    Map.insert <span class="dv">3</span> <span class="st">&quot;three&quot;</span> <span class="op">$</span> Map.empty</span></code></pre></div>
+</div>
+<p>Functions like <code>Map.insert</code> work in the usual Haskell way:
+they return a copy of the input data, with the requested change applied.
+This is quite handy with maps. It means that you can use
+<code>foldl</code> to build up a map as in the <code>mapFold</code>
+example. Or, you can chain together calls to <code>Map.insert</code> as
+in the <code>mapManual</code> example. Let's use <code>ghci</code> to
+verify that all of these maps are as expected:</p>
+<pre class="screen"><code>ghci&gt; :l buildmap.hs
+[1 of 1] Compiling Main             ( buildmap.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; al
+[(1,&quot;one&quot;),(2,&quot;two&quot;),(3,&quot;three&quot;),(4,&quot;four&quot;)]
+ghci&gt; mapFromAL
+fromList [(1,&quot;one&quot;),(2,&quot;two&quot;),(3,&quot;three&quot;),(4,&quot;four&quot;)]
+ghci&gt; mapFold
+fromList [(1,&quot;one&quot;),(2,&quot;two&quot;),(3,&quot;three&quot;),(4,&quot;four&quot;)]
+ghci&gt; mapManual
+fromList [(1,&quot;one&quot;),(2,&quot;two&quot;),(3,&quot;three&quot;),(4,&quot;four&quot;)]
+</code></pre>
+<p>Notice that the output from <code>mapManual</code> differs from the
+order of the list we used to construct the map. Maps do not guarantee
+that they will preserve the original ordering.</p>
+<p>Maps operate similarly in concept to association lists. The
+<code>Data.Map</code> module provides functions for adding and removing
+data from maps. It also lets us filter them, modify them, fold over
+them, and convert to and from association lists. The library
+documentation for this module is good, so instead of going into detail
+on each function, we will present an example that ties together many of
+the concepts we've discussed in this chapter.</p>
+<h1 data-number="3" id="functions-are-data-too"><span
+class="header-section-number">3</span> Functions Are Data, Too</h1>
+<p>Part of Haskell's power is the ease with which it lets us create and
+manipulate functions. Let's take a look at a record that stores a
+function as one of its fields:</p>
+<div class="captioned-content">
+<div class="caption">
+funcrecs.hs
+</div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Our usual CustomColor type to play with -}</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">CustomColor</span> <span class="ot">=</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">CustomColor</span> {<span class="ot">red ::</span> <span class="dt">Int</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ot">               green ::</span> <span class="dt">Int</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ot">               blue ::</span> <span class="dt">Int</span>}</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>, <span class="dt">Read</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">{- | A new type that stores a name and a function.</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">The function takes an Int, applies some computation to it, and returns</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">an Int along with a CustomColor -}</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">FuncRec</span> <span class="ot">=</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="dt">FuncRec</span> {<span class="ot">name ::</span> <span class="dt">String</span>,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="ot">             colorCalc ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">CustomColor</span>, <span class="dt">Int</span>)}</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>plus5func color x <span class="ot">=</span> (color, x <span class="op">+</span> <span class="dv">5</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>purple <span class="ot">=</span> <span class="dt">CustomColor</span> <span class="dv">255</span> <span class="dv">0</span> <span class="dv">255</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>plus5 <span class="ot">=</span> <span class="dt">FuncRec</span> {name <span class="ot">=</span> <span class="st">&quot;plus5&quot;</span>, colorCalc <span class="ot">=</span> plus5func purple}</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>always0 <span class="ot">=</span> <span class="dt">FuncRec</span> {name <span class="ot">=</span> <span class="st">&quot;always0&quot;</span>, colorCalc <span class="ot">=</span> \_ <span class="ot">-&gt;</span> (purple, <span class="dv">0</span>)}</span></code></pre></div>
+</div>
+<p>Notice the type of the <code>colorCalc</code> field: it's a function.
+It takes an <code>Int</code> and returns a tuple of
+<code>(CustomColor, Int)</code>. We create two <code>FuncRec</code>
+records: <code>plus5</code> and <code>always0</code>. Notice that the
+<code>colorCalc</code> for both of them will always return the color
+purple. <code>FuncRec</code> itself has no field to store the color in,
+yet that value somehow becomes part of the function itself. This is
+called a <em>closure</em>. Let's play with this a bit:</p>
+<pre class="screen"><code>ghci&gt; :l funcrecs.hs
+[1 of 1] Compiling Main             ( funcrecs.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; :t plus5
+plus5 :: FuncRec
+ghci&gt; name plus5
+&quot;plus5&quot;
+ghci&gt; :t colorCalc plus5
+colorCalc plus5 :: Int -&gt; (CustomColor, Int)
+ghci&gt; (colorCalc plus5) 7
+(CustomColor {red = 255, green = 0, blue = 255},12)
+ghci&gt; :t colorCalc always0
+colorCalc always0 :: Int -&gt; (CustomColor, Int)
+ghci&gt; (colorCalc always0) 7
+(CustomColor {red = 255, green = 0, blue = 255},0)
+</code></pre>
+<p>That worked well enough, but you might wonder how to do something
+more advanced, such as making a piece of data available in multiple
+places. A type construction function can be helpful. Here's an
+example:</p>
+<div class="captioned-content">
+<div class="caption">
+funcrecs2.hs
+</div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">FuncRec</span> <span class="ot">=</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">FuncRec</span> {<span class="ot">name ::</span> <span class="dt">String</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ot">             calc ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ot">             namedCalc ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> (<span class="dt">String</span>, <span class="dt">Int</span>)}</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="ot">mkFuncRec ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> (<span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">Int</span>) <span class="ot">-&gt;</span> <span class="dt">FuncRec</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>mkFuncRec name calcfunc <span class="ot">=</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">FuncRec</span> {name <span class="ot">=</span> name,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>             calc <span class="ot">=</span> calcfunc,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>             namedCalc <span class="ot">=</span> \x <span class="ot">-&gt;</span> (name, calcfunc x)}</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>plus5 <span class="ot">=</span> mkFuncRec <span class="st">&quot;plus5&quot;</span> (<span class="op">+</span> <span class="dv">5</span>)</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>always0 <span class="ot">=</span> mkFuncRec <span class="st">&quot;always0&quot;</span> (\_ <span class="ot">-&gt;</span> <span class="dv">0</span>)</span></code></pre></div>
+</div>
+<p>Here we have a function called <code>mkFuncRec</code> that takes a
+<code>String</code> and another function as parameters, and returns a
+new <code>FuncRec</code> record. Notice how both parameters to
+<code>mkFuncRec</code> are used in multiple places. Let's try it
+out:</p>
+<pre class="screen"><code>ghci&gt; :l funcrecs2.hs
+[1 of 1] Compiling Main             ( funcrecs2.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; :t plus5
+plus5 :: FuncRec
+ghci&gt; name plus5
+&quot;plus5&quot;
+ghci&gt; (calc plus5) 5
+10
+ghci&gt; (namedCalc plus5) 5
+(&quot;plus5&quot;,10)
+ghci&gt; plus5a = plus5 {name = &quot;PLUS5A&quot;}
+ghci&gt; name plus5a
+&quot;PLUS5A&quot;
+ghci&gt; (namedCalc plus5a) 5
+(&quot;plus5&quot;,10)
+</code></pre>
+<p>Notice the creation of <code>plus5a</code>. We changed the
+<code>name</code> field, but not the <code>namedCalc</code> field.
+That's why <code>name</code> has the new name, but
+<code>namedCalc</code> still returns the name that was passed to
+<code>mkFuncRec</code>; it doesn't change unless we explicitly change
+it.</p>
+<h1 data-number="4" id="extended-example-etcpasswd"><span
+class="header-section-number">4</span> Extended Example:
+/etc/passwd</h1>
+<p>In order to illustrate the usage of a number of different data
+structures together, we've prepared an extended example. This example
+parses and stores entries from files in the format of a typical
+<code>/etc/passwd</code> file.</p>
+<div class="captioned-content">
+<div class="caption">
+passwdmap.hs
+</div>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.Map</span> <span class="kw">as</span> <span class="dt">Map</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.IO</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.Printf</span>(printf)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Environment</span>(getArgs)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Exit</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span>(when)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">{- | The primary piece of data this program will store.</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">   It represents the fields in a POSIX /etc/passwd file -}</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">PasswdEntry</span> <span class="ot">=</span> <span class="dt">PasswdEntry</span> {</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="ot">    userName ::</span> <span class="dt">String</span>,</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="ot">    password ::</span> <span class="dt">String</span>,</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="ot">    uid ::</span> <span class="dt">Integer</span>,</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="ot">    gid ::</span> <span class="dt">Integer</span>,</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="ot">    gecos ::</span> <span class="dt">String</span>,</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="ot">    homeDir ::</span> <span class="dt">String</span>,</span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="ot">    shell ::</span> <span class="dt">String</span>}</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>)</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Define how we get data to a &#39;PasswdEntry&#39;. -}</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Show</span> <span class="dt">PasswdEntry</span> <span class="kw">where</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">show</span> pe <span class="ot">=</span> printf <span class="st">&quot;%s:%s:%d:%d:%s:%s:%s&quot;</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>                (userName pe) (password pe) (uid pe) (gid pe)</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>                (gecos pe) (homeDir pe) (shell pe)</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Converting data back out of a &#39;PasswdEntry&#39;. -}</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Read</span> <span class="dt">PasswdEntry</span> <span class="kw">where</span></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">readsPrec</span> _ value <span class="ot">=</span></span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>        <span class="kw">case</span> split <span class="ch">&#39;:&#39;</span> value <span class="kw">of</span></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>             [f1, f2, f3, f4, f5, f6, f7] <span class="ot">-&gt;</span></span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>                 <span class="co">-- Generate a &#39;PasswdEntry&#39; the shorthand way:</span></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>                 <span class="co">-- using the positional fields.  We use &#39;read&#39; to convert</span></span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>                 <span class="co">-- the numeric fields to Integers.</span></span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>                 [(<span class="dt">PasswdEntry</span> f1 f2 (<span class="fu">read</span> f3) (<span class="fu">read</span> f4) f5 f6 f7, [])]</span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>             x <span class="ot">-&gt;</span> <span class="fu">error</span> <span class="op">$</span> <span class="st">&quot;Invalid number of fields in input: &quot;</span> <span class="op">++</span> <span class="fu">show</span> x</span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>        <span class="kw">where</span></span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>        <span class="co">{- | Takes a delimiter and a list.  Break up the list based on the</span></span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a><span class="co">        -  delimiter. -}</span></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a><span class="ot">        split ::</span> <span class="dt">Eq</span> a <span class="ot">=&gt;</span> a <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [[a]]</span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- If the input is empty, the result is a list of empty lists.</span></span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>        split _ [] <span class="ot">=</span> [[]]</span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>        split delim str <span class="ot">=</span></span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>            <span class="kw">let</span> <span class="co">-- Find the part of the list before delim and put it in</span></span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>                <span class="co">-- &quot;before&quot;.  The rest of the list, including the leading</span></span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>                <span class="co">-- delim, goes in &quot;remainder&quot;.</span></span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>                (before, remainder) <span class="ot">=</span> <span class="fu">span</span> (<span class="op">/=</span> delim) str</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>                <span class="kw">in</span></span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>                before <span class="op">:</span> <span class="kw">case</span> remainder <span class="kw">of</span></span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>                              [] <span class="ot">-&gt;</span> []</span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>                              x <span class="ot">-&gt;</span> <span class="co">-- If there is more data to process,</span></span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>                                   <span class="co">-- call split recursively to process it</span></span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>                                   split delim (<span class="fu">tail</span> x)</span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a><span class="co">-- Convenience aliases; we&#39;ll have two maps: one from UID to entries</span></span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a><span class="co">-- and the other from username to entries</span></span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">UIDMap</span> <span class="ot">=</span> <span class="dt">Map.Map</span> <span class="dt">Integer</span> <span class="dt">PasswdEntry</span></span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">UserMap</span> <span class="ot">=</span> <span class="dt">Map.Map</span> <span class="dt">String</span> <span class="dt">PasswdEntry</span></span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Converts input data to maps.  Returns UID and User maps. -}</span></span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a><span class="ot">inputToMaps ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> (<span class="dt">UIDMap</span>, <span class="dt">UserMap</span>)</span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a>inputToMaps inp <span class="ot">=</span></span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a>    (uidmap, usermap)</span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- fromList converts a [(key, value)] list into a Map</span></span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a>    uidmap <span class="ot">=</span> Map.fromList <span class="op">.</span> <span class="fu">map</span> (\pe <span class="ot">-&gt;</span> (uid pe, pe)) <span class="op">$</span> entries</span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a>    usermap <span class="ot">=</span> Map.fromList <span class="op">.</span></span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a>              <span class="fu">map</span> (\pe <span class="ot">-&gt;</span> (userName pe, pe)) <span class="op">$</span> entries</span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Convert the input String to [PasswdEntry]</span></span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a>    entries <span class="ot">=</span> <span class="fu">map</span> <span class="fu">read</span> (<span class="fu">lines</span> inp)</span>
+<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Load the command-line arguments</span></span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a>    args <span class="ot">&lt;-</span> getArgs</span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- If we don&#39;t have the right number of args,</span></span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- give an error and abort</span></span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a>    when (<span class="fu">length</span> args <span class="op">/=</span> <span class="dv">1</span>) <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a>        <span class="fu">putStrLn</span> <span class="st">&quot;Syntax: passwdmap filename&quot;</span></span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a>        exitFailure</span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Read the file lazily</span></span>
+<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a>    content <span class="ot">&lt;-</span> <span class="fu">readFile</span> (<span class="fu">head</span> args)</span>
+<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> maps <span class="ot">=</span> inputToMaps content</span>
+<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a>    mainMenu maps</span>
+<span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-89"><a href="#cb11-89" aria-hidden="true" tabindex="-1"></a>mainMenu maps<span class="op">@</span>(uidmap, usermap) <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb11-90"><a href="#cb11-90" aria-hidden="true" tabindex="-1"></a>    <span class="fu">putStr</span> optionText</span>
+<span id="cb11-91"><a href="#cb11-91" aria-hidden="true" tabindex="-1"></a>    hFlush stdout</span>
+<span id="cb11-92"><a href="#cb11-92" aria-hidden="true" tabindex="-1"></a>    sel <span class="ot">&lt;-</span> <span class="fu">getLine</span></span>
+<span id="cb11-93"><a href="#cb11-93" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- See what they want to do.  For every option except 4,</span></span>
+<span id="cb11-94"><a href="#cb11-94" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- return them to the main menu afterwards by calling</span></span>
+<span id="cb11-95"><a href="#cb11-95" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- mainMenu recursively</span></span>
+<span id="cb11-96"><a href="#cb11-96" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> sel <span class="kw">of</span></span>
+<span id="cb11-97"><a href="#cb11-97" aria-hidden="true" tabindex="-1"></a>         <span class="st">&quot;1&quot;</span> <span class="ot">-&gt;</span> lookupUserName <span class="op">&gt;&gt;</span> mainMenu maps</span>
+<span id="cb11-98"><a href="#cb11-98" aria-hidden="true" tabindex="-1"></a>         <span class="st">&quot;2&quot;</span> <span class="ot">-&gt;</span> lookupUID <span class="op">&gt;&gt;</span> mainMenu maps</span>
+<span id="cb11-99"><a href="#cb11-99" aria-hidden="true" tabindex="-1"></a>         <span class="st">&quot;3&quot;</span> <span class="ot">-&gt;</span> displayFile <span class="op">&gt;&gt;</span> mainMenu maps</span>
+<span id="cb11-100"><a href="#cb11-100" aria-hidden="true" tabindex="-1"></a>         <span class="st">&quot;4&quot;</span> <span class="ot">-&gt;</span> <span class="fu">return</span> ()</span>
+<span id="cb11-101"><a href="#cb11-101" aria-hidden="true" tabindex="-1"></a>         _ <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;Invalid selection&quot;</span> <span class="op">&gt;&gt;</span> mainMenu maps</span>
+<span id="cb11-102"><a href="#cb11-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-103"><a href="#cb11-103" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb11-104"><a href="#cb11-104" aria-hidden="true" tabindex="-1"></a>    lookupUserName <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb11-105"><a href="#cb11-105" aria-hidden="true" tabindex="-1"></a>        <span class="fu">putStrLn</span> <span class="st">&quot;Username: &quot;</span></span>
+<span id="cb11-106"><a href="#cb11-106" aria-hidden="true" tabindex="-1"></a>        username <span class="ot">&lt;-</span> <span class="fu">getLine</span></span>
+<span id="cb11-107"><a href="#cb11-107" aria-hidden="true" tabindex="-1"></a>        <span class="kw">case</span> Map.lookup username usermap <span class="kw">of</span></span>
+<span id="cb11-108"><a href="#cb11-108" aria-hidden="true" tabindex="-1"></a>             <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;Not found.&quot;</span></span>
+<span id="cb11-109"><a href="#cb11-109" aria-hidden="true" tabindex="-1"></a>             <span class="dt">Just</span> x <span class="ot">-&gt;</span> <span class="fu">print</span> x</span>
+<span id="cb11-110"><a href="#cb11-110" aria-hidden="true" tabindex="-1"></a>    lookupUID <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb11-111"><a href="#cb11-111" aria-hidden="true" tabindex="-1"></a>        <span class="fu">putStrLn</span> <span class="st">&quot;UID: &quot;</span></span>
+<span id="cb11-112"><a href="#cb11-112" aria-hidden="true" tabindex="-1"></a>        uidstring <span class="ot">&lt;-</span> <span class="fu">getLine</span></span>
+<span id="cb11-113"><a href="#cb11-113" aria-hidden="true" tabindex="-1"></a>        <span class="kw">case</span> Map.lookup (<span class="fu">read</span> uidstring) uidmap <span class="kw">of</span></span>
+<span id="cb11-114"><a href="#cb11-114" aria-hidden="true" tabindex="-1"></a>             <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;Not found.&quot;</span></span>
+<span id="cb11-115"><a href="#cb11-115" aria-hidden="true" tabindex="-1"></a>             <span class="dt">Just</span> x <span class="ot">-&gt;</span> <span class="fu">print</span> x</span>
+<span id="cb11-116"><a href="#cb11-116" aria-hidden="true" tabindex="-1"></a>    displayFile <span class="ot">=</span></span>
+<span id="cb11-117"><a href="#cb11-117" aria-hidden="true" tabindex="-1"></a>        <span class="fu">putStr</span> <span class="op">.</span> <span class="fu">unlines</span> <span class="op">.</span> <span class="fu">map</span> (<span class="fu">show</span> <span class="op">.</span> <span class="fu">snd</span>) <span class="op">.</span> Map.toList <span class="op">$</span> uidmap</span>
+<span id="cb11-118"><a href="#cb11-118" aria-hidden="true" tabindex="-1"></a>    optionText <span class="ot">=</span></span>
+<span id="cb11-119"><a href="#cb11-119" aria-hidden="true" tabindex="-1"></a>          <span class="st">&quot;\npasswdmap options:\n\</span></span>
+<span id="cb11-120"><a href="#cb11-120" aria-hidden="true" tabindex="-1"></a><span class="st">           \\n\</span></span>
+<span id="cb11-121"><a href="#cb11-121" aria-hidden="true" tabindex="-1"></a><span class="st">           \1   Look up a user name\n\</span></span>
+<span id="cb11-122"><a href="#cb11-122" aria-hidden="true" tabindex="-1"></a><span class="st">           \2   Look up a UID\n\</span></span>
+<span id="cb11-123"><a href="#cb11-123" aria-hidden="true" tabindex="-1"></a><span class="st">           \3   Display entire file\n\</span></span>
+<span id="cb11-124"><a href="#cb11-124" aria-hidden="true" tabindex="-1"></a><span class="st">           \4   Quit\n\n\</span></span>
+<span id="cb11-125"><a href="#cb11-125" aria-hidden="true" tabindex="-1"></a><span class="st">           \Your selection: &quot;</span></span></code></pre></div>
+</div>
+<p>This example maintains two maps: one from username to
+<code>PasswdEntry</code> and another one from UID to
+<code>PasswdEntry</code>. Database developers may find it convenient to
+think of this as having two different indices into the data to speed
+searching on different fields.</p>
+<p>Take a look at the <code>Show</code> and <code>Read</code> instances
+for <code>PasswdEntry</code>. There is already a standard format for
+rendering data of this type as a string: the colon-separated version
+already used by the system. So our <code>Show</code> function displays a
+<code>PasswdEntry</code> in the format, and <code>Read</code> parses
+that format.</p>
+<h1 data-number="5" id="extended-example-numeric-types"><span
+class="header-section-number">5</span> Extended example: Numeric
+Types</h1>
+<p>We've told you how powerful and expressive Haskell's type system is.
+We've shown you a lot of ways to use that power. Here's a chance to
+really see that in action.</p>
+<p>Back in <a href="6-using-typeclasses.org::*Numeric Types">the section
+called "Numeric Types"</a> type classes that come with Haskell. Let's
+see what we can do by defining new types and utilizing the numeric type
+classes to integrate them with basic mathematics in Haskell.</p>
+<p>Let's start by thinking through what we'd like to see out of
+<code>ghci</code> when we interact with our new types. To start with, it
+might be nice to render numeric expressions as strings, making sure to
+indicate proper precedence. Perhaps we could create a function called
+<code>prettyShow</code> to do that. We'll show you how to write it in a
+bit, but first we'll look at how we might use it.</p>
+<pre class="screen"><code>ghci&gt; :l num.hs
+[1 of 1] Compiling Main             ( num.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; 5 + 1 * 3
+8
+ghci&gt; prettyShow $ 5 + 1 * 3
+&quot;5+(1*3)&quot;
+ghci&gt; prettyShow $ 5 * 1 + 3
+&quot;(5*1)+3&quot;
+</code></pre>
+<p>That looks nice, but it wasn't all that smart. We could easily
+simplify out the <code>1 *</code> part of the expression. How about a
+function to do some very basic simplification?</p>
+<pre class="screen"><code>ghci&gt; prettyShow $ simplify $ 5 + 1 * 3
+&quot;5+3&quot;
+</code></pre>
+<p>How about converting a numeric expression to Reverse Polish Notation
+(RPN)? RPN is a postfix notation that never requires parentheses, and is
+commonly found on HP calculators. RPN is a stack-based notation. We push
+numbers onto the stack, and when we enter operations, they pop the most
+recent numbers off the stack and place the result on the stack.</p>
+<pre class="screen"><code>ghci&gt; rpnShow $ 5 + 1 * 3
+&quot;5 1 3 * +&quot;
+ghci&gt; rpnShow $ simplify $ 5 + 1 * 3
+&quot;5 3 +&quot;
+</code></pre>
+<p>Maybe it would be nice to be able to represent simple expressions
+with symbols for the unknowns.</p>
+<pre class="screen"><code>ghci&gt; prettyShow $ 5 + (Symbol &quot;x&quot;) * 3
+&quot;5+(x*3)&quot;
+</code></pre>
+<p>It's often important to track units of measure when working with
+numbers. For instance, when you see the number 5, does it mean 5 meters,
+5 feet, or 5 bytes? Of course, if you divide 5 meters by 2 seconds, the
+system ought to be able to figure out the appropriate units. Moreover,
+it should stop you from adding 2 seconds to 5 meters.</p>
+<pre class="screen"><code>ghci&gt; 5 / 2
+2.5
+ghci&gt; (units 5 &quot;m&quot;) / (units 2 &quot;s&quot;)
+2.5_m/s
+ghci&gt; (units 5 &quot;m&quot;) + (units 2 &quot;s&quot;)
+*** Exception: Mis-matched units in add or subtract
+CallStack (from HasCallStack):
+  error, called at num.hs:109:19 in main:Main
+ghci&gt; (units 5 &quot;m&quot;) + (units 2 &quot;m&quot;)
+7_m
+ghci&gt; (units 5 &quot;m&quot;) / 2
+2.5_m
+ghci&gt; 10 * (units 5 &quot;m&quot;) / (units 2 &quot;s&quot;)
+25.0_m/s
+</code></pre>
+<p>If we define an expression or a function that is valid for all
+numbers, we should be able to calculate the result, or render the
+expression. For instance, if we define <code>test</code> to have type
+<code>Num a =&gt; a</code>, and say <code>test = 2 * 5 + 3</code>, then
+we ought to be able to do this:</p>
+<pre class="screen"><code>ghci&gt; test
+13
+ghci&gt; rpnShow test
+&quot;2 5 * 3 +&quot;
+ghci&gt; prettyShow test
+&quot;(2*5)+3&quot;
+ghci&gt; test + 5
+18
+ghci&gt; prettyShow (test + 5)
+&quot;((2*5)+3)+5&quot;
+ghci&gt; rpnShow (test + 5)
+&quot;2 5 * 3 + 5 +&quot;
+</code></pre>
+<p>Since we have units, we should be able to handle some basic
+trigonometry as well. Many of these operations operate on angles. Let's
+make sure that we can handle both degrees and radians.</p>
+<pre class="screen"><code>ghci&gt; sin (pi / 2)
+1.0
+ghci&gt; sin (units (pi / 2) &quot;rad&quot;)
+1.0_1.0
+ghci&gt; sin (units 90 &quot;deg&quot;)
+1.0_1.0
+ghci&gt; (units 50 &quot;m&quot;) * sin (units 90 &quot;deg&quot;)
+50.0_m
+</code></pre>
+<p>Finally, we ought to be able to put all this together and combine
+different kinds of expressions together.</p>
+<pre class="screen"><code>ghci&gt; ((units 50 &quot;m&quot;) * sin (units 90 &quot;deg&quot;)) :: Units (SymbolicManip Double)
+50.0*sin(((2.0*pi)*90.0)/360.0)_m
+ghci&gt; prettyShow $ dropUnits $ (units 50 &quot;m&quot;) * sin (units 90 &quot;deg&quot;)
+&quot;50.0*sin(((2.0*pi)*90.0)/360.0)&quot;
+ghci&gt; rpnShow $ dropUnits $ (units 50 &quot;m&quot;) * sin (units 90 &quot;deg&quot;)
+&quot;50.0 2.0 pi * 90.0 * 360.0 / sin *&quot;
+ghci&gt; (units (Symbol &quot;x&quot;) &quot;m&quot;) * sin (units 90 &quot;deg&quot;)
+x*sin(((2.0*pi)*90.0)/360.0)_m
+</code></pre>
+<p>Everything you've just seen is possible with Haskell types and
+classes. In fact, you've been reading a real <code>ghci</code> session
+demonstrating <code>num.hs</code>, which you'll see shortly.</p>
+<h2 data-number="5.1" id="first-steps"><span
+class="header-section-number">5.1</span> First Steps</h2>
+<p>Let's think about how we would accomplish everything shown above. To
+start with, we might use <code>ghci</code> to check the type of
+<code>(+)</code>, which is <code>Num a =&gt; a -&gt; a -&gt; a</code>.
+If we want to make possible some custom behavior for the plus operator,
+then we will have to define a new type and make it an instance of
+<code>Num</code>. This type will need to store an expression
+symbolically. We can start by thinking of operations such as addition.
+To store that, we will need to store the operation itself, its left
+side, and its right side. The left and right sides could themselves be
+expressions.</p>
+<p>We can therefore think of an expression as a sort of tree. Let's
+start with some simple types.</p>
+<div class="captioned-content">
+<div class="caption">
+numsimple.hs
+</div>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- The &quot;operators&quot; that we&#39;re going to support</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Op</span> <span class="ot">=</span> <span class="dt">Plus</span> <span class="op">|</span> <span class="dt">Minus</span> <span class="op">|</span> <span class="dt">Mul</span> <span class="op">|</span> <span class="dt">Div</span> <span class="op">|</span> <span class="dt">Pow</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>        <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="co">{- The core symbolic manipulation type -}</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">SymbolicManip</span> a <span class="ot">=</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>          <span class="dt">Number</span> a           <span class="co">-- Simple number, such as 5</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="dt">Arith</span> <span class="dt">Op</span> (<span class="dt">SymbolicManip</span> a) (<span class="dt">SymbolicManip</span> a)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>          <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="co">{- SymbolicManip will be an instance of Num.  Define how the Num</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="co">operations are handled over a SymbolicManip.  This will implement things</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="co">like (+) for SymbolicManip. -}</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Num</span> a <span class="ot">=&gt;</span> <span class="dt">Num</span> (<span class="dt">SymbolicManip</span> a) <span class="kw">where</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    a <span class="op">+</span> b <span class="ot">=</span> <span class="dt">Arith</span> <span class="dt">Plus</span> a b</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    a <span class="op">-</span> b <span class="ot">=</span> <span class="dt">Arith</span> <span class="dt">Minus</span> a b</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    a <span class="op">*</span> b <span class="ot">=</span> <span class="dt">Arith</span> <span class="dt">Mul</span> a b</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">negate</span> a <span class="ot">=</span> <span class="dt">Arith</span> <span class="dt">Mul</span> (<span class="dt">Number</span> (<span class="op">-</span><span class="dv">1</span>)) a</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">abs</span> a <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;abs is unimplemented&quot;</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">signum</span> _ <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;signum is unimplemented&quot;</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fromInteger</span> i <span class="ot">=</span> <span class="dt">Number</span> (<span class="fu">fromInteger</span> i)</span></code></pre></div>
+</div>
+<p>First, we define a type called <code>Op</code>. This type simply
+represents some of the operations we will support. Next, there is a
+definition for <code>SymbolicManip a</code>. Because of the
+<code>Num a</code> constraint, any <code>Num</code> can be used for the
+<code>a</code>. So a full type may be something like
+<code>SymbolicManip Int</code>.</p>
+<p>A <code>SymbolicManip</code> type can be a plain number, or it can be
+some arithmetic operation. The type for the <code>Arith</code>
+constructor is recursive, which is perfectly legal in Haskell.
+<code>Arith</code> creates a <code>SymbolicManip</code> out of an
+<code>Op</code> and two other <code>SymbolicManip</code> items. Let's
+look at an example:</p>
+<pre class="screen"><code>ghci&gt; :l numsimple.hs
+[1 of 1] Compiling Main             ( numsimple.hs, interpreted )
+Ok, modules loaded: Main.
+ghci&gt; Number 5
+Number 5
+ghci&gt; :t Number 5
+Number 5 :: Num a =&gt; SymbolicManip a
+ghci&gt; :t Number (5::Int)
+Number (5::Int) :: SymbolicManip Int
+ghci&gt; Number 5 * Number 10
+Arith Mul (Number 5) (Number 10)
+ghci&gt; (5 * 10)::SymbolicManip Int
+Arith Mul (Number 5) (Number 10)
+ghci&gt; (5 * 10 + 2)::SymbolicManip Int
+Arith Plus (Arith Mul (Number 5) (Number 10)) (Number 2)
+</code></pre>
+<p>You can see that we already have a very basic representation of
+expressions working. Notice how Haskell "converted"
+<code>5 * 10 + 2</code> into a <code>SymbolicManip</code>, and even
+handled order of evaluation properly. This wasn't really a true
+conversion; <code>SymbolicManip</code> is a first-class number now.
+Integer numeric literals are internally treated as being wrapped in
+<code>fromInteger</code> anyway, so <code>5</code> is just as valid as a
+<code>SymbolicManip Int</code> as it as an <code>Int</code>.</p>
+<p>From here, then, our task is simple: extend the
+<code>SymbolicManip</code> type to be able to represent all the
+operations we will want to perform, implement instances of it for the
+other numeric type classes, and implement our own instance of
+<code>Show</code> for <code>SymbolicManip</code> that renders this tree
+in a more accessible fashion.</p>
+<h2 data-number="5.2" id="completed-code"><span
+class="header-section-number">5.2</span> Completed Code</h2>
+<p>Here is the completed <code>num.hs</code>, which was used with the
+<code>ghci</code> examples at the beginning of this chapter. Let's look
+at this code one piece at a time.</p>
+<div class="captioned-content">
+<div class="caption">
+num.hs
+</div>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co">--------------------------------------------------</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- Symbolic/units manipulation</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="co">--------------------------------------------------</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co">-- The &quot;operators&quot; that we&#39;re going to support</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Op</span> <span class="ot">=</span> <span class="dt">Plus</span> <span class="op">|</span> <span class="dt">Minus</span> <span class="op">|</span> <span class="dt">Mul</span> <span class="op">|</span> <span class="dt">Div</span> <span class="op">|</span> <span class="dt">Pow</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>        <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co">{- The core symbolic manipulation type.  It can be a simple number,</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co">a symbol, a binary arithmetic operation (such as +), or a unary</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="co">arithmetic operation (such as cos)</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="co">Notice the types of BinaryArith and UnaryArith: it&#39;s a recursive</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="co">type.  So, we could represent a (+) over two SymbolicManips. -}</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">SymbolicManip</span> a <span class="ot">=</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>          <span class="dt">Number</span> a           <span class="co">-- Simple number, such as 5</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="dt">Symbol</span> <span class="dt">String</span>      <span class="co">-- A symbol, such as x</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="dt">BinaryArith</span> <span class="dt">Op</span> (<span class="dt">SymbolicManip</span> a) (<span class="dt">SymbolicManip</span> a)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="dt">UnaryArith</span> <span class="dt">String</span> (<span class="dt">SymbolicManip</span> a)</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>          <span class="kw">deriving</span> (<span class="dt">Eq</span>)</span></code></pre></div>
+</div>
+<p>In this section of code, we define an <code>Op</code> that is
+identical to the one we used before. We also define
+<code>SymbolicManip</code>, which is similar to what we used before. In
+this version, we now support unary arithmetic operations (those which
+take only one parameter) such as <code>abs</code> or <code>cos</code>.
+Next we define our instance of <code>Num</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+num.hs
+</div>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">{- SymbolicManip will be an instance of Num.  Define how the Num</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co">operations are handled over a SymbolicManip.  This will implement things</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co">like (+) for SymbolicManip. -}</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Num</span> a <span class="ot">=&gt;</span> <span class="dt">Num</span> (<span class="dt">SymbolicManip</span> a) <span class="kw">where</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    a <span class="op">+</span> b <span class="ot">=</span> <span class="dt">BinaryArith</span> <span class="dt">Plus</span> a b</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    a <span class="op">-</span> b <span class="ot">=</span> <span class="dt">BinaryArith</span> <span class="dt">Minus</span> a b</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    a <span class="op">*</span> b <span class="ot">=</span> <span class="dt">BinaryArith</span> <span class="dt">Mul</span> a b</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">negate</span> a <span class="ot">=</span> <span class="dt">BinaryArith</span> <span class="dt">Mul</span> (<span class="dt">Number</span> (<span class="op">-</span><span class="dv">1</span>)) a</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">abs</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;abs&quot;</span> a</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">signum</span> _ <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;signum is unimplemented&quot;</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fromInteger</span> i <span class="ot">=</span> <span class="dt">Number</span> (<span class="fu">fromInteger</span> i)</span></code></pre></div>
+</div>
+<p>This is pretty straightforward and also similar to our earlier code.
+Note that earlier we weren't able to properly support <code>abs</code>,
+but now with the <code>UnaryArith</code> constructor, we can. Next we
+define some more instances.</p>
+<div class="captioned-content">
+<div class="caption">
+num.hs
+</div>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">{- Make SymbolicManip an instance of Fractional -}</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Fractional</span> a) <span class="ot">=&gt;</span> <span class="dt">Fractional</span> (<span class="dt">SymbolicManip</span> a) <span class="kw">where</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    a <span class="op">/</span> b <span class="ot">=</span> <span class="dt">BinaryArith</span> <span class="dt">Div</span> a b</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">recip</span> a <span class="ot">=</span> <span class="dt">BinaryArith</span> <span class="dt">Div</span> (<span class="dt">Number</span> <span class="dv">1</span>) a</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fromRational</span> r <span class="ot">=</span> <span class="dt">Number</span> (<span class="fu">fromRational</span> r)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co">{- Make SymbolicManip an instance of Floating -}</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Floating</span> a) <span class="ot">=&gt;</span> <span class="dt">Floating</span> (<span class="dt">SymbolicManip</span> a) <span class="kw">where</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pi</span> <span class="ot">=</span> <span class="dt">Symbol</span> <span class="st">&quot;pi&quot;</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">exp</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;exp&quot;</span> a</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">log</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;log&quot;</span> a</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sqrt</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;sqrt&quot;</span> a</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    a <span class="op">**</span> b <span class="ot">=</span> <span class="dt">BinaryArith</span> <span class="dt">Pow</span> a b</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sin</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;sin&quot;</span> a</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cos</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;cos&quot;</span> a</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tan</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;tan&quot;</span> a</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">asin</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;asin&quot;</span> a</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">acos</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;acos&quot;</span> a</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">atan</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;atan&quot;</span> a</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sinh</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;sinh&quot;</span> a</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cosh</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;cosh&quot;</span> a</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tanh</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;tanh&quot;</span> a</span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">asinh</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;asinh&quot;</span> a</span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">acosh</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;acosh&quot;</span> a</span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">atanh</span> a <span class="ot">=</span> <span class="dt">UnaryArith</span> <span class="st">&quot;atanh&quot;</span> a</span></code></pre></div>
+</div>
+<p>This section of code defines some fairly straightforward instances of
+<code>Fractional</code> and <code>Floating</code>. Now let's work on
+converting our expressions to strings for display.</p>
+<div class="captioned-content">
+<div class="caption">
+num.hs
+</div>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">{- Show a SymbolicManip as a String, using conventional</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co">algebraic notation -}</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="ot">prettyShow ::</span> (<span class="dt">Show</span> a, <span class="dt">Num</span> a) <span class="ot">=&gt;</span> <span class="dt">SymbolicManip</span> a <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- Show a number or symbol as a bare number or serial</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>prettyShow (<span class="dt">Number</span> x) <span class="ot">=</span> <span class="fu">show</span> x</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>prettyShow (<span class="dt">Symbol</span> x) <span class="ot">=</span> x</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>prettyShow (<span class="dt">BinaryArith</span> op a b) <span class="ot">=</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> pa <span class="ot">=</span> simpleParen a</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>        pb <span class="ot">=</span> simpleParen b</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>        pop <span class="ot">=</span> op2str op</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">in</span> pa <span class="op">++</span> pop <span class="op">++</span> pb</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>prettyShow (<span class="dt">UnaryArith</span> opstr a) <span class="ot">=</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>    opstr <span class="op">++</span> <span class="st">&quot;(&quot;</span> <span class="op">++</span> <span class="fu">show</span> a <span class="op">++</span> <span class="st">&quot;)&quot;</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="ot">op2str ::</span> <span class="dt">Op</span> <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>op2str <span class="dt">Plus</span> <span class="ot">=</span> <span class="st">&quot;+&quot;</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>op2str <span class="dt">Minus</span> <span class="ot">=</span> <span class="st">&quot;-&quot;</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>op2str <span class="dt">Mul</span> <span class="ot">=</span> <span class="st">&quot;*&quot;</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>op2str <span class="dt">Div</span> <span class="ot">=</span> <span class="st">&quot;/&quot;</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>op2str <span class="dt">Pow</span> <span class="ot">=</span> <span class="st">&quot;**&quot;</span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a><span class="co">{- Add parenthesis where needed.  This function is fairly conservative</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a><span class="co">and will add parenthesis when not needed in some cases.</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a><span class="co">Haskell will have already figured out precedence for us while building</span></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a><span class="co">up the SymbolicManip. -}</span></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a><span class="ot">simpleParen ::</span> (<span class="dt">Show</span> a, <span class="dt">Num</span> a) <span class="ot">=&gt;</span> <span class="dt">SymbolicManip</span> a <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>simpleParen (<span class="dt">Number</span> x) <span class="ot">=</span> prettyShow (<span class="dt">Number</span> x)</span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>simpleParen (<span class="dt">Symbol</span> x) <span class="ot">=</span> prettyShow (<span class="dt">Symbol</span> x)</span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>simpleParen x<span class="op">@</span>(<span class="dt">BinaryArith</span> _ _ _) <span class="ot">=</span> <span class="st">&quot;(&quot;</span> <span class="op">++</span> prettyShow x <span class="op">++</span> <span class="st">&quot;)&quot;</span></span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>simpleParen x<span class="op">@</span>(<span class="dt">UnaryArith</span> _ _) <span class="ot">=</span> prettyShow x</span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a><span class="co">{- Showing a SymbolicManip calls the prettyShow function on it -}</span></span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Show</span> a, <span class="dt">Num</span> a) <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">SymbolicManip</span> a) <span class="kw">where</span></span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">show</span> a <span class="ot">=</span> prettyShow a</span></code></pre></div>
+</div>
+<p>We start by defining a function <code>prettyShow</code>. It renders
+an expression using conventional style. The algorithm is fairly simple:
+bare numbers and symbols are rendered bare; binary arithmetic is
+rendered with the two sides plus the operator in the middle, and of
+course we handle the unary operators as well. <code>op2str</code> simply
+converts an <code>Op</code> to a <code>String</code>. In
+<code>simpleParen</code>, we have a quite conservative algorithm that
+adds parenthesis to keep precedence clear in the result. Finally, we
+make <code>SymbolicManip</code> an instance of <code>Show</code> and use
+<code>prettyShow</code> to accomplish that. Now let's implement an
+algorithm that converts an expression to s string in RPN format.</p>
+<div class="captioned-content">
+<div class="caption">
+num.hs
+</div>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co">{- Show a SymbolicManip using RPN.  HP calculator users may</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="co">find this familiar. -}</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="ot">rpnShow ::</span> (<span class="dt">Show</span> a, <span class="dt">Num</span> a) <span class="ot">=&gt;</span> <span class="dt">SymbolicManip</span> a <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>rpnShow i <span class="ot">=</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> toList (<span class="dt">Number</span> x) <span class="ot">=</span> [<span class="fu">show</span> x]</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>        toList (<span class="dt">Symbol</span> x) <span class="ot">=</span> [x]</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>        toList (<span class="dt">BinaryArith</span> op a b) <span class="ot">=</span> toList a <span class="op">++</span> toList b <span class="op">++</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>           [op2str op]</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>        toList (<span class="dt">UnaryArith</span> op a) <span class="ot">=</span> toList a <span class="op">++</span> [op]</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="ot">        join ::</span> [a] <span class="ot">-&gt;</span> [[a]] <span class="ot">-&gt;</span> [a]</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>        join delim l <span class="ot">=</span> <span class="fu">concat</span> (intersperse delim l)</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">in</span> join <span class="st">&quot; &quot;</span> (toList i)</span></code></pre></div>
+</div>
+<p>Fans of RPN will note how much simpler this algorithm is compared to
+the algorithm to render with conventional notation. In particular, we
+didn't have to worry about where to add parenthesis, because RPN can, by
+definition, only be evaluated one way. Next, let's see how we might
+implement a function to do some rudimentary simplification on
+expressions.</p>
+<div class="captioned-content">
+<div class="caption">
+num.hs
+</div>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">{- Perform some basic algebraic simplifications on a SymbolicManip. -}</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="ot">simplify ::</span> (<span class="dt">Num</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">SymbolicManip</span> a <span class="ot">-&gt;</span> <span class="dt">SymbolicManip</span> a</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>simplify (<span class="dt">BinaryArith</span> op ia ib) <span class="ot">=</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> sa <span class="ot">=</span> simplify ia</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>        sb <span class="ot">=</span> simplify ib</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">in</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">case</span> (op, sa, sb) <span class="kw">of</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>                (<span class="dt">Mul</span>, <span class="dt">Number</span> <span class="dv">1</span>, b) <span class="ot">-&gt;</span> b</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>                (<span class="dt">Mul</span>, a, <span class="dt">Number</span> <span class="dv">1</span>) <span class="ot">-&gt;</span> a</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>                (<span class="dt">Mul</span>, <span class="dt">Number</span> <span class="dv">0</span>, b) <span class="ot">-&gt;</span> <span class="dt">Number</span> <span class="dv">0</span></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>                (<span class="dt">Mul</span>, a, <span class="dt">Number</span> <span class="dv">0</span>) <span class="ot">-&gt;</span> <span class="dt">Number</span> <span class="dv">0</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>                (<span class="dt">Div</span>, a, <span class="dt">Number</span> <span class="dv">1</span>) <span class="ot">-&gt;</span> a</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>                (<span class="dt">Plus</span>, a, <span class="dt">Number</span> <span class="dv">0</span>) <span class="ot">-&gt;</span> a</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>                (<span class="dt">Plus</span>, <span class="dt">Number</span> <span class="dv">0</span>, b) <span class="ot">-&gt;</span> b</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>                (<span class="dt">Minus</span>, a, <span class="dt">Number</span> <span class="dv">0</span>) <span class="ot">-&gt;</span> a</span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>                _ <span class="ot">-&gt;</span> <span class="dt">BinaryArith</span> op sa sb</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>simplify (<span class="dt">UnaryArith</span> op a) <span class="ot">=</span> <span class="dt">UnaryArith</span> op (simplify a)</span>
+<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>simplify x <span class="ot">=</span> x</span></code></pre></div>
+</div>
+<p>This function is pretty simple. For certain binary arithmetic
+operations—for instance, multiplying any value by 1—we are able to
+easily simplify the situation. We begin by obtaining simplified versions
+of both sides of the calculation (this is where recursion hits) and then
+simplify the result. We have little to do with unary operators, so we
+just simplify the expression they act upon.</p>
+<p>From here on, we will add support for units of measure to our
+established library. This will let us represent quantities such as "5
+meters". We start, as before, by defining a type.</p>
+<div class="captioned-content">
+<div class="caption">
+num.hs
+</div>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co">{- New data type: Units.  A Units type contains a number</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co">and a SymbolicManip, which represents the units of measure.</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co">A simple label would be something like (Symbol &quot;m&quot;) -}</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Units</span> a <span class="ot">=</span> <span class="dt">Units</span> a (<span class="dt">SymbolicManip</span> a)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>           <span class="kw">deriving</span> (<span class="dt">Eq</span>)</span></code></pre></div>
+</div>
+<p>So, a <code>Units</code> contains a number and a label. The label is
+itself a <code>SymbolicManip</code>. Next, it will probably come as no
+surprise to see an instance of <code>Num</code> for
+<code>Units</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+num.hs
+</div>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co">{- Implement Units for Num.  We don&#39;t know how to convert between</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co">arbitrary units, so we generate an error if we try to add numbers with</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co">different units.  For multiplication, generate the appropriate</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co">new units. -}</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Num</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Num</span> (<span class="dt">Units</span> a) <span class="kw">where</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    (<span class="dt">Units</span> xa ua) <span class="op">+</span> (<span class="dt">Units</span> xb ub)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> ua <span class="op">==</span> ub <span class="ot">=</span> <span class="dt">Units</span> (xa <span class="op">+</span> xb) ua</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;Mis-matched units in add or subtract&quot;</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    (<span class="dt">Units</span> xa ua) <span class="op">-</span> (<span class="dt">Units</span> xb ub) <span class="ot">=</span> (<span class="dt">Units</span> xa ua) <span class="op">+</span> (<span class="dt">Units</span> (xb <span class="op">*</span> (<span class="op">-</span><span class="dv">1</span>)) ub)</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    (<span class="dt">Units</span> xa ua) <span class="op">*</span> (<span class="dt">Units</span> xb ub) <span class="ot">=</span> <span class="dt">Units</span> (xa <span class="op">*</span> xb) (ua <span class="op">*</span> ub)</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">negate</span> (<span class="dt">Units</span> xa ua) <span class="ot">=</span> <span class="dt">Units</span> (<span class="fu">negate</span> xa) ua</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">abs</span> (<span class="dt">Units</span> xa ua) <span class="ot">=</span> <span class="dt">Units</span> (<span class="fu">abs</span> xa) ua</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">signum</span> (<span class="dt">Units</span> xa _) <span class="ot">=</span> <span class="dt">Units</span> (<span class="fu">signum</span> xa) (<span class="dt">Number</span> <span class="dv">1</span>)</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fromInteger</span> i <span class="ot">=</span> <span class="dt">Units</span> (<span class="fu">fromInteger</span> i) (<span class="dt">Number</span> <span class="dv">1</span>)</span></code></pre></div>
+</div>
+<p>Now it may become clear why we use a <code>SymbolicManip</code>
+instead of a <code>String</code> to store the unit of measure. As
+calculations such as multiplication occur, the unit of measure also
+changes. For instance, if we multiply 5 meters by 2 meters, we obtain 10
+square meters. We force the units for addition to match, and implement
+subtraction in terms of addition. Let's look at more type class
+instances for <code>Units</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+num.hs
+</div>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">{- Make Units an instance of Fractional -}</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Fractional</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Fractional</span> (<span class="dt">Units</span> a) <span class="kw">where</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    (<span class="dt">Units</span> xa ua) <span class="op">/</span> (<span class="dt">Units</span> xb ub) <span class="ot">=</span> <span class="dt">Units</span> (xa <span class="op">/</span> xb) (ua <span class="op">/</span> ub)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">recip</span> a <span class="ot">=</span> <span class="dv">1</span> <span class="op">/</span> a</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fromRational</span> r <span class="ot">=</span> <span class="dt">Units</span> (<span class="fu">fromRational</span> r) (<span class="dt">Number</span> <span class="dv">1</span>)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co">{- Floating implementation for Units.</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co">Use some intelligence for angle calculations: support deg and rad</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="co">-}</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Floating</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Floating</span> (<span class="dt">Units</span> a) <span class="kw">where</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pi</span> <span class="ot">=</span> (<span class="dt">Units</span> <span class="fu">pi</span> (<span class="dt">Number</span> <span class="dv">1</span>))</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">exp</span> _ <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;exp not yet implemented in Units&quot;</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">log</span> _ <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;log not yet implemented in Units&quot;</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>    (<span class="dt">Units</span> xa ua) <span class="op">**</span> (<span class="dt">Units</span> xb ub)</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> ub <span class="op">==</span> <span class="dt">Number</span> <span class="dv">1</span> <span class="ot">=</span> <span class="dt">Units</span> (xa <span class="op">**</span> xb) (ua <span class="op">**</span> <span class="dt">Number</span> xb)</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;units for RHS of ** not supported&quot;</span></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sqrt</span> (<span class="dt">Units</span> xa ua) <span class="ot">=</span> <span class="dt">Units</span> (<span class="fu">sqrt</span> xa) (<span class="fu">sqrt</span> ua)</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sin</span> (<span class="dt">Units</span> xa ua)</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> ua <span class="op">==</span> <span class="dt">Symbol</span> <span class="st">&quot;rad&quot;</span> <span class="ot">=</span> <span class="dt">Units</span> (<span class="fu">sin</span> xa) (<span class="dt">Number</span> <span class="dv">1</span>)</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> ua <span class="op">==</span> <span class="dt">Symbol</span> <span class="st">&quot;deg&quot;</span> <span class="ot">=</span> <span class="dt">Units</span> (<span class="fu">sin</span> (deg2rad xa)) (<span class="dt">Number</span> <span class="dv">1</span>)</span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;Units for sin must be deg or rad&quot;</span></span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cos</span> (<span class="dt">Units</span> xa ua)</span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> ua <span class="op">==</span> <span class="dt">Symbol</span> <span class="st">&quot;rad&quot;</span> <span class="ot">=</span> <span class="dt">Units</span> (<span class="fu">cos</span> xa) (<span class="dt">Number</span> <span class="dv">1</span>)</span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> ua <span class="op">==</span> <span class="dt">Symbol</span> <span class="st">&quot;deg&quot;</span> <span class="ot">=</span> <span class="dt">Units</span> (<span class="fu">cos</span> (deg2rad xa)) (<span class="dt">Number</span> <span class="dv">1</span>)</span>
+<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;Units for cos must be deg or rad&quot;</span></span>
+<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tan</span> (<span class="dt">Units</span> xa ua)</span>
+<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> ua <span class="op">==</span> <span class="dt">Symbol</span> <span class="st">&quot;rad&quot;</span> <span class="ot">=</span> <span class="dt">Units</span> (<span class="fu">tan</span> xa) (<span class="dt">Number</span> <span class="dv">1</span>)</span>
+<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> ua <span class="op">==</span> <span class="dt">Symbol</span> <span class="st">&quot;deg&quot;</span> <span class="ot">=</span> <span class="dt">Units</span> (<span class="fu">tan</span> (deg2rad xa)) (<span class="dt">Number</span> <span class="dv">1</span>)</span>
+<span id="cb30-30"><a href="#cb30-30" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;Units for tan must be deg or rad&quot;</span></span>
+<span id="cb30-31"><a href="#cb30-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">asin</span> (<span class="dt">Units</span> xa ua)</span>
+<span id="cb30-32"><a href="#cb30-32" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> ua <span class="op">==</span> <span class="dt">Number</span> <span class="dv">1</span> <span class="ot">=</span> <span class="dt">Units</span> (rad2deg <span class="op">$</span> <span class="fu">asin</span> xa) (<span class="dt">Symbol</span> <span class="st">&quot;deg&quot;</span>)</span>
+<span id="cb30-33"><a href="#cb30-33" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;Units for asin must be empty&quot;</span></span>
+<span id="cb30-34"><a href="#cb30-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">acos</span> (<span class="dt">Units</span> xa ua)</span>
+<span id="cb30-35"><a href="#cb30-35" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> ua <span class="op">==</span> <span class="dt">Number</span> <span class="dv">1</span> <span class="ot">=</span> <span class="dt">Units</span> (rad2deg <span class="op">$</span> <span class="fu">acos</span> xa) (<span class="dt">Symbol</span> <span class="st">&quot;deg&quot;</span>)</span>
+<span id="cb30-36"><a href="#cb30-36" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;Units for acos must be empty&quot;</span></span>
+<span id="cb30-37"><a href="#cb30-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">atan</span> (<span class="dt">Units</span> xa ua)</span>
+<span id="cb30-38"><a href="#cb30-38" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> ua <span class="op">==</span> <span class="dt">Number</span> <span class="dv">1</span> <span class="ot">=</span> <span class="dt">Units</span> (rad2deg <span class="op">$</span> <span class="fu">atan</span> xa) (<span class="dt">Symbol</span> <span class="st">&quot;deg&quot;</span>)</span>
+<span id="cb30-39"><a href="#cb30-39" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;Units for atan must be empty&quot;</span></span>
+<span id="cb30-40"><a href="#cb30-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sinh</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;sinh not yet implemented in Units&quot;</span></span>
+<span id="cb30-41"><a href="#cb30-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cosh</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;cosh not yet implemented in Units&quot;</span></span>
+<span id="cb30-42"><a href="#cb30-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">tanh</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;tanh not yet implemented in Units&quot;</span></span>
+<span id="cb30-43"><a href="#cb30-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">asinh</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;asinh not yet implemented in Units&quot;</span></span>
+<span id="cb30-44"><a href="#cb30-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">acosh</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;acosh not yet implemented in Units&quot;</span></span>
+<span id="cb30-45"><a href="#cb30-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">atanh</span> <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;atanh not yet implemented in Units&quot;</span></span></code></pre></div>
+</div>
+<p>We didn't supply implementations for every function, but quite a few
+have been defined. Now let's define a few utility functions for working
+with units.</p>
+<div class="captioned-content">
+<div class="caption">
+num.hs
+</div>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">{- A simple function that takes a number and a String and returns an</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co">appropriate Units type to represent the number and its unit of measure -}</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="ot">units ::</span> (<span class="dt">Num</span> z) <span class="ot">=&gt;</span> z <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Units</span> z</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>units a b <span class="ot">=</span> <span class="dt">Units</span> a (<span class="dt">Symbol</span> b)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="co">{- Extract the number only out of a Units type -}</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="ot">dropUnits ::</span> (<span class="dt">Num</span> z) <span class="ot">=&gt;</span> <span class="dt">Units</span> z <span class="ot">-&gt;</span> z</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>dropUnits (<span class="dt">Units</span> x _) <span class="ot">=</span> x</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co">{- Utilities for the Unit implementation -}</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>deg2rad x <span class="ot">=</span> <span class="dv">2</span> <span class="op">*</span> <span class="fu">pi</span> <span class="op">*</span> x <span class="op">/</span> <span class="dv">360</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>rad2deg x <span class="ot">=</span> <span class="dv">360</span> <span class="op">*</span> x <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> <span class="fu">pi</span>)</span></code></pre></div>
+</div>
+<p>First, we have <code>units</code>, which makes it easy to craft
+simple expressions. It's faster to say <code>units 5 "m"</code> than
+<code>Units 5 (Symbol "m")</code>. We also have a corresponding
+<code>dropUnits</code>, which discards the unit of measure and returns
+the embedded bare <code>Num</code>. Finally, we define some functions
+for use by our earlier instances to convert between degrees and radians.
+Next, we just define a <code>Show</code> instance for
+<code>Units</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+num.hs
+</div>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">{- Showing units: we show the numeric component, an underscore,</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co">then the prettyShow version of the simplified units -}</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Show</span> a, <span class="dt">Num</span> a, <span class="dt">Eq</span> a) <span class="ot">=&gt;</span> <span class="dt">Show</span> (<span class="dt">Units</span> a) <span class="kw">where</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">show</span> (<span class="dt">Units</span> xa ua) <span class="ot">=</span> <span class="fu">show</span> xa <span class="op">++</span> <span class="st">&quot;_&quot;</span> <span class="op">++</span> prettyShow (simplify ua)</span></code></pre></div>
+</div>
+<p>That was simple. For one last piece, we define a variable
+<code>test</code> to experiment with.</p>
+<div class="captioned-content">
+<div class="caption">
+num.hs
+</div>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ot">test ::</span> (<span class="dt">Num</span> a) <span class="ot">=&gt;</span> a</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>test <span class="ot">=</span> <span class="dv">2</span> <span class="op">*</span> <span class="dv">5</span> <span class="op">+</span> <span class="dv">3</span></span></code></pre></div>
+</div>
+<p>So, looking back over all this code, we have done what we set out to
+accomplish: implemented more instances for <code>SymbolicManip</code>.
+We have also introduced another type called <code>Units</code> which
+stores a number and a unit of measure. We implement several show-like
+functions which render the <code>SymbolicManip</code> or
+<code>Units</code> in different ways.</p>
+<p>There is one other point that this example drives home. Every
+language—even those with objects and overloading—has some parts of the
+language that are special in some way. In Haskell, the "special" bits
+are extremely small. We have just developed a new representation for
+something as fundamental as a number, and it has been really quite easy.
+Our new type is a first-class type, and the compiler knows what
+functions to use with it at compile time. Haskell takes code reuse and
+interchangability to the extreme. It is easy to make code generic and
+work on things of many different types. It's also easy to make up new
+types and make them automatically be first-class features of the
+system.</p>
+<p>Remember our <code>ghci</code> examples at the beginning of the
+chapter? All of them were made with the code in this example. You might
+want to try them out for yourself and see how they work.</p>
+<h2 data-number="5.3" id="exercises"><span
+class="header-section-number">5.3</span> Exercises</h2>
+<ol>
+<li>Extend the <code>prettyShow</code> function to remove unnecessary
+parentheses.</li>
+</ol>
+<h1 data-number="6" id="taking-advantage-of-functions-as-data"><span
+class="header-section-number">6</span> Taking advantage of functions as
+data</h1>
+<p>In an imperative language, appending two lists is cheap and easy.
+Here's a simple C structure in which we maintain a pointer to the head
+and tail of a list.</p>
+<div class="sourceCode" id="cb34" data-org-language="C"><pre
+class="sourceCode c"><code class="sourceCode c"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> list <span class="op">{</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> node <span class="op">*</span>head<span class="op">,</span> <span class="op">*</span>tail<span class="op">;</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p>When we have one list, and want to append another list onto its end,
+we modify the last node of the existing list to point to its
+<code>head</code> node, then update its <code>tail</code> pointer to
+point to its <code>tail</code> node.</p>
+<p>Obviously, this approach is off limits to us in Haskell if we want to
+stay pure. Since pure data is immutable, we can't go around modifying
+lists in place. Haskell's <code>(++)</code> operator appends two lists
+by creating a new one.</p>
+<div class="captioned-content">
+<div class="caption">
+Append.hs
+</div>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ot">(++) ::</span> [a] <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>(x<span class="op">:</span>xs) <span class="op">++</span> ys <span class="ot">=</span> x <span class="op">:</span> xs <span class="op">++</span> ys</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>_      <span class="op">++</span> ys <span class="ot">=</span> ys</span></code></pre></div>
+</div>
+<p>From inspecting the code, we can see that the cost of creating a new
+list depends on the length of the initial list<a href="#fn2"
+class="footnote-ref" id="fnref2"
+role="doc-noteref"><sup>2</sup></a>.</p>
+<p>We often need to append lists over and over, to construct one big
+list. For instance, we might be generating the contents of a web page as
+a <code>String</code>, emitting a chunk at a time as we traverse some
+data structure. Each time we have a chunk of markup to add to the page,
+we will naturally want to append it onto the end of our existing
+<code>String</code>.</p>
+<p>If a single append has a cost proportional to the length of the
+initial list, and each repeated append makes the initial list longer, we
+end up in an unhappy situation: the cost of all of the repeated appends
+is proportional to the <em>square</em> of the length of the final
+list.</p>
+<p>To understand this, let's dig in a little. The <code>(++)</code>
+operator is right associative.</p>
+<pre class="screen"><code>ghci&gt; :info (++)
+(++) :: [a] -&gt; [a] -&gt; [a]     -- Defined in GHC.Base
+infixr 5 ++
+</code></pre>
+<p>This means that a Haskell implementation will evaluate the expression
+<code>"a" ++ "b" ++ "c"</code> as if we had put parentheses around it as
+follows: <code>"a" ++ ("b" ++ "c")</code>. This makes good performance
+sense, because it keeps the left operand as short as possible.</p>
+<p>When we repeatedly append onto the end of a list, we defeat this
+associativity. Let's say we start with the list <code>"a"</code> and
+append <code>"b"</code>, and save the result as our new list. If we
+later append <code>"c"</code> onto this new list, our left operand is
+now <code>"ab"</code>. In this scheme, every time we append, our left
+operand gets longer.</p>
+<p>Meanwhile, the imperative programmers are cackling with glee, because
+the cost of <em>their</em> repeated appends only depends on the number
+of them that they perform. They have linear performance; ours is
+quadratic.</p>
+<p>When something as common as repeated appending of lists imposes such
+a performance penalty, it's time to look at the problem from another
+angle.</p>
+<p>The expression <code>("a"++)</code> is a section, a partially applied
+function. What is its type?</p>
+<pre class="screen"><code>ghci&gt; :type (&quot;a&quot; ++)
+(&quot;a&quot; ++) :: [Char] -&gt; [Char]
+</code></pre>
+<p>Since this is a function, we can use the <code>(.)</code> operator to
+compose it with another section, let's say <code>("b"++)</code>.</p>
+<pre class="screen"><code>ghci&gt; :type (&quot;a&quot; ++) . (&quot;b&quot; ++)
+(&quot;a&quot; ++) . (&quot;b&quot; ++) :: [Char] -&gt; [Char]
+</code></pre>
+<p>Our new function has the same type. What happens if we stop composing
+functions, and instead provide a <code>String</code> to the function
+we've created?</p>
+<pre class="screen"><code>ghci&gt; f = (&quot;a&quot; ++) . (&quot;b&quot; ++)
+ghci&gt; f []
+&quot;ab&quot;
+</code></pre>
+<p>We've appended the strings! We're using these partially applied
+functions to store data, which we can retrieve by providing an empty
+list. Each partial application of <code>(++)</code> and <code>(.)</code>
+<em>represents</em> an append, but it doesn't actually <em>perform</em>
+the append.</p>
+<p>There are two very interesting things about this approach. The first
+is that the cost of a partial application is constant, so the cost of
+many partial applications is linear. The second is that when we finally
+provide a <code>[]</code> value to unlock the final list from its chain
+of partial applications, application proceeds from right to left. This
+keeps the left operand of <code>(++)</code> small, and so the overall
+cost of all of these appends is linear, not quadratic.</p>
+<p>By choosing an unfamiliar data representation, we've avoided a nasty
+performance quagmire, while gaining a new perspective on the usefulness
+of treating functions as data. By the way, this is an old trick, and
+it's usually called a <em>difference list</em>.</p>
+<p>We're not yet finished, though. As appealing as difference lists are
+in theory, ours won't be very pleasant in practice if we leave all the
+plumbing of <code>(++)</code>, <code>(.)</code>, and partial application
+exposed. We need to turn this mess into something pleasant to work
+with.</p>
+<h2 data-number="6.1"
+id="turning-difference-lists-into-a-proper-library"><span
+class="header-section-number">6.1</span> Turning difference lists into a
+proper library</h2>
+<p>Our first step is to use a <code>newtype</code> declaration to hide
+the underlying type from our users. We'll create a new type, and call it
+<code>DList</code>. Like a regular list, it will be a parameterised
+type.</p>
+<div class="captioned-content">
+<div class="caption">
+DList.hs
+</div>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">DList</span> a <span class="ot">=</span> <span class="dt">DL</span> {</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    unDL ::</span> [a] <span class="ot">-&gt;</span> [a]</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+</div>
+<p>The <code>unDL</code> function is our deconstructor, which removes
+the <code>DL</code> constructor. When we go back and decide what we want
+to export from our module, we will omit our data constructor and
+deconstruction function, so the <code>DList</code> type will be
+completely opaque to our users. They'll only be able to work with the
+type using the other functions we export.</p>
+<div class="captioned-content">
+<div class="caption">
+DList.hs
+</div>
+<div class="sourceCode" id="cb41"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="ot">append ::</span> <span class="dt">DList</span> a <span class="ot">-&gt;</span> <span class="dt">DList</span> a <span class="ot">-&gt;</span> <span class="dt">DList</span> a</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>append xs ys <span class="ot">=</span> <span class="dt">DL</span> (unDL xs <span class="op">.</span> unDL ys)</span></code></pre></div>
+</div>
+<p>Our <code>append</code> function may seem a little complicated, but
+it's just performing some book-keeping around the same use of the
+<code>(.)</code> operator that we demonstrated earlier. To compose our
+functions, we must first unwrap them from their <code>DL</code>
+constructor, hence the uses of <code>unDL</code>. We then re-wrap the
+resulting function with the <code>DL</code> constructor so that it will
+have the right type.</p>
+<p>Here's another way of writing the same function, in which we perform
+the unwrapping of <code>xs</code> and <code>ys</code> via pattern
+matching.</p>
+<div class="captioned-content">
+<div class="caption">
+DList.hs
+</div>
+<div class="sourceCode" id="cb42"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ot">append&#39; ::</span> <span class="dt">DList</span> a <span class="ot">-&gt;</span> <span class="dt">DList</span> a <span class="ot">-&gt;</span> <span class="dt">DList</span> a</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>append&#39; (<span class="dt">DL</span> xs) (<span class="dt">DL</span> ys) <span class="ot">=</span> <span class="dt">DL</span> (xs <span class="op">.</span> ys)</span></code></pre></div>
+</div>
+<p>Our <code>DList</code> type won't be much use if we can't convert
+back and forth between the <code>DList</code> representation and a
+regular list.</p>
+<div class="captioned-content">
+<div class="caption">
+DList.hs
+</div>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fromList ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">DList</span> a</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>fromList xs <span class="ot">=</span> <span class="dt">DL</span> (xs <span class="op">++</span>)</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="ot">toList ::</span> <span class="dt">DList</span> a <span class="ot">-&gt;</span> [a]</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>toList (<span class="dt">DL</span> xs) <span class="ot">=</span> xs []</span></code></pre></div>
+</div>
+<p>Once again, compared to the original versions of these functions that
+we wrote, all we're doing is a little book-keeping to hide the
+plumbing.</p>
+<p>If we want to make <code>DList</code> useful as a substitute for
+regular lists, we need to provide some more of the common list
+operations.</p>
+<div class="captioned-content">
+<div class="caption">
+DList.hs
+</div>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ot">empty ::</span> <span class="dt">DList</span> a</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>empty <span class="ot">=</span> <span class="dt">DL</span> <span class="fu">id</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- equivalent of the list type&#39;s (:) operator</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="ot">cons ::</span> a <span class="ot">-&gt;</span> <span class="dt">DList</span> a <span class="ot">-&gt;</span> <span class="dt">DList</span> a</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>cons x (<span class="dt">DL</span> xs) <span class="ot">=</span> <span class="dt">DL</span> ((x<span class="op">:</span>) <span class="op">.</span> xs)</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a><span class="kw">infixr</span> <span class="ot">`cons`</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a><span class="ot">dfoldr ::</span> (a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> <span class="dt">DList</span> a <span class="ot">-&gt;</span> b</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>dfoldr f z xs <span class="ot">=</span> <span class="fu">foldr</span> f z (toList xs)</span></code></pre></div>
+</div>
+<p>Although the <code>DList</code> approach makes appends cheap, not all
+list-like operations are easily available. The <code>head</code>
+function has constant cost for lists. Our <code>DList</code> equivalent
+requires that we convert the entire <code>DList</code> to a regular
+list, so it is much more expensive than its list counterpart: its cost
+is linear in the number of appends we have performed to construct the
+DList.</p>
+<div class="captioned-content">
+<div class="caption">
+DList.hs
+</div>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="ot">safeHead ::</span> <span class="dt">DList</span> a <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>safeHead xs <span class="ot">=</span> <span class="kw">case</span> toList xs <span class="kw">of</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>                (y<span class="op">:</span>_) <span class="ot">-&gt;</span> <span class="dt">Just</span> y</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>                _ <span class="ot">-&gt;</span> <span class="dt">Nothing</span></span></code></pre></div>
+</div>
+<p>To support an equivalent of <code>map</code>, we can make our
+<code>DList</code> type a functor.</p>
+<div class="captioned-content">
+<div class="caption">
+DList.hs
+</div>
+<div class="sourceCode" id="cb46"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="ot">dmap ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> <span class="dt">DList</span> a <span class="ot">-&gt;</span> <span class="dt">DList</span> b</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>dmap f <span class="ot">=</span> dfoldr go empty</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> go x xs <span class="ot">=</span> cons (f x) xs</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Functor</span> <span class="dt">DList</span> <span class="kw">where</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">fmap</span> <span class="ot">=</span> dmap</span></code></pre></div>
+</div>
+<p>Once we decide that we have written enough equivalents of list
+functions, we go back to the top of our source file, and add a module
+header.</p>
+<div class="captioned-content">
+<div class="caption">
+DList.hs
+</div>
+<div class="sourceCode" id="cb47"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">DList</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>    (</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>      <span class="dt">DList</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>    , fromList</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>    , toList</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>    , empty</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>    , append</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>    , cons</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>    , dfoldr</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>    ) <span class="kw">where</span></span></code></pre></div>
+</div>
+<h2 data-number="6.2" id="lists-difference-lists-and-monoids"><span
+class="header-section-number">6.2</span> Lists, difference lists, and
+monoids</h2>
+<p>In abstract algebra, there exists a simple abstract structure called
+a <em>monoid</em>. Many mathematical objects are monoids, because the
+"bar to entry" is very low. In order to be considered a monoid, an
+object must have two properties.</p>
+<ul>
+<li><p>An associative binary operator. Let's call it <code>(*)</code>:
+the expression <code>a * (b * c)</code> must give the same result as
+<code>(a * b) * c</code>.</p></li>
+<li><p>An identity value. If we call this <code>e</code>, it must obey
+two rules: <code>a * e == a</code> and <code>e * a == a</code>.</p></li>
+</ul>
+<p>The rules for monoids don't say what the binary operator must do,
+merely that such an operator must exist. Because of this, lots of
+mathematical objects are monoids. If we take addition as the binary
+operator and zero as the identity value, integers form a monoid. With
+multiplication as the binary operator and one as the identity value,
+integers form a different monoid.</p>
+<p>Monoids are ubiquitous in Haskell<a href="#fn3" class="footnote-ref"
+id="fnref3" role="doc-noteref"><sup>3</sup></a>. The <code>Monoid</code>
+type class is defined in the <code>Data.Monoid</code> module.</p>
+<div class="captioned-content">
+<div class="caption">
+Monoid.hs
+</div>
+<div class="sourceCode" id="cb48"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Monoid</span> a <span class="kw">where</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="ot">    mempty  ::</span> a                <span class="co">-- the identity</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="ot">    mappend ::</span> a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> a      <span class="co">-- associative binary operator</span></span></code></pre></div>
+</div>
+<p>If we take <code>(++)</code> as the binary operator and
+<code>[]</code> as the identity, lists form a monoid.</p>
+<div class="captioned-content">
+<div class="caption">
+Monoid.hs
+</div>
+<div class="sourceCode" id="cb49"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> [a] <span class="kw">where</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span>  <span class="ot">=</span> []</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mappend</span> <span class="ot">=</span> (<span class="op">++</span>)</span></code></pre></div>
+</div>
+<p>Since lists and <code>DLists</code> are so closely related, it
+follows that our <code>DList</code> type must be a monoid, too.</p>
+<div class="captioned-content">
+<div class="caption">
+DList.hs
+</div>
+<div class="sourceCode" id="cb50"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> (<span class="dt">DList</span> a) <span class="kw">where</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> empty</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mappend</span> <span class="ot">=</span> append</span></code></pre></div>
+</div>
+<p>When working with a GHC version prior to 8.4 then that should be
+enough and the module is ready to be load in <code>ghci</code>. When
+working with GHC 8.4 or later then you must make <code>DList</code> an
+instance of <code>Semigroup</code> too.</p>
+<div class="captioned-content">
+<div class="caption">
+DList.hs
+</div>
+<div class="sourceCode" id="cb51"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> (<span class="dt">DList</span> a) <span class="kw">where</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>    (<span class="op">&lt;&gt;</span>) <span class="ot">=</span> append</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> (<span class="dt">DList</span> a) <span class="kw">where</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> empty</span></code></pre></div>
+</div>
+<p>A semigroup is a mathematical object with and associative binary
+operator, i. e. every monoid is also a semigroup (but not al semigroups
+are monoids) and that's what GHC 8.4 is forcing us to express.</p>
+<div class="TIP">
+<p>Tip</p>
+<p>If we need compatibility with GHC prior to version 8.4 we can <a
+href="https://prime.haskell.org/wiki/Libraries/Proposals/SemigroupMonoid#Writingcompatiblecode">write
+compatible code</a>.</p>
+</div>
+<p>Let's try our the methods of the <code>Monoid</code> type class in
+<code>ghci</code>.</p>
+<pre class="screen"><code>ghci&gt; &quot;foo&quot; `mappend` &quot;bar&quot;
+&quot;foobar&quot;
+ghci&gt; toList (fromList [1,2] `mappend` fromList [3,4])
+[1,2,3,4]
+ghci&gt; mempty `mappend` [1]
+[1]
+</code></pre>
+<div class="TIP">
+<p>Tip</p>
+<p>Although from a mathematical perspective, integers can be monoids in
+two different ways, we can't write two differing <code>Monoid</code>
+instances for <code>Int</code> in Haskell: the compiler would complain
+about duplicate instances.</p>
+<p>In those rare cases where we really need several <code>Monoid</code>
+instances for the same type, we can use some <code>newtype</code>
+trickery to create distinct types for the purpose.</p>
+<div class="captioned-content">
+<div class="caption">
+Monoid.hs
+</div>
+<div class="sourceCode" id="cb53"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">AInt</span> <span class="ot">=</span> <span class="dt">A</span> {<span class="ot"> unA ::</span> <span class="dt">Int</span> }</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>, <span class="dt">Num</span>)</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="co">-- monoid under addition</span></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> <span class="dt">AInt</span> <span class="kw">where</span></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a>    (<span class="op">&lt;&gt;</span>) <span class="ot">=</span> (<span class="op">+</span>)</span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> <span class="dt">AInt</span> <span class="kw">where</span></span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb53-12"><a href="#cb53-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-13"><a href="#cb53-13" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">MInt</span> <span class="ot">=</span> <span class="dt">M</span> {<span class="ot"> unM ::</span> <span class="dt">Int</span> }</span>
+<span id="cb53-14"><a href="#cb53-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">deriving</span> (<span class="dt">Show</span>, <span class="dt">Eq</span>, <span class="dt">Num</span>)</span>
+<span id="cb53-15"><a href="#cb53-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-16"><a href="#cb53-16" aria-hidden="true" tabindex="-1"></a><span class="co">-- monoid under multiplication</span></span>
+<span id="cb53-17"><a href="#cb53-17" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Semigroup</span> <span class="dt">MInt</span> <span class="kw">where</span></span>
+<span id="cb53-18"><a href="#cb53-18" aria-hidden="true" tabindex="-1"></a>    (<span class="op">&lt;&gt;</span>) <span class="ot">=</span> (<span class="op">*</span>)</span>
+<span id="cb53-19"><a href="#cb53-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-20"><a href="#cb53-20" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Monoid</span> <span class="dt">MInt</span> <span class="kw">where</span></span>
+<span id="cb53-21"><a href="#cb53-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mempty</span> <span class="ot">=</span> <span class="dv">1</span></span></code></pre></div>
+</div>
+<p>We'll then get different behaviour depending on the type we use.</p>
+<pre class="screen"><code>ghci&gt; 2 `mappend` 5 :: MInt
+M {unM = 10}
+ghci&gt; 2 `mappend` 5 :: AInt
+A {unA = 7}
+</code></pre>
+</div>
+<p>We will have more to say about difference lists and their monoidal
+nature in <a
+href="16-programming-with-monads.org::*The writer monad and lists">the
+section called "The writer monad and lists"</a></p>
+<div class="TIP">
+<p>Tip</p>
+<p>As with the rules for functors, Haskell cannot check the rules for
+monoids on our behalf. If we're defining a <code>Monoid</code> instance,
+we can easily write QuickCheck properties to give us high statistical
+confidence that our code is following the monoid rules.</p>
+</div>
+<p>General purpose sequences</p>
+<p>Both Haskell's built-in list type and the <code>DList</code> type
+that we defined above have poor performance characteristics under some
+circumstances. The <code>Data.Sequence</code> module defines a
+<code>Seq</code> container type that gives good performance for a wider
+variety of operations.</p>
+<p>As with other modules, <code>Data.Sequence</code> is intended to be
+used via qualified import.</p>
+<div class="captioned-content">
+<div class="caption">
+DataSequence.hs
+</div>
+<div class="sourceCode" id="cb55"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.Sequence</span> <span class="kw">as</span> <span class="dt">Seq</span></span></code></pre></div>
+</div>
+<p>We can construct an empty <code>Seq</code> using <code>empty</code>,
+and a single-element container using <code>singleton</code>.</p>
+<pre class="screen"><code>ghci&gt; :l DataSequence.hs
+[1 of 1] Compiling Main             ( DataSequence.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; Seq.empty
+fromList []
+ghci&gt; Seq.singleton 1
+fromList [1]
+</code></pre>
+<p>We can create a <code>Seq</code> from a list using
+<code>fromList</code>.</p>
+<pre class="screen"><code>ghci&gt; a = Seq.fromList [1,2,3]
+</code></pre>
+<p>The <code>Data.Sequence</code> module provides some constructor
+functions in the form of operators. When we perform a qualified import,
+we must qualify the name of an operator in our code, which is ugly.</p>
+<pre class="screen"><code>ghci&gt; 1 Seq.&lt;| Seq.singleton 2
+fromList [1,2]
+</code></pre>
+<p>If we import the operators explicitly, we can avoid the need to
+qualify them.</p>
+<div class="captioned-content">
+<div class="caption">
+DataSequence.hs
+</div>
+<div class="sourceCode" id="cb59"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Sequence</span> ((&gt;&lt;), (&lt;|), (|&gt;))</span></code></pre></div>
+</div>
+<p>By removing the qualification from the operator, we improve the
+readability of our code.</p>
+<pre class="screen"><code>ghci&gt; Seq.singleton 1 |&gt; 2
+fromList [1,2]
+</code></pre>
+<p>A useful way to remember the <code>(&lt;|)</code> and
+<code>(|&gt;)</code> functions is that the "arrow" points to the element
+we're adding to the <code>Seq</code>. The element will be added on the
+side to which the arrow points: <code>(&lt;|)</code> adds on the left,
+<code>(|&gt;)</code> on the right.</p>
+<p>Both adding on the left and adding on the right are constant-time
+operations. Appending two ~Seq~s is also cheap, occurring in time
+proportional to the logarithm of whichever is shorter. To append, we use
+the <code>(&gt;&lt;)</code> operator.</p>
+<pre class="screen"><code>ghci&gt; left = Seq.fromList [1,3,3]
+ghci&gt; right = Seq.fromList [7,1]
+ghci&gt; left &gt;&lt; right
+fromList [1,3,3,7,1]
+</code></pre>
+<p>If we want to create a list from a <code>Seq</code>, we must use the
+<code>Data.Foldable</code> module, which is best imported qualified.</p>
+<div class="captioned-content">
+<div class="caption">
+DataSequence.hs
+</div>
+<div class="sourceCode" id="cb62"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">Data.Foldable</span> <span class="kw">as</span> <span class="dt">Foldable</span></span></code></pre></div>
+</div>
+<p>This module defines a type class, <code>Foldable</code>, which
+<code>Seq</code> implements.</p>
+<pre class="screen"><code>ghci&gt; Foldable.toList (Seq.fromList [1,2,3])
+[1,2,3]
+</code></pre>
+<p>If we want to fold over a <code>Seq</code>, we use the fold functions
+from the <code>Data.Foldable</code> module.</p>
+<pre class="screen"><code>ghci&gt; Foldable.foldl&#39; (+) 0 (Seq.fromList [1,2,3])
+6
+</code></pre>
+<p>The <code>Data.Sequence</code> module provides a number of other
+useful list-like functions. Its documentation is very thorough, giving
+time bounds for each operation.</p>
+<p>If <code>Seq</code> has so many desirable characteristics, why is it
+not the default sequence type? Lists are simpler and have less overhead,
+and so quite often they are good enough for the task at hand. They are
+also well suited to a lazy setting, where <code>Seq</code> does not fare
+well.</p>
+<h1 data-number="7" id="footnotes"><span
+class="header-section-number">7</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>The type we use for the key must be a
+member of the <code>Eq</code> type class.<a href="#fnref1"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>Non-strict evaluation makes the cost
+calculation more subtle. We only pay for an append if we actually use
+the resulting list. Even then, we only pay for as much as we actually
+use.<a href="#fnref2" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>Indeed, monoids are ubiquitous
+throughout programming. The difference is that in Haskell, we recognize
+them, and talk about them.<a href="#fnref3" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

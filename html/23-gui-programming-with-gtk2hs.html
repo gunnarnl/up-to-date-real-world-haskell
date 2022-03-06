@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 23. GUI Programming with gtk2hs</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 23. GUI Programming with gtk2hs</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#installing-gtk2hs"><span
+class="toc-section-number">1</span> Installing gtk2hs</a></li>
+<li><a href="#overview-of-the-gtk-stack"><span
+class="toc-section-number">2</span> Overview of the GTK+ Stack</a></li>
+<li><a href="#user-interface-design-with-glade"><span
+class="toc-section-number">3</span> User Interface Design with Glade</a>
+<ul>
+<li><a href="#glade-concepts"><span
+class="toc-section-number">3.1</span> Glade Concepts</a></li>
+</ul></li>
+<li><a href="#event-driven-programming"><span
+class="toc-section-number">4</span> Event-Driven Programming</a></li>
+<li><a href="#initializing-the-gui"><span
+class="toc-section-number">5</span> Initializing the GUI</a></li>
+<li><a href="#the-add-podcast-window"><span
+class="toc-section-number">6</span> The Add Podcast Window</a></li>
+<li><a href="#long-running-tasks"><span
+class="toc-section-number">7</span> Long-Running Tasks</a></li>
+<li><a href="#using-cabal"><span class="toc-section-number">8</span>
+Using Cabal</a></li>
+<li><a href="#exercises"><span class="toc-section-number">9</span>
+Exercises</a></li>
+<li><a href="#footnotes"><span class="toc-section-number">10</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<p>Throughout this book, we have been developing simple text-based
+tools. While these are often ideal interfaces, sometimes a graphical
+user interface (GUI) is required. There are several GUI toolkits
+available for Haskell. In this chapter, we will look at one of the,
+gtk2hs.<a href="#fn1" class="footnote-ref" id="fnref1"
+role="doc-noteref"><sup>1</sup></a></p>
+<h1 data-number="1" id="installing-gtk2hs"><span
+class="header-section-number">1</span> Installing gtk2hs</h1>
+<p>Before we dive in to working with gtk2hs, you'll need to get it
+installed. On most Linux, BSD, or other POSIX platforms, you will find
+ready-made gtk2hs packages. You will generally need to install the GTK+
+development environment, Glade, and gtk2hs. The specifics of doing so
+vary by distribution.</p>
+<p>Windows and Mac developers should consult the gtk2hs downloads site
+at <a
+href="http://www.haskell.org/gtk2hs/download/">http://www.haskell.org/gtk2hs/download/</a>.
+Begin by downloading gtk2hs from there. Then you will also need Glade
+version 3. Mac developers can find this at <a
+href="http://www.macports.org/">http://www.macports.org/</a>, while
+Windows developers should consult <a
+href="http://sourceforge.net/projects/gladewin32">http://sourceforge.net/projects/gladewin32</a>.</p>
+<h1 data-number="2" id="overview-of-the-gtk-stack"><span
+class="header-section-number">2</span> Overview of the GTK+ Stack</h1>
+<p>Before diving in to the code, let's pause a brief moment and consider
+the architecture of the system we are going to use. First off, we have
+GTK+. GTK+ is a cross-platform GUI-building toolkit, implemented in C.
+It runs on Windows, Mac, Linux, BSDs, and more. It is also the toolkit
+beneath the Gnome desktop environment.</p>
+<p>Next, we have Glade. Glade is a user interface designer, which lets
+you graphically lay out your application's windows and dialogs. Glade
+saves the interface in XML files, which your application will load at
+runtime.</p>
+<p>The last piece of this puzzle is gtk2hs. This is the Haskell binding
+for GTK+, Glade, and several related libraries. It is one of many
+language bindings available for GTK+.</p>
+<h1 data-number="3" id="user-interface-design-with-glade"><span
+class="header-section-number">3</span> User Interface Design with
+Glade</h1>
+<p>In this chapter, we are going to develop a GUI for the podcast
+downloader we first developed in <a
+href="22-web-client-programming.org">Chapter 22, <em>Extended Example:
+Web Client Programming</em></a>. Our first task is to design the user
+interface in Glade. Once we have accomplished that, we will write the
+Haskell code to integrate it with the application.</p>
+<p>Because this is a Haskell book, rather than a GUI design book, we
+will move fast through some of these early parts. For more information
+on interface design with Glade, you may wish to refer to one of these
+resources:</p>
+<ul>
+<li>The Glade homepage, which contains documentation for Glade. <a
+href="http://glade.gnome.org/">http://glade.gnome.org/</a></li>
+<li>The GTK+ homepage contains information about the different widgets.
+Refer to the documentation section, then the stable GTK documentation
+area. <a href="http://www.gtk.org/">http://www.gtk.org/</a></li>
+<li>The gtk2hs homepage also has a useful documentation section, which
+contains an API reference to gtk2hs as well as a glade tutorial. <a
+href="http://www.haskell.org/gtk2hs/documentation/">http://www.haskell.org/gtk2hs/documentation/</a></li>
+</ul>
+<h2 data-number="3.1" id="glade-concepts"><span
+class="header-section-number">3.1</span> Glade Concepts</h2>
+<p>Glade is a user interface design tool. It lets us use a graphical
+interface to design our graphical interface. We could build up the
+window components using a bunch of calls to GTK+ functions, but it is
+usually easier to do this with Glade.</p>
+<p>The fundamental "thing" we work with in GTK+ is the <em>widget</em>.
+A widget represents any part of the GUI, and may contain other widgets.
+Some examples of widgets include a window, dialog box, button, and text
+within the button.</p>
+<p>Glade, then, is a widget layout tool. We set up a whole tree of
+widgets, with top-level windows at the top of the tree. You can think of
+Glade and widgets in somewhat the same terms as HTML: you can arrange
+widgets in a table-like layout, set up padding rules, and structure the
+entire description in a hierarchical way.</p>
+<p>Glade saves the widget descriptions into an XML file. Our program
+loads this XML file at runtime. We load the widgets by asking the Glade
+runtime library to load a widget with a specific name.</p>
+<p>Here's a screenshot of an example working with Glade to design our
+application's main screen:</p>
+<p><img src="figs/gui-glade-3.png" /></p>
+<p>In the downloadable material available for this book, you can find
+the full Glade XML file as <code>podresources.glade</code>. You can load
+this file in Glade and edit it if you wish.</p>
+<h1 data-number="4" id="event-driven-programming"><span
+class="header-section-number">4</span> Event-Driven Programming</h1>
+<p>GTK+, like many GUI toolkits, is an <em>event-driven</em> toolkit.
+That means that instead of, say, displaying a dialog box and waiting for
+the user to click on a button, we instead tell gtk2hs what function to
+call if a certain button is clicked, but don't sit there waiting for a
+click in the dialog box.</p>
+<p>This is different from the model traditionally used for console
+programs. When you think about it, though, it almost has to be. A GUI
+program could have multiple windows open, and writing code to sit there
+waiting for input in the particular combination of open windows could be
+a complicated proposition.</p>
+<p>Event-driven programming complements Haskell nicely. As we've
+discussed over and over in this book, functional languages thrive on
+passing around functions. So we'll be passing functions to gtk2hs that
+get called when certain events occur. These are known as <em>callback
+functions</em>.</p>
+<p>At the core of a GTK+ program is the <em>main loop</em>. This is the
+part of the program that waits for actions from the user or commands
+from the program and carries them out. The GTK+ main loop is handled
+entirely by GTK+. To us, it looks like an I/O action that we execute,
+that doesn't return until the GUI has been disposed of.</p>
+<p>Since the main loop is responsible for doing everything from handling
+clicks of a mouse to redrawing a window when it has been uncovered, it
+must always be available. We can't just run a long-running task—such as
+downloading a podcast episode—from within the main loop. This would make
+the GUI unresponsive, and actions such as clicking a Cancel button
+wouldn't be processed in a timely manner.</p>
+<p>Therefore, we will be using multithreading to handle these
+long-running tasks. More information on multithreading can be found in
+<a href="24-concurrent-and-multicore-programming.org">Chapter 24,
+<em>Concurrent and multicore programming</em></a>. For now, just know
+that we will use <code>forkIO</code> to create new threads for
+long-running tasks such as downloading podcast feeds and episodes. For
+very quick tasks, such as adding a new podcast to the database, we will
+not bother with a separate thread since it will be executed so fast the
+user will never notice.</p>
+<h1 data-number="5" id="initializing-the-gui"><span
+class="header-section-number">5</span> Initializing the GUI</h1>
+<p>Our first steps are going to involve initializing the GUI for our
+program. For reasons that we'll explain in <a
+href="23-gui-programming-with-gtk2hs.org::*Using Cabal">the section
+called "Using Cabal"</a> file called <code>PodLocalMain.hs</code> that
+loads <code>PodMain</code> and passes to it the path to
+<code>podresources.glade</code>, the XML file saved by Glade that gives
+the information about our GUI widgets.</p>
+<div class="captioned-content">
+<div class="caption">
+PodLocalMain.hs
+</div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">PodMainGUI</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> PodMainGUI.main <span class="st">&quot;podresources.glade&quot;</span></span></code></pre></div>
+</div>
+<p>Now, let's consider <code>PodMainGUI.hs</code>. This file is the only
+Haskell source file that we had to modify from the example in <a
+href="22-web-client-programming.org">Chapter 22, <em>Extended Example:
+Web Client Programming</em></a> to make it work as a GUI. Let's start by
+looking at the start of our new <code>PodMainGUI.hs</code> file—we've
+renamed it from <code>PodMain.hs</code> for clarity.</p>
+<div class="captioned-content">
+<div class="caption">
+PodMainGUI.hs
+</div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">PodMainGUI</span> <span class="kw">where</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">PodDownload</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">PodDB</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">PodTypes</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Environment</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Database.HDBC</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Network.Socket</span>(withSocketsDo)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">-- GUI libraries</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Graphics.UI.Gtk</span> <span class="kw">hiding</span> (disconnect)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Graphics.UI.Gtk.Glade</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">-- Threading</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Concurrent</span></span></code></pre></div>
+</div>
+<p>This first part of <code>PodMainGUI.hs</code> is similar to our
+non-GUI version. We import three additional components, however. First,
+we have <code>Graphics.UI.Gtk</code>, which provides most of the GTK+
+functions we will be using. Both this module and
+<code>Database.HDBC</code> provide a function named
+<code>disconnect</code>. Since we'll be using the HDBC version, but not
+the GTK+ version, we don't import that function from
+<code>Graphics.UI.Gtk</code>. <code>Graphics.UI.Gtk.Glade</code>
+contains functions needed for loading and working with our Glade
+file.</p>
+<p>We also import <code>Control.Concurrent</code>, which has the basics
+needed for multi-threaded programming. We'll use a few functions from
+here as described above once we get into the guts of the program. Next,
+let's define a type to store information about our GUI.</p>
+<div class="captioned-content">
+<div class="caption">
+PodMainGUI.hs
+</div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- | Our main GUI type</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">GUI</span> <span class="ot">=</span> <span class="dt">GUI</span> {</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ot">      mainWin ::</span> <span class="dt">Window</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ot">      mwAddBt ::</span> <span class="dt">Button</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ot">      mwUpdateBt ::</span> <span class="dt">Button</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ot">      mwDownloadBt ::</span> <span class="dt">Button</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ot">      mwFetchBt ::</span> <span class="dt">Button</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ot">      mwExitBt ::</span> <span class="dt">Button</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="ot">      statusWin ::</span> <span class="dt">Dialog</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="ot">      swOKBt ::</span> <span class="dt">Button</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ot">      swCancelBt ::</span> <span class="dt">Button</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="ot">      swLabel ::</span> <span class="dt">Label</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="ot">      addWin ::</span> <span class="dt">Dialog</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="ot">      awOKBt ::</span> <span class="dt">Button</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="ot">      awCancelBt ::</span> <span class="dt">Button</span>,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="ot">      awEntry ::</span> <span class="dt">Entry</span>}</span></code></pre></div>
+</div>
+<p>Our new <code>GUI</code> type stores all the widgets we will care
+about in the entire program. Large programs may not wish to have a
+monolithic type like this. For this small example, it makes sense
+because it can be easily passed around to different functions, and we'll
+know that we always have the information we need available.</p>
+<p>Within this record, we have fields for a <code>Window</code> (a
+top-level window), <code>Dialog</code> (dialog window),
+<code>Button</code> (clickable button), <code>Label</code> (piece of
+text), and <code>Entry</code> (place for the user to enter text). Let's
+now look at our <code>main</code> function:</p>
+<div class="captioned-content">
+<div class="caption">
+PodMainGUI.hs
+</div>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">main ::</span> <span class="dt">FilePath</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>main gladepath <span class="ot">=</span> withSocketsDo <span class="op">$</span> handleSqlError <span class="op">$</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> initGUI                  <span class="co">-- Initialize GTK+ engine</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Every so often, we try to run other threads.</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>       timeoutAddFull (yield <span class="op">&gt;&gt;</span> <span class="fu">return</span> <span class="dt">True</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                      priorityDefaultIdle <span class="dv">100</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Load the GUI from the Glade file</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>       gui <span class="ot">&lt;-</span> loadGlade gladepath</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Connect to the database</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>       dbh <span class="ot">&lt;-</span> connect <span class="st">&quot;pod.db&quot;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Set up our events</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>       connectGui gui dbh</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Run the GTK+ main loop; exits after GUI is done</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>       mainGUI</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Disconnect from the database at the end</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>       disconnect dbh</span></code></pre></div>
+</div>
+<p>Remember that the type of this <code>main</code> function is a little
+different than usual because it is being called by <code>main</code> in
+<code>PodLocalMain.hs</code>. We start by calling <code>initGUI</code>,
+which initializes the GTK+ system. Next, we have a call to
+<code>timeoutAddFull</code>. This call is only needed for multithreaded
+GTK+ programs. It tells the GTK+ main loop to pause to give other
+threads a chance to run every so often.</p>
+<p>After that, we call our <code>loadGlade</code> function (see below)
+to load the widgets from our Glade XML file. After that, we connect to
+our database, call our <code>connectGui</code> function to set up our
+callback functions. Then, we fire up the GTK+ main loop. We expect it
+could be minutes, hours, or even days before <code>mainGUI</code>
+returns. When it does, it means the user has closed the main window or
+clicked the Exit button. After that, we disconnect from the database and
+close the program. Now, let's look at our <code>loadGlade</code>
+function.</p>
+<div class="captioned-content">
+<div class="caption">
+PodMainGUI.hs
+</div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>loadGlade gladepath <span class="ot">=</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> <span class="co">-- Load XML from glade path.</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Note: crashes with a runtime error on console if fails!</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>       <span class="dt">Just</span> xml <span class="ot">&lt;-</span> xmlNew gladepath</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Load main window</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>       mw <span class="ot">&lt;-</span> xmlGetWidget xml castToWindow <span class="st">&quot;mainWindow&quot;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Load all buttons</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>       [mwAdd, mwUpdate, mwDownload, mwFetch, mwExit, swOK, swCancel,</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        auOK, auCancel] <span class="ot">&lt;-</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>           <span class="fu">mapM</span> (xmlGetWidget xml castToButton)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>           [<span class="st">&quot;addButton&quot;</span>, <span class="st">&quot;updateButton&quot;</span>, <span class="st">&quot;downloadButton&quot;</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;fetchButton&quot;</span>, <span class="st">&quot;exitButton&quot;</span>, <span class="st">&quot;okButton&quot;</span>, <span class="st">&quot;cancelButton&quot;</span>,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;auOK&quot;</span>, <span class="st">&quot;auCancel&quot;</span>]</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>       sw <span class="ot">&lt;-</span> xmlGetWidget xml castToDialog <span class="st">&quot;statusDialog&quot;</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>       swl <span class="ot">&lt;-</span> xmlGetWidget xml castToLabel <span class="st">&quot;statusLabel&quot;</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>       au <span class="ot">&lt;-</span> xmlGetWidget xml castToDialog <span class="st">&quot;addDialog&quot;</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>       aue <span class="ot">&lt;-</span> xmlGetWidget xml castToEntry <span class="st">&quot;auEntry&quot;</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>       <span class="fu">return</span> <span class="op">$</span> <span class="dt">GUI</span> mw mwAdd mwUpdate mwDownload mwFetch mwExit</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>              sw swOK swCancel swl au auOK auCancel aue</span></code></pre></div>
+</div>
+<p>This function starts by calling <code>xmlNew</code>, which loads the
+Glade XML file. It returns <code>Nothing</code> on error. Here we are
+using pattern matching to extract the result value on success. If it
+fails, there will be a console (not graphical) exception displayed; one
+of the exercises at the end of this chapter addresses this.</p>
+<p>Now that we have Glade's XML file loaded, you will see a bunch of
+calls to <code>xmlGetWidget</code>. This Glade function is used to load
+the XML definition of a widget, and return a GTK+ widget type for that
+widget. We have to pass along to that function a value indicating what
+GTK+ type we expect—we'll get a runtime error if these don't match.</p>
+<p>We start by creating a widget for the main window. It is loaded from
+the XML widget defined with name <code>"mainWindow"</code> and stored in
+the <code>mw</code> variable. We then use pattern matching and
+<code>mapM</code> to load up all the buttons. Then, we have two dialogs,
+a label, and an entry to load. Finally, we use all of these to build up
+the GUI type and return it. Next, we need to set our callback functions
+up as event handlers.</p>
+<div class="captioned-content">
+<div class="caption">
+PodMainGUI.hs
+</div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>connectGui gui dbh <span class="ot">=</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> <span class="co">-- When the close button is clicked, terminate GUI loop</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- by calling GTK mainQuit function</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>       onDestroy (mainWin gui) mainQuit</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Main window buttons</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>       onClicked (mwAddBt gui) (guiAdd gui dbh)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>       onClicked (mwUpdateBt gui) (guiUpdate gui dbh)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>       onClicked (mwDownloadBt gui) (guiDownload gui dbh)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>       onClicked (mwFetchBt gui) (guiFetch gui dbh)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>       onClicked (mwExitBt gui) mainQuit</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- We leave the status window buttons for later</span></span></code></pre></div>
+</div>
+<p>We start out the <code>connectGui</code> function by calling
+<code>onDestroy</code>. This means that when somebody clicks on the
+operating system's close button (typically an X in the titlebar on
+Windows or Linux, or a red circle on Mac OS X), on the main window, we
+call the <code>mainQuit</code> function. <code>mainQuit</code> closes
+all GUI windows and terminates the GTK+ main loop.</p>
+<p>Next, we call <code>onClicked</code> to register event handlers for
+clicking on our five different buttons. For buttons, these handlers are
+also called if the user selects the button via the keyboard. Clicking on
+these buttons will call our functions such as <code>guiAdd</code>,
+passing along the GUI record as well as a database handle.</p>
+<p>At this point, we have completely defined the main window for the GUI
+podcatcher. It looks like this:</p>
+<p><img src="figs/gui-pod-mainwin.png" /></p>
+<h1 data-number="6" id="the-add-podcast-window"><span
+class="header-section-number">6</span> The Add Podcast Window</h1>
+<p>Now that we've covered the main window, let's talk about the other
+windows that our application presents, starting with the Add Podcast
+window. When the user clicks the button to add a new podcast, we need to
+pop up a dialog box to prompt for the URL of the podcast. We have
+defined this dialog box in Glade, so all we need to do is set it up.</p>
+<div class="captioned-content">
+<div class="caption">
+PodMainGUI.hs
+</div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>guiAdd gui dbh <span class="ot">=</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> <span class="co">-- Initialize the add URL window</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>       entrySetText (awEntry gui) <span class="st">&quot;&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>       onClicked (awCancelBt gui) (widgetHide (addWin gui))</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>       onClicked (awOKBt gui) procOK</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Show the add URL window</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>       windowPresent (addWin gui)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> procOK <span class="ot">=</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>              <span class="kw">do</span> url <span class="ot">&lt;-</span> entryGetText (awEntry gui)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>                 widgetHide (addWin gui) <span class="co">-- Remove the dialog</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>                 add dbh url             <span class="co">-- Add to the DB</span></span></code></pre></div>
+</div>
+<p>We start by calling <code>entrySetText</code> to set the contents of
+the entry box (the place where the user types in the URL) to the empty
+string. That's because the same widget gets reused over the lifetime of
+the program, and we don't want the last URL the user entered to remain
+there. Next, we set up actions for the two buttons in the dialog. If the
+users clicks on the cancel button, we simply remove the dialog box from
+the screen by calling <code>widgetHide</code> on it. If the user clicks
+the OK button, we call <code>procOK</code>.</p>
+<p><code>procOK</code> starts by retrieving the supplied URL from the
+entry widget. Next, it uses <code>widgetHide</code> to get rid of the
+dialog box. Finally, it calls <code>add</code> to add the URL to the
+database. This <code>add</code> is exactly the same function as we had
+in the non-GUI version of the program.</p>
+<p>The last thing we do in <code>guiAdd</code> is actually display the
+pop-up window. That's done by calling <code>windowPresent</code>, which
+is the opposite of <code>widgetHide</code>.</p>
+<p>Note that the <code>guiAdd</code> function returns almost
+immediately. It just sets up the widgets and causes the box to be
+displayed; at no point does it block waiting for input. Here's what the
+dialog box looks like:</p>
+<p><img src="figs/gui-pod-addwin.png" /></p>
+<h1 data-number="7" id="long-running-tasks"><span
+class="header-section-number">7</span> Long-Running Tasks</h1>
+<p>As we think about the buttons available in the main window, three of
+them correspond to tasks that could take a while to complete: update,
+download, and fetch. While these operations take place, we'd like to do
+two things with our GUI: provide the user with the status of the
+operation, and provide the user with the ability to cancel the operation
+as it is in progress.</p>
+<p>Since all three of these things are very similar operations, it makes
+sense to provide a generic way to handle this interaction. We have
+defined a single status window widget in the Glade file that will be
+used by all three of these. In our Haskell source code, we'll define a
+generic <code>statusWindow</code> function that will be used by all
+three of these operations as well.</p>
+<p><code>statusWindow</code> takes four parameters: the GUI information,
+the database information, a <code>String</code> giving the title of the
+window, and a function that will perform the operation. This function
+will itself be passed a function that it can call to report its
+progress. Here's the code:</p>
+<div class="captioned-content">
+<div class="caption">
+PodMainGUI.hs
+</div>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">statusWindow ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                <span class="dt">GUI</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>             <span class="ot">-&gt;</span> conn</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>             <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>             <span class="ot">-&gt;</span> ((<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">IO</span> ())</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>             <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>statusWindow gui dbh title func <span class="ot">=</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> <span class="co">-- Clear the status text</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>       labelSetText (swLabel gui) <span class="st">&quot;&quot;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Disable the OK button, enable Cancel button</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>       widgetSetSensitivity (swOKBt gui) <span class="dt">False</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>       widgetSetSensitivity (swCancelBt gui) <span class="dt">True</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Set the title</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>       windowSetTitle (statusWin gui) title</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Start the operation</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>       childThread <span class="ot">&lt;-</span> forkIO childTasks</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Define what happens when clicking on Cancel</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>       onClicked (swCancelBt gui) (cancelChild childThread)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Show the window</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>       windowPresent (statusWin gui)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> childTasks <span class="ot">=</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>              <span class="kw">do</span> updateLabel <span class="st">&quot;Starting thread...&quot;</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>                 func updateLabel</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>                 <span class="co">-- After the child task finishes, enable OK</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>                 <span class="co">-- and disable Cancel</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>                 enableOK</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>          enableOK <span class="ot">=</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>              <span class="kw">do</span> widgetSetSensitivity (swCancelBt gui) <span class="dt">False</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>                 widgetSetSensitivity (swOKBt gui) <span class="dt">True</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>                 onClicked (swOKBt gui) (widgetHide (statusWin gui))</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">return</span> ()</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>          updateLabel text <span class="ot">=</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>              labelSetText (swLabel gui) text</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>          cancelChild childThread <span class="ot">=</span></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>              <span class="kw">do</span> killThread childThread</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>                 yield</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>                 updateLabel <span class="st">&quot;Action has been cancelled.&quot;</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>                 enableOK</span></code></pre></div>
+</div>
+<p>This function starts by clearing the label text from the last run.
+Next, we disable (gray out) the OK button and enable the cancel button.
+While the operation is in progress, clicking OK doesn't make much sense.
+And when it's done, clicking Cancel doesn't make much sense.</p>
+<p>Next, we set the title of the window. The title is the part that is
+displayed by the system in the title bar of the window. Finally, we
+start off the new thread (represented by <code>childTasks</code>) and
+save off its thread ID. Then, we define what to do if the user clicks on
+Cancel —we call <code>cancelChild</code>, passing along the thread ID.
+Finally, we call <code>windowPresent</code> to show the status
+window.</p>
+<p>In <code>childTasks</code>, we display a message saying that we're
+starting the thread. Then we call the actual worker function, passing
+<code>updateLabel</code> as the function to use for displaying status
+messages. Note that a command-line version of the program could pass
+<code>putStrLn</code> here.</p>
+<p>Finally, after the worker function exits, we call
+<code>enableOK</code>. This function disables the cancel button, enables
+the OK button, and defines that a click on the OK button causes the
+status window to go away.</p>
+<p><code>updateLabel</code> simply calls <code>labelSetText</code> on
+the label widget to update it with the displayed text. Finally,
+<code>cancelChild</code> kills the thread processing the task, updates
+the label, and enables the OK button.</p>
+<p>We now have the infrastructure in place to define our three GUI
+functions. They look like this:</p>
+<div class="captioned-content">
+<div class="caption">
+PodMainGUI.hs
+</div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ot">guiUpdate ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span> <span class="dt">GUI</span> <span class="ot">-&gt;</span> conn <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>guiUpdate gui dbh <span class="ot">=</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    statusWindow gui dbh <span class="st">&quot;Pod: Update&quot;</span> (update dbh)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>guiDownload gui dbh <span class="ot">=</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    statusWindow gui dbh <span class="st">&quot;Pod: Download&quot;</span> (download dbh)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>guiFetch gui dbh <span class="ot">=</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    statusWindow gui dbh <span class="st">&quot;Pod: Fetch&quot;</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                     (\logf <span class="ot">-&gt;</span> update dbh logf <span class="op">&gt;&gt;</span> download dbh logf)</span></code></pre></div>
+</div>
+<p>For brevity, we have given the type for only the first one, but all
+three have the same type, and Haskell can work them out via type
+inference. Notice our implementation of <code>guiFetch</code>. We don't
+call <code>statusWindow</code> twice, but rather combine functions in
+its action.</p>
+<p>The final piece of the puzzle consists of the three functions that do
+our work. <code>add</code> is unmodified from the command-line chapter.
+<code>update</code> and <code>download</code> are modified only to take
+a logging function instead of calling <code>putStrLn</code> for status
+updates.</p>
+<div class="captioned-content">
+<div class="caption">
+PodMainGUI.hs
+</div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>add dbh url <span class="ot">=</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> addPodcast dbh pc</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>       commit dbh</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> pc <span class="ot">=</span> <span class="dt">Podcast</span> {castId <span class="ot">=</span> <span class="dv">0</span>, castURL <span class="ot">=</span> url}</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="ot">update ::</span> <span class="dt">IConnection</span> conn <span class="ot">=&gt;</span> conn <span class="ot">-&gt;</span> (<span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()) <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>update dbh logf <span class="ot">=</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> pclist <span class="ot">&lt;-</span> getPodcasts dbh</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>       <span class="fu">mapM_</span> procPodcast pclist</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>       logf <span class="st">&quot;Update complete.&quot;</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> procPodcast pc <span class="ot">=</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>              <span class="kw">do</span> logf <span class="op">$</span> <span class="st">&quot;Updating from &quot;</span> <span class="op">++</span> (castURL pc)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>                 updatePodcastFromFeed dbh pc</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>download dbh logf <span class="ot">=</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> pclist <span class="ot">&lt;-</span> getPodcasts dbh</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>       <span class="fu">mapM_</span> procPodcast pclist</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>       logf <span class="st">&quot;Download complete.&quot;</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> procPodcast pc <span class="ot">=</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>              <span class="kw">do</span> logf <span class="op">$</span> <span class="st">&quot;Considering &quot;</span> <span class="op">++</span> (castURL pc)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>                 episodelist <span class="ot">&lt;-</span> getPodcastEpisodes dbh pc</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>                 <span class="kw">let</span> dleps <span class="ot">=</span> <span class="fu">filter</span> (\ep <span class="ot">-&gt;</span> epDone ep <span class="op">==</span> <span class="dt">False</span>)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>                             episodelist</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">mapM_</span> procEpisode dleps</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>          procEpisode ep <span class="ot">=</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>              <span class="kw">do</span> logf <span class="op">$</span> <span class="st">&quot;Downloading &quot;</span> <span class="op">++</span> (epURL ep)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>                 getEpisode dbh ep</span></code></pre></div>
+</div>
+<p>Here's what the final result looks like after running an update:</p>
+<p><img src="figs/gui-update-complete.png" /></p>
+<h1 data-number="8" id="using-cabal"><span
+class="header-section-number">8</span> Using Cabal</h1>
+<p>We presented a Cabal file to build this project for the command-line
+version in <a href="22-web-client-programming.org::*Main Program">the
+section called "Main Program"</a> for it to work with our GUI version.
+First, there's the obvious need to add the gtk2hs packages to the list
+of build dependencies. There is also the matter of the Glade XML
+file.</p>
+<p>Earlier, we wrote a <code>PodLocalMain.hs</code> that simply assumed
+this file was named <code>podresources.glade</code> and stored in the
+current working directory. For a real, system-wide installation, we
+can't make that assumption. Moreover, different systems may place the
+file at different locations.</p>
+<p>Cabal provides a way around this problem. It automatically generates
+a module that exports functions that can interrogate the environment. We
+must add a <code>Data-files</code> line to our Cabal description file.
+This file names all data files that will be part of a system-wide
+installation. Then, Cabal will export a <code>Paths_pod</code> module
+(the "pod" part comes from the <code>Name</code> line in the Cabal file)
+that we can interrogate for the location at runtime. Here's our new
+Cabal description file:</p>
+<div class="captioned-content">
+<div class="caption">
+pod.cabal
+</div>
+<pre><code>Name: pod
+Version: 1.0.0
+Build-type: Simple
+Build-Depends: HTTP, HaXml, network, HDBC, HDBC-sqlite3, base, 
+               gtk, glade
+Data-files: podresources.glade
+
+Executable: pod
+Main-Is: PodCabalMain.hs
+GHC-Options: -O2
+</code></pre>
+</div>
+<p>And, to go with it, <code>PodCabalMain.hs</code>:</p>
+<div class="captioned-content">
+<div class="caption">
+PodCabalMain.hs
+</div>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Main</span> <span class="kw">where</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="kw">qualified</span> <span class="dt">PodMainGUI</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Paths_pod</span>(getDataFileName)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> gladefn <span class="ot">&lt;-</span> getDataFileName <span class="st">&quot;podresources.glade&quot;</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>       PodMainGUI.main gladefn</span></code></pre></div>
+</div>
+<h1 data-number="9" id="exercises"><span
+class="header-section-number">9</span> Exercises</h1>
+<ol>
+<li>Present a helpful GUI error message if the call to
+<code>xmlNew</code> returns <code>Nothing</code>.</li>
+<li>Modify the podcatcher to be able to run with either the GUI or the
+command-line interface from a single code base. Hint: move common code
+out of <code>PodMainGUI.hs</code>, then have two different
+<code>main</code> modules, one for the GUI, and one for the command
+line.</li>
+<li>Why does <code>guiFetch</code> combine worker functions instead of
+calling <code>statusWindow</code> twice?</li>
+</ol>
+<h1 data-number="10" id="footnotes"><span
+class="header-section-number">10</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>Several alternatives also exist.
+Alongside gtk2hs, wxHaskell is also a prominent cross-platform GUI
+toolkit.<a href="#fnref1" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

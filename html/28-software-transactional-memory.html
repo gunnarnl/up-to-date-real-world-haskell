@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 28. Software transactional memory</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 28. Software transactional memory</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#the-basics"><span class="toc-section-number">1</span> The
+basics</a></li>
+<li><a href="#some-simple-examples"><span
+class="toc-section-number">2</span> Some simple examples</a></li>
+<li><a href="#stm-and-safety"><span class="toc-section-number">3</span>
+STM and safety</a></li>
+<li><a href="#retrying-a-transaction"><span
+class="toc-section-number">4</span> Retrying a transaction</a>
+<ul>
+<li><a href="#what-happens-when-we-retry"><span
+class="toc-section-number">4.1</span> What happens when we
+retry?</a></li>
+</ul></li>
+<li><a href="#choosing-between-alternatives"><span
+class="toc-section-number">5</span> Choosing between alternatives</a>
+<ul>
+<li><a href="#using-higher-order-code-with-transactions"><span
+class="toc-section-number">5.1</span> Using higher order code with
+transactions</a></li>
+</ul></li>
+<li><a href="#io-and-stm"><span class="toc-section-number">6</span> I/O
+and STM</a></li>
+<li><a href="#communication-between-threads"><span
+class="toc-section-number">7</span> Communication between
+threads</a></li>
+<li><a href="#a-concurrent-web-link-checker"><span
+class="toc-section-number">8</span> A concurrent web link checker</a>
+<ul>
+<li><a href="#checking-a-link"><span
+class="toc-section-number">8.1</span> Checking a link</a></li>
+<li><a href="#worker-threads"><span
+class="toc-section-number">8.2</span> Worker threads</a></li>
+<li><a href="#finding-links"><span class="toc-section-number">8.3</span>
+Finding links</a></li>
+<li><a href="#command-line-parsing"><span
+class="toc-section-number">8.4</span> Command line parsing</a></li>
+<li><a href="#pattern-guards"><span
+class="toc-section-number">8.5</span> Pattern guards</a></li>
+</ul></li>
+<li><a href="#practical-aspects-of-stm"><span
+class="toc-section-number">9</span> Practical aspects of STM</a>
+<ul>
+<li><a href="#getting-comfortable-with-giving-up-control"><span
+class="toc-section-number">9.1</span> Getting comfortable with giving up
+control</a></li>
+<li><a href="#using-invariants"><span
+class="toc-section-number">9.2</span> Using invariants</a></li>
+</ul></li>
+<li><a href="#footnotes"><span class="toc-section-number">10</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<p>In the traditional threaded model of concurrent programming, when we
+share data among threads, we keep it consistent using locks, and we
+notify threads of changes using condition variables. Haskell's
+<code>MVar</code> mechanism improves somewhat upon these tools, but it
+still suffers from all of the same problems.</p>
+<ul>
+<li>Race conditions due to forgotten locks</li>
+<li>Deadlocks resulting from inconsistent lock ordering</li>
+<li>Corruption caused by uncaught exceptions</li>
+<li>Lost wakeups induced by omitted notifications</li>
+</ul>
+<p>These problems frequently affect even the smallest concurrent
+programs, but the difficulties they pose become far worse in larger code
+bases, or under heavy load.</p>
+<p>For instance, a program with a few big locks is somewhat tractable to
+write and debug, but contention for those locks will clobber us under
+heavy load. If we react with finer-grained locking, it becomes
+<em>far</em> harder to keep our software working at all. The additional
+book-keeping will hurt performance even when loads are light.</p>
+<h1 data-number="1" id="the-basics"><span
+class="header-section-number">1</span> The basics</h1>
+<p>Software transactional memory (STM) gives us a few simple, but
+powerful, tools with which we can address most of these problems. We
+execute a block of actions as a transaction using the
+<code>atomically</code> combinator. Once we enter the block, other
+threads cannot see any modifications we make until we exit, nor can our
+thread see any changes made by other threads. These two properties mean
+that our execution is <em>isolated</em>.</p>
+<p>Upon exit from a transaction, exactly one of the following things
+will occur.</p>
+<ul>
+<li>If no other thread concurrently modified the same data as us, all of
+our modifications will simultaneously become visible to other
+threads.</li>
+<li>Otherwise, our modifications are discarded without being performed,
+and our block of actions is automatically restarted.</li>
+</ul>
+<p>This all-or-nothing nature of an <code>atomically</code> block is
+referred to as <em>atomic</em>, hence the name of the combinator. If you
+have used databases that support transactions, you should find that
+working with STM feels quite familiar.</p>
+<h1 data-number="2" id="some-simple-examples"><span
+class="header-section-number">2</span> Some simple examples</h1>
+<p>In a multi-player role playing game, a player's character will have
+some state such as health, possessions, and money. To explore the world
+of STM, let's start with a few simple functions and types based around
+working with some character state for a game. We will refine our code as
+we learn more about the API.</p>
+<p>The STM API is provided by the <code>stm</code> package, and its
+modules are in the <code>Control.Concurrent.STM</code> hierarchy.</p>
+<pre class="example"><code>{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
+import Control.Concurrent.STM
+import Control.Monad
+
+data Item = Scroll
+          | Wand
+          | Banjo
+            deriving (Eq, Ord, Show)
+
+newtype Gold = Gold Int
+    deriving (Eq, Ord, Show, Num)
+
+newtype HitPoint = HitPoint Int
+    deriving (Eq, Ord, Show, Num)
+
+type Inventory = TVar [Item]
+type Health = TVar HitPoint
+type Balance = TVar Gold
+
+data Player = Player {
+      balance :: Balance,
+      health :: Health,
+      inventory :: Inventory
+    }
+</code></pre>
+<p>The <code>TVar</code> parameterized type is a mutable variable that
+we can read or write inside an <code>atomically</code> block. For
+simplicity, we represent a player's inventory as a list of items.
+Notice, too, that we use <code>newtype</code> declarations so that we
+cannot accidentally confuse wealth with health.</p>
+<p>To perform a basic transfer of money from one <code>Balance</code> to
+another, all we have to do is adjust the values in each
+<code>TVar</code>.</p>
+<pre class="example"><code>basicTransfer qty fromBal toBal = do
+  fromQty &lt;- readTVar fromBal
+  toQty   &lt;- readTVar toBal
+  writeTVar fromBal (fromQty - qty)
+  writeTVar toBal   (toQty + qty)
+</code></pre>
+<p>Let's write a small function to try this out.</p>
+<pre class="example"><code>transferTest = do
+  alice &lt;- newTVar (12 :: Gold)
+  bob   &lt;- newTVar 4
+  basicTransfer 3 alice bob
+  liftM2 (,) (readTVar alice) (readTVar bob)
+</code></pre>
+<p>If we run this in <code>ghci</code>, it behaves as we should
+expect.</p>
+<pre class="screen"><code>ghci&gt; :load GameInventory
+[1 of 1] Compiling Main             ( GameInventory.hs, interpreted )
+Ok, modules loaded: Main.
+ghci&gt; atomically transferTest
+Loading package array-0.1.0.0 ... linking ... done.
+Loading package stm-2.1.1.0 ... linking ... done.
+(Gold 9,Gold 7)
+</code></pre>
+<p>The properties of atomicity and isolation guarantee that if another
+thread sees a change in <code>bob</code>'s balance, they will also be
+able to see the modification of <code>alice</code>'s balance.</p>
+<p>Even in a concurrent program, we strive to keep as much of our code
+as possible purely functional. This makes our code easier both to reason
+about and to test. It also gives the underlying STM engine less work to
+do, since the data involved is not transactional. Here's a pure function
+that removes an item from the list we use to represent a player's
+inventory.</p>
+<pre class="example"><code>removeInv :: Eq a =&gt; a -&gt; [a] -&gt; Maybe [a]
+removeInv x xs =
+    case takeWhile (/= x) xs of
+      (_:ys) -&gt; Just ys
+      []     -&gt; Nothing
+</code></pre>
+<p>The result uses <code>Maybe</code> so that we can tell whether the
+item was actually present in the player's inventory.</p>
+<p>Here is a transactional function to give an item to another player.
+It is slightly complicated by the need to determine whether the donor
+actually <em>has</em> the item in question.</p>
+<pre class="example"><code>maybeGiveItem item fromInv toInv = do
+  fromList &lt;- readTVar fromInv
+  case removeInv item fromList of
+    Nothing      -&gt; return False
+    Just newList -&gt; do
+      writeTVar fromInv newList
+      destItems &lt;- readTVar toInv
+      writeTVar toInv (item : destItems)
+      return True
+</code></pre>
+<h1 data-number="3" id="stm-and-safety"><span
+class="header-section-number">3</span> STM and safety</h1>
+<p>If we are to provide atomic, isolated transactions, it is critical
+that we cannot either deliberately or accidentally escape from an
+<code>atomically</code> block. Haskell's type system enforces this on
+our behalf, via the STM monad.</p>
+<pre class="screen"><code>ghci&gt; :type atomically
+atomically :: STM a -&gt; IO a
+</code></pre>
+<p>The <code>atomically</code> block takes an action in the STM monad,
+executes it, and makes its result available to us in the <code>IO</code>
+monad. This is the monad in which all transactional code executes. For
+instance, the functions that we have seen for manipulating
+<code>TVar</code> values operate in the <code>STM</code> monad.</p>
+<pre class="screen"><code>ghci&gt; :type newTVar
+newTVar :: a -&gt; STM (TVar a)
+ghci&gt; :type readTVar
+readTVar :: TVar a -&gt; STM a
+ghci&gt; :type writeTVar
+writeTVar :: TVar a -&gt; a -&gt; STM ()
+</code></pre>
+<p>This is also true of the transactional functions we defined
+earlier.</p>
+<pre class="example"><code>basicTransfer :: Gold -&gt; Balance -&gt; Balance -&gt; STM ()
+maybeGiveItem :: Item -&gt; Inventory -&gt; Inventory -&gt; STM Bool
+</code></pre>
+<p>The <code>STM</code> monad does not let us perform I/O or manipulate
+non-transactional mutable state, such as <code>MVar</code> values. This
+lets us avoid operations that might violate the transactional
+guarantees.</p>
+<h1 data-number="4" id="retrying-a-transaction"><span
+class="header-section-number">4</span> Retrying a transaction</h1>
+<p>The API of our <code>maybeGiveItem</code> function is somewhat
+awkward. It only gives an item if the character actually possesses it,
+which is reasonable, but by returning a <code>Bool</code>, it
+complicates the code of its callers. Here is an item sale function that
+has to look at the result of <code>maybeGiveItem</code> to decide what
+to do next.</p>
+<pre class="example"><code>maybeSellItem :: Item -&gt; Gold -&gt; Player -&gt; Player -&gt; STM Bool
+maybeSellItem item price buyer seller = do
+  given &lt;- maybeGiveItem item (inventory seller) (inventory buyer)
+  if given
+    then do
+      basicTransfer price (balance buyer) (balance seller)
+      return True
+    else return False
+</code></pre>
+<p>Not only do we have to check whether the item was given, we have to
+propagate an indication of success back to our caller. The complexity
+thus cascades outwards.</p>
+<p>There is a more elegant way to handle transactions that cannot
+succeed. The STM API provides a <code>retry</code> action which will
+immediately terminate an <code>atomically</code> block that cannot
+proceed. As the name suggests, when this occurs, execution of the block
+is restarted from scratch, with any previous modifications unperformed.
+Here is a rewrite of <code>maybeGiveItem</code> to use
+<code>retry</code>.</p>
+<pre class="example"><code>giveItem :: Item -&gt; Inventory -&gt; Inventory -&gt; STM ()
+
+giveItem item fromInv toInv = do
+  fromList &lt;- readTVar fromInv
+  case removeInv item fromList of
+    Nothing -&gt; retry
+    Just newList -&gt; do
+      writeTVar fromInv newList
+      readTVar toInv &gt;&gt;= writeTVar toInv . (item :)
+</code></pre>
+<p>Our <code>basicTransfer</code> from earlier had a different kind of
+flaw: it did not check the sender's balance to see if they had
+sufficient money to transfer. We can use <code>retry</code> to correct
+this, while keeping the function's type the same.</p>
+<pre class="example"><code>transfer :: Gold -&gt; Balance -&gt; Balance -&gt; STM ()
+
+transfer qty fromBal toBal = do
+  fromQty &lt;- readTVar fromBal
+  when (qty &gt; fromQty) $
+    retry
+  writeTVar fromBal (fromQty - qty)
+  readTVar toBal &gt;&gt;= writeTVar toBal . (qty +)
+</code></pre>
+<p>Now that we are using <code>retry</code>, our item sale function
+becomes dramatically simpler.</p>
+<pre class="example"><code>sellItem :: Item -&gt; Gold -&gt; Player -&gt; Player -&gt; STM ()
+sellItem item price buyer seller = do
+  giveItem item (inventory seller) (inventory buyer)
+  transfer price (balance buyer) (balance seller)
+</code></pre>
+<p>Its behavior is slightly different from our earlier function. Instead
+of immediately returning <code>False</code> if the seller doesn't have
+the item, it will block (if necessary) until both the seller has the
+item and the buyer has enough money to pay for it.</p>
+<p>The beauty of STM lies in the cleanliness of the code it lets us
+write. We can take two functions that work correctly, and use them to
+create a third that will also behave itself, all with minimal
+effort.</p>
+<h2 data-number="4.1" id="what-happens-when-we-retry"><span
+class="header-section-number">4.1</span> What happens when we
+retry?</h2>
+<p>The <code>retry</code> function doesn't just make our code cleaner:
+its underlying behavior seems nearly magical. When we call it, it
+doesn't restart our transaction immediately. Instead, it blocks our
+thread until one or more of the variables that we touched before calling
+<code>retry</code> is changed by another thread.</p>
+<p>For instance, if we invoke <code>transfer</code> with insufficient
+funds, <code>retry</code> will <em>automatically wait</em> until our
+balance changes before it starts the <code>atomically</code> block
+again. The same happens with our new <code>giveItem</code> function: if
+the sender doesn't currently have the item in their inventory, the
+thread will block until they do.</p>
+<h1 data-number="5" id="choosing-between-alternatives"><span
+class="header-section-number">5</span> Choosing between
+alternatives</h1>
+<p>We don't always want to restart an <code>atomically</code> action if
+it calls <code>retry</code> or fails due to concurrent modification by
+another thread. For instance, our new <code>sellItem</code> function
+will retry indefinitely as long as we are missing either the item or
+enough money, but we might prefer to just try the sale once.</p>
+<p>The <code>orElse</code> combinator lets us perform a "backup" action
+if the main one fails.</p>
+<pre class="screen"><code>ghci&gt; :type orElse
+orElse :: STM a -&gt; STM a -&gt; STM a
+</code></pre>
+<p>If <code>sellItem</code> fails, then <code>orElse</code> will invoke
+the <code>return False</code> action, causing our sale function to
+return immediately.</p>
+<h2 data-number="5.1"
+id="using-higher-order-code-with-transactions"><span
+class="header-section-number">5.1</span> Using higher order code with
+transactions</h2>
+<p>Imagine that we'd like to be a little more ambitious, and buy the
+first item from a list that is both in the possession of the seller and
+affordable to us, but do nothing if we cannot afford something right
+now. We could of course write code to do this in a direct manner.</p>
+<pre class="example"><code>crummyList :: [(Item, Gold)] -&gt; Player -&gt; Player
+             -&gt; STM (Maybe (Item, Gold))
+crummyList list buyer seller = go list
+    where go []                         = return Nothing
+          go (this@(item,price) : rest) = do
+              sellItem item price buyer seller
+              return (Just this)
+           `orElse`
+              go rest
+</code></pre>
+<p>This function suffers from the familiar problem of muddling together
+what we want to do with how we ought to do it. A little inspection
+suggests that there are two reusable patterns buried in this code.</p>
+<p>The first of these is to make a transaction fail immediately, instead
+of retrying.</p>
+<pre class="example"><code>maybeSTM :: STM a -&gt; STM (Maybe a)
+maybeSTM m = (Just `liftM` m) `orElse` return Nothing
+</code></pre>
+<p>Secondly, we want to try an action over successive elements of a
+list, stopping at the first that succeeds, or performing a
+<code>retry</code> if every one fails. Conveniently for us, STM is an
+instance of the <code>MonadPlus</code> type class.</p>
+<pre class="example"><code>instance MonadPlus STM where
+  mzero = retry
+  mplus = orElse
+</code></pre>
+<p>The <code>Control.Monad</code> module defines the <code>msum</code>
+function as follows, which is exactly what we need.</p>
+<pre class="example"><code>msum :: MonadPlus m =&gt; [m a] -&gt; m a
+msum =  foldr mplus mzero
+</code></pre>
+<p>We now have a few key pieces of machinery that will help us to write
+a much clearer version of our function.</p>
+<pre class="example"><code>shoppingList :: [(Item, Gold)] -&gt; Player -&gt; Player
+             -&gt; STM (Maybe (Item, Gold))
+shoppingList list buyer seller = maybeSTM . msum $ map sellOne list
+    where sellOne this@(item,price) = do
+            sellItem item price buyer seller
+            return this
+</code></pre>
+<p>Since STM is an instance of the <code>MonadPlus</code> type class, we
+can generalize <code>maybeSTM</code> to work over any
+<code>MonadPlus</code>.</p>
+<pre class="example"><code>maybeM :: MonadPlus m =&gt; m a -&gt; m (Maybe a)
+maybeM m = (Just `liftM` m) `mplus` return Nothing
+</code></pre>
+<p>This gives us a function that is useful in a greater variety of
+situations.</p>
+<h1 data-number="6" id="io-and-stm"><span
+class="header-section-number">6</span> I/O and STM</h1>
+<p>The STM monad forbids us from performing arbitrary I/O actions
+because they can break the guarantees of atomicity and isolation that
+the monad provides. Of course the need to perform I/O still arises; we
+just have to treat it very carefully.</p>
+<p>Most often, we will need to perform some I/O action as a result of a
+decision we made inside an <code>atomically</code> block. In these
+cases, the right thing to do is usually to return a piece of data from
+<code>atomically</code>, which will tell the caller in the
+<code>IO</code> monad what to do next. We can even return the action to
+perform, since actions are first class values.</p>
+<pre class="example"><code>someAction :: IO a
+
+stmTransaction :: STM (IO a)
+stmTransaction = return someAction
+
+doSomething :: IO a
+doSomething = join (atomically stmTransaction)
+</code></pre>
+<p>We occasionally need to perform an I/O operation from within STM. For
+instance, reading immutable data from a file that must exist does not
+violate the STM guarantees of isolation or atomicity. In these cases, we
+can use <code>unsafeIOToSTM</code> to execute an <code>IO</code> action.
+This function is exported by the low-level <code>GHC.Conc</code> module,
+so we must go out of our way to use it.</p>
+<pre class="screen"><code>ghci&gt; :m +GHC.Conc
+ghci&gt; :type unsafeIOToSTM
+unsafeIOToSTM :: IO a -&gt; STM a
+</code></pre>
+<p>The <code>IO</code> action that we execute must not start another
+<code>atomically</code> transaction. If a thread tries to nest
+transactions, the runtime system will throw an exception.</p>
+<p>Since the type system can't help us to ensure that our
+<code>IO</code> code is doing something sensible, we will be safest if
+we limit our use of <code>unsafeIOToSTM</code> as much as possible. Here
+is a typical error that can arise with <code>IO</code> in an
+<code>atomically</code> block.</p>
+<pre class="example"><code>launchTorpedoes :: IO ()
+
+notActuallyAtomic = do
+  doStuff
+  unsafeIOToSTM launchTorpedoes
+  mightRetry
+</code></pre>
+<p>If the <code>mightRetry</code> block causes our transaction to
+restart, we will call <code>launchTorpedoes</code> more than once.
+Indeed, we can't predict how many times it will be called, since the
+runtime system handles retries for us. The solution is not to perform
+these kinds of non-idempotent<a href="#fn1" class="footnote-ref"
+id="fnref1" role="doc-noteref"><sup>1</sup></a> I/O operations inside a
+transaction.</p>
+<h1 data-number="7" id="communication-between-threads"><span
+class="header-section-number">7</span> Communication between
+threads</h1>
+<p>As well as the basic <code>TVar</code> type, the <code>stm</code>
+package provides two types that are more useful for communicating
+between threads. A <code>TMVar</code> is the STM equivalent of an
+<code>MVar</code>: it can hold either <code>Just</code> a value, or
+<code>Nothing</code>. The <code>TChan</code> type is the STM counterpart
+of <code>Chan</code>, and implements a typed FIFO channel.</p>
+<h1 data-number="8" id="a-concurrent-web-link-checker"><span
+class="header-section-number">8</span> A concurrent web link
+checker</h1>
+<p>As a practical example of using STM, we will develop a program that
+checks an HTML file for broken links, that is, URLs that either point to
+bad web pages or dead servers. This is a good problem to address via
+concurrency: if we try to talk to a dead server, it will take up to two
+minutes before our connection attempt times out. If we use multiple
+threads, we can still get useful work done while one or two are stuck
+talking to slow or dead servers.</p>
+<p>We can't simply create one thread per URL, because that may
+overburden either our CPU or our network connection if (as we expect)
+most of the links are live and responsive. Instead, we use a fixed
+number of worker threads, which fetch URLs to download from a queue.</p>
+<pre class="example"><code>{-# LANGUAGE FlexibleContexts, GeneralizedNewtypeDeriving,
+             PatternGuards #-}
+
+import Control.Concurrent (forkIO)
+import Control.Concurrent.STM
+import Control.Exception (catch, finally)
+import Control.Monad.Error
+import Control.Monad.State
+import Data.Char (isControl)
+import Data.List (nub)
+import Network.URI
+import Prelude hiding (catch)
+import System.Console.GetOpt
+import System.Environment (getArgs)
+import System.Exit (ExitCode(..), exitWith)
+import System.IO (hFlush, hPutStrLn, stderr, stdout)
+import Text.Printf (printf)
+import qualified Data.ByteString.Lazy.Char8 as B
+import qualified Data.Set as S
+
+-- This requires the HTTP package, which is not bundled with GHC
+import Network.HTTP
+
+type URL = B.ByteString
+
+data Task = Check URL | Done
+</code></pre>
+<p>Our <code>main</code> function provides the top-level scaffolding for
+our program.</p>
+<pre class="example"><code>main :: IO ()
+main = do
+    (files,k) &lt;- parseArgs
+    let n = length files
+
+    -- count of broken links
+    badCount &lt;- newTVarIO (0 :: Int)
+
+    -- for reporting broken links
+    badLinks &lt;- newTChanIO
+
+    -- for sending jobs to workers
+    jobs &lt;- newTChanIO
+
+    -- the number of workers currently running
+    workers &lt;- newTVarIO k
+
+    -- one thread reports bad links to stdout
+    forkIO $ writeBadLinks badLinks
+
+    -- start worker threads
+    forkTimes k workers (worker badLinks jobs badCount)
+
+    -- read links from files, and enqueue them as jobs
+    stats &lt;- execJob (mapM_ checkURLs files)
+                     (JobState S.empty 0 jobs)
+
+    -- enqueue &quot;please finish&quot; messages
+    atomically $ replicateM_ k (writeTChan jobs Done)
+
+    waitFor workers
+
+    broken &lt;- atomically $ readTVar badCount
+
+    printf fmt broken
+               (linksFound stats)
+               (S.size (linksSeen stats))
+               n
+  where
+    fmt   = &quot;Found %d broken links. &quot; ++
+            &quot;Checked %d links (%d unique) in %d files.\n&quot;
+</code></pre>
+<p>When we are in the <code>IO</code> monad, we can create new
+<code>TVar</code> values using the <code>newTVarIO</code> function.
+There are also counterparts for creating <code>TMVar</code> and
+<code>TChan</code> values.</p>
+<p>Notice that we use the <code>printf</code> function to print a report
+at the end. Unlike its counterpart in C, the Haskell <code>printf</code>
+function can check its argument types, and their number, at runtime.</p>
+<pre class="screen"><code>ghci&gt; :m +Text.Printf
+ghci&gt; printf &quot;%d and %d\n&quot; (3::Int)
+3 and *** Exception: Printf.printf: argument list ended prematurely
+ghci&gt; printf &quot;%s and %d\n&quot; &quot;foo&quot; (3::Int)
+foo and 3
+</code></pre>
+<p>Try evaluating <code>printf "%d" True</code> at the <code>ghci</code>
+prompt, and see what happens.</p>
+<p>Supporting <code>main</code> are several short functions.</p>
+<pre class="example"><code>modifyTVar_ :: TVar a -&gt; (a -&gt; a) -&gt; STM ()
+modifyTVar_ tv f = readTVar tv &gt;&gt;= writeTVar tv . f
+
+forkTimes :: Int -&gt; TVar Int -&gt; IO () -&gt; IO ()
+forkTimes k alive act =
+  replicateM_ k . forkIO $
+    act
+    `finally`
+    (atomically $ modifyTVar_ alive (subtract 1))
+</code></pre>
+<p>The <code>forkTimes</code> function starts a number of identical
+worker threads, and decreases the "alive" count each time a thread
+exits. We use a <code>finally</code> combinator to ensure that the count
+is always decremented, no matter how the thread terminates.</p>
+<p>Next, the <code>writeBadLinks</code> function prints each broken or
+dead link to <code>stdout</code>.</p>
+<pre class="example"><code>writeBadLinks :: TChan String -&gt; IO ()
+writeBadLinks c =
+  forever $
+    atomically (readTChan c) &gt;&gt;= putStrLn &gt;&gt; hFlush stdout
+</code></pre>
+<p>We use the <code>forever</code> combinator above, which repeats an
+action endlessly.</p>
+<pre class="screen"><code>ghci&gt; :m +Control.Monad
+ghci&gt; :type forever
+forever :: (Monad m) =&gt; m a -&gt; m ()
+</code></pre>
+<p>Our <code>waitFor</code> function uses <code>check</code>, which
+calls <code>retry</code> if its argument evaluates to
+<code>False</code>.</p>
+<pre class="example"><code>waitFor :: TVar Int -&gt; IO ()
+waitFor alive = atomically $ do
+  count &lt;- readTVar alive
+  check (count == 0)
+</code></pre>
+<h2 data-number="8.1" id="checking-a-link"><span
+class="header-section-number">8.1</span> Checking a link</h2>
+<p>Here is a naive function to check the state of a link. This code is
+similar to the podcatcher that we developed in <a
+href="22-web-client-programming.org">Chapter 22, <em>Extended Example:
+Web Client Programming</em></a>, with a few small differences.</p>
+<pre class="example"><code>getStatus :: URI -&gt; IO (Either String Int)
+getStatus = chase (5 :: Int)
+  where
+    chase 0 _ = bail &quot;too many redirects&quot;
+    chase n u = do
+      resp &lt;- getHead u
+      case resp of
+        Left err -&gt; bail (show err)
+        Right r -&gt;
+          case rspCode r of
+            (3,_,_) -&gt;
+               case findHeader HdrLocation r of
+                 Nothing -&gt; bail (show r)
+                 Just u&#39; -&gt;
+                   case parseURI u&#39; of
+                     Nothing -&gt; bail &quot;bad URL&quot;
+                     Just url -&gt; chase (n-1) url
+            (a,b,c) -&gt; return . Right $ a * 100 + b * 10 + c
+    bail = return . Left
+
+getHead :: URI -&gt; IO (Result Response)
+getHead uri = simpleHTTP Request { rqURI = uri,
+                                   rqMethod = HEAD,
+                                   rqHeaders = [],
+                                   rqBody = &quot;&quot; }
+</code></pre>
+<p>We follow a HTTP redirect response just a few times, to avoid endless
+redirect loops. To determine whether a URL is valid, we use the HTTP
+standard's HEAD verb, which uses less bandwidth than a full GET.</p>
+<p>This code has the classic "marching off the left of the screen" style
+that we have learned to be wary of. Here is a rewrite that offers
+greater clarity via the <code>ErrorT</code> monad transformer and a few
+generally useful functions.</p>
+<pre class="example"><code>getStatusE = runErrorT . chase (5 :: Int)
+  where
+    chase :: Int -&gt; URI -&gt; ErrorT String IO Int
+    chase 0 _ = throwError &quot;too many redirects&quot;
+    chase n u = do
+      r &lt;- embedEither show =&lt;&lt; liftIO (getHead u)
+      case rspCode r of
+        (3,_,_) -&gt; do
+            u&#39;  &lt;- embedMaybe (show r)  $ findHeader HdrLocation r
+            url &lt;- embedMaybe &quot;bad URL&quot; $ parseURI u&#39;
+            chase (n-1) url
+        (a,b,c) -&gt; return $ a*100 + b*10 + c
+
+-- This function is defined in Control.Arrow.
+left :: (a -&gt; c) -&gt; Either a b -&gt; Either c b
+left f (Left x)  = Left (f x)
+left _ (Right x) = Right x
+
+-- Some handy embedding functions.
+embedEither :: (MonadError e m) =&gt; (s -&gt; e) -&gt; Either s a -&gt; m a
+embedEither f = either (throwError . f) return
+
+embedMaybe :: (MonadError e m) =&gt; e -&gt; Maybe a -&gt; m a
+embedMaybe err = maybe (throwError err) return
+</code></pre>
+<p>You might notice that, for once, we are explicitly using</p>
+<h2 data-number="8.2" id="worker-threads"><span
+class="header-section-number">8.2</span> Worker threads</h2>
+<p>Each worker thread reads a task off the shared queue. It either
+checks the given URL or exits.</p>
+<pre class="example"><code>worker :: TChan String -&gt; TChan Task -&gt; TVar Int -&gt; IO ()
+worker badLinks jobQueue badCount = loop
+  where
+    -- Consume jobs until we are told to exit.
+    loop = do
+        job &lt;- atomically $ readTChan jobQueue
+        case job of
+            Done  -&gt; return ()
+            Check x -&gt; checkOne (B.unpack x) &gt;&gt; loop
+
+    -- Check a single link.
+    checkOne url = case parseURI url of
+        Just uri -&gt; do
+            code &lt;- getStatus uri `catch` (return . Left . show) 
+            case code of
+                Right 200 -&gt; return ()
+                Right n   -&gt; report (show n)
+                Left err  -&gt; report err
+        _ -&gt; report &quot;invalid URL&quot;
+
+        where report s = atomically $ do
+                           modifyTVar_ badCount (+1)
+                           writeTChan badLinks (url ++ &quot; &quot; ++ s)
+</code></pre>
+<h2 data-number="8.3" id="finding-links"><span
+class="header-section-number">8.3</span> Finding links</h2>
+<p>We structure our link finding around a state monad transformer
+stacked on the <code>IO</code> monad. Our state tracks links that we
+have already seen (so we don't check a repeated link more than once),
+the total number of links we have encountered, and the queue to which we
+should add the links that we will be checking.</p>
+<pre class="example"><code>data JobState = JobState { linksSeen :: S.Set URL,
+                           linksFound :: Int,
+                           linkQueue :: TChan Task }
+
+newtype Job a = Job { runJob :: StateT JobState IO a }
+    deriving (Monad, MonadState JobState, MonadIO)
+
+execJob :: Job a -&gt; JobState -&gt; IO JobState
+execJob = execStateT . runJob
+</code></pre>
+<p>Strictly speaking, for a small standalone program, we don't need the
+<code>newtype</code> wrapper, but we include it here as an example of
+good practice (it only costs a few lines of code, anyway).</p>
+<p>The <code>main</code> function maps <code>checkURLs</code> over each
+input file, so <code>checkURLs</code> only needs to read a single
+file.</p>
+<pre class="example"><code>checkURLs :: FilePath -&gt; Job ()
+checkURLs f = do
+    src &lt;- liftIO $ B.readFile f
+    let urls = extractLinks src
+    filterM seenURI urls &gt;&gt;= sendJobs
+    updateStats (length urls)
+
+updateStats :: Int -&gt; Job ()
+updateStats a = modify $ \s -&gt;
+    s { linksFound = linksFound s + a }
+
+-- | Add a link to the set we have seen.
+insertURI :: URL -&gt; Job ()
+insertURI c = modify $ \s -&gt;
+    s { linksSeen = S.insert c (linksSeen s) }
+
+-- | If we have seen a link, return False.  Otherwise, record that we
+-- have seen it, and return True.
+seenURI :: URL -&gt; Job Bool
+seenURI url = do
+    seen &lt;- (not . S.member url) `liftM` gets linksSeen
+    insertURI url
+    return seen
+
+sendJobs :: [URL] -&gt; Job ()
+sendJobs js = do
+    c &lt;- gets linkQueue
+    liftIO . atomically $ mapM_ (writeTChan c . Check) js
+</code></pre>
+<p>Our <code>extractLinks</code> function doesn't attempt to properly
+parse a HTML or text file. Instead, it looks for strings that appear to
+be URLs, and treats them as "good enough".</p>
+<pre class="example"><code>extractLinks :: B.ByteString -&gt; [URL]
+extractLinks = concatMap uris . B.lines
+  where uris s      = filter looksOkay (B.splitWith isDelim s)
+        isDelim c   = isControl c || c `elem` &quot; &lt;&gt;\&quot;{}|\\^[]`&quot;
+        looksOkay s = http `B.isPrefixOf` s
+        http        = B.pack &quot;http:&quot;
+</code></pre>
+<h2 data-number="8.4" id="command-line-parsing"><span
+class="header-section-number">8.4</span> Command line parsing</h2>
+<p>To parse our command line arguments, we use the
+<code>System.Console.GetOpt</code> module. It provides useful code for
+parsing arguments, but it is slightly involved to use.</p>
+<pre class="example"><code>data Flag = Help | N Int
+            deriving Eq
+
+parseArgs :: IO ([String], Int)
+parseArgs = do
+    argv &lt;- getArgs
+    case parse argv of
+        ([], files, [])                     -&gt; return (nub files, 16)
+        (opts, files, [])
+            | Help `elem` opts              -&gt; help
+            | [N n] &lt;- filter (/=Help) opts -&gt; return (nub files, n)
+        (_,_,errs)                          -&gt; die errs
+  where
+    parse argv = getOpt Permute options argv
+    header     = &quot;Usage: urlcheck [-h] [-n n] [file ...]&quot;
+    info       = usageInfo header options
+    dump       = hPutStrLn stderr
+    die errs   = dump (concat errs ++ info) &gt;&gt; exitWith (ExitFailure 1)
+    help       = dump info                  &gt;&gt; exitWith ExitSuccess
+</code></pre>
+<p>The <code>getOpt</code> function takes three arguments.</p>
+<ul>
+<li>An argument ordering, which specifies whether options can be mixed
+with other arguments (<code>Permute</code>, which we use above) or must
+appear before them.</li>
+<li>A list of option definitions. Each consists of a list of short names
+for the option, a list of long names for the option, a description of
+the option (e.g. whether it accepts an argument), and an explanation for
+users.</li>
+<li>A list of the arguments and options, as returned by
+<code>getArgs</code>.</li>
+</ul>
+<p>The function returns a triple which consists of the parsed options,
+the remaining arguments, and any error messages that arose.</p>
+<p>We use the <code>Flag</code> algebraic data type to represent the
+options our program can accept.</p>
+<pre class="example"><code>options :: [OptDescr Flag]
+options = [ Option [&#39;h&#39;] [&quot;help&quot;] (NoArg Help)
+                   &quot;Show this help message&quot;,
+            Option [&#39;n&#39;] []       (ReqArg (\s -&gt; N (read s)) &quot;N&quot;)
+                   &quot;Number of concurrent connections (default 16)&quot; ]
+</code></pre>
+<p>Our <code>options</code> list describes each option that we accept.
+Each description must be able to create a <code>Flag</code> value. Take
+a look at our uses of <code>NoArg</code> and <code>ReqArg</code> above.
+These are constructors for the <code>GetOpt</code> module's
+<code>ArgDescr</code> type.</p>
+<pre class="example"><code>data ArgDescr a = NoArg a
+                | ReqArg (String -&gt; a) String
+                | OptArg (Maybe String -&gt; a) String
+</code></pre>
+<ul>
+<li>The <code>NoArg</code> constructor accepts a parameter that will
+represent this option. In our case, if a user invokes our program with
+<code>-h</code> or <code>--help</code>, we will use the value
+<code>Help</code>.</li>
+<li>The <code>ReqArg</code> constructor accepts a function that maps a
+required argument to a value. Its second argument is used when printing
+help. Here, we convert a string into an integer, and pass it to our
+<code>Flag</code> type's <code>N</code> constructor.</li>
+<li>The <code>OptArg</code> constructor is similar to the
+<code>ReqArg</code> constructor, but it permits the use of options that
+can be used without arguments.</li>
+</ul>
+<h2 data-number="8.5" id="pattern-guards"><span
+class="header-section-number">8.5</span> Pattern guards</h2>
+<p>We sneaked one last language extension into our definition of
+<code>parseArgs</code>. Pattern guards let us write more concise guard
+expressions. They are enabled via the <code>PatternGuards</code>
+language extension.</p>
+<p>A pattern guard has three components: a pattern, a <code>&lt;-</code>
+symbol, and an expression. The expression is evaluated and matched
+against the pattern. If it matches, any variables present in the pattern
+are bound. We can mix pattern guards and normal <code>Bool</code> guard
+expressions in a single guard by separating them with commas.</p>
+<pre class="example"><code>{-# LANGUAGE PatternGuards #-}
+
+testme x xs | Just y &lt;- lookup x xs, y &gt; 3 = y
+            | otherwise                    = 0
+</code></pre>
+<p>In the above example, we return a value from the alist
+<code>xs</code> if its associated key <code>x</code> is present,
+provided the value is greater than</p>
+<ol>
+<li>The above definition is equivalent to the following.</li>
+</ol>
+<pre class="example"><code>testme_noguards x xs = case lookup x xs of
+                         Just y | y &gt; 3 -&gt; y
+                         _              -&gt; 0
+</code></pre>
+<p>Pattern guards let us "collapse" a collection of guards and
+<code>case</code> expressions into a single guard, allowing us to write
+more succinct and descriptive guards.</p>
+<h1 data-number="9" id="practical-aspects-of-stm"><span
+class="header-section-number">9</span> Practical aspects of STM</h1>
+<p>We have so far been quiet about the specific benefits that STM gives
+us. Most obvious is how well it <em>composes</em>: to add code to a
+transaction, we just use our usual monadic building blocks,
+<code>(&gt;&gt;=)</code> and <code>(&gt;&gt;)</code>.</p>
+<p>The notion of composability is critical to building modular software.
+If we take two pieces of code that individually work correctly, the
+composition of the two should also be correct. While normal threaded
+programming makes composability impossible, STM restores it as a key
+assumption that we can rely upon.</p>
+<p>The <code>STM</code> monad prevents us from accidentally performing
+non-transactional I/O actions. We don't need to worry about lock
+ordering, since our code contains no locks. We can forget about lost
+wakeups, since we don't have condition variables. If an exception is
+thrown, we can either catch it using <code>catchSTM</code>, or be
+bounced out of our transaction, leaving our state untouched. Finally,
+the <code>retry</code> and <code>orElse</code> functions give us some
+beautiful ways to structure our code.</p>
+<p>Code that uses STM will not deadlock, but it is possible for threads
+to starve each other to some degree. A long-running transaction can
+cause another transaction to <code>retry</code> often enough that it
+will make comparatively little progress. To address a problem like this,
+make your transactions as short as you can, while keeping your data
+consistent.</p>
+<h2 data-number="9.1"
+id="getting-comfortable-with-giving-up-control"><span
+class="header-section-number">9.1</span> Getting comfortable with giving
+up control</h2>
+<p>Whether with concurrency or memory management, there will be times
+when we must retain control: some software must make solid guarantees
+about latency or memory footprint, so we will be forced to spend the
+extra time and effort managing and debugging explicit code. For many
+interesting, practical uses of software, garbage collection and STM will
+do more than well enough.</p>
+<p>STM is not a complete panacea. It is useful to compare it with the
+use of garbage collection for memory management. When we abandon
+explicit memory management in favour of garbage collection, we give up
+control in return for safer code. Likewise, with STM, we abandon the
+low-level details, in exchange for code that we can better hope to
+understand.</p>
+<h2 data-number="9.2" id="using-invariants"><span
+class="header-section-number">9.2</span> Using invariants</h2>
+<p>STM cannot eliminate certain classes of bug. For instance, if we
+withdraw money from an account in one <code>atomically</code> block,
+return to the <code>IO</code> monad, then deposit it to another account
+in a different <code>atomically</code> block, our code will have an
+inconsistency. There will be a window of time in which the money is
+present in neither account.</p>
+<pre class="example"><code>bogusTransfer qty fromBal toBal = do
+  fromQty &lt;- atomically $ readTVar fromBal
+  -- window of inconsistency
+  toQty   &lt;- atomically $ readTVar toBal
+  atomically $ writeTVar fromBal (fromQty - qty)
+  -- window of inconsistency
+  atomically $ writeTVar toBal   (toQty + qty)
+
+bogusSale :: Item -&gt; Gold -&gt; Player -&gt; Player -&gt; IO ()
+bogusSale item price buyer seller = do
+  atomically $ giveItem item (inventory seller) (inventory buyer)
+  bogusTransfer price (balance buyer) (balance seller)
+</code></pre>
+<p>In concurrent programs, these kinds of problems are notoriously
+difficult to find and reproduce. For instance, the inconsistency that we
+describe above will usually only occur for a brief period of time.
+Problems like this often refuse to show up during development, instead
+only occurring in the field, under heavy load.</p>
+<p>The <code>alwaysSucceeds</code> function lets us define an
+<em>invariant</em>, a property of our data that must always be true.</p>
+<pre class="screen"><code>ghci&gt; :type alwaysSucceeds
+alwaysSucceeds :: STM a -&gt; STM ()
+</code></pre>
+<p>When we create an invariant, it will immediately be checked. To fail,
+the invariant must raise an exception. More interestingly, the invariant
+will subsequently be checked automatically at the end of <em>every</em>
+transaction. If it fails at any point, the transaction will be aborted,
+and the exception raised by the invariant will be propagated. This means
+that we will get immediate feedback as soon as one of our invariants is
+violated.</p>
+<p>For instance, here are a few functions to populate our game world
+from the beginning of this chapter with players.</p>
+<pre class="example"><code>newPlayer :: Gold -&gt; HitPoint -&gt; [Item] -&gt; STM Player
+newPlayer balance health inventory =
+    Player `liftM` newTVar balance
+              `ap` newTVar health
+              `ap` newTVar inventory
+
+populateWorld :: STM [Player]
+populateWorld = sequence [ newPlayer 20 20 [Wand, Banjo],
+                           newPlayer 10 12 [Scroll] ]
+</code></pre>
+<p>This function returns an invariant that we can use to ensure that the
+world's money balance is always consistent: the balance at any point in
+time should be the same as at the creation of the world.</p>
+<pre class="example"><code>consistentBalance :: [Player] -&gt; STM (STM ())
+consistentBalance players = do
+    initialTotal &lt;- totalBalance
+    return $ do
+      curTotal &lt;- totalBalance
+      when (curTotal /= initialTotal) $
+        error &quot;inconsistent global balance&quot;
+  where totalBalance   = foldM addBalance 0 players
+        addBalance a b = (a+) `liftM` readTVar (balance b)
+</code></pre>
+<p>Let's write a small function that exercises this.</p>
+<pre class="example"><code>tryBogusSale = do
+  players@(alice:bob:_) &lt;- atomically populateWorld
+  atomically $ alwaysSucceeds =&lt;&lt; consistentBalance players
+  bogusSale Wand 5 alice bob
+</code></pre>
+<p>If we run it in <code>ghci</code>, it should detect the inconsistency
+caused by our incorrect use of <code>atomically</code> in the
+<code>bogusTransfer</code> function we wrote.</p>
+<pre class="screen"><code>ghci&gt; tryBogusSale
+*** Exception: inconsistent global balance
+</code></pre>
+<h1 data-number="10" id="footnotes"><span
+class="header-section-number">10</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>An idempotent action gives the same
+result every time it is invoked, no matter how many times this occurs.<a
+href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

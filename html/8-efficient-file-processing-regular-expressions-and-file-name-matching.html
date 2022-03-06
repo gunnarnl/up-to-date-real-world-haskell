@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 8: Efficient File Processing, Regular Expressions, and File Name Matching</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 8: Efficient File Processing, Regular
+Expressions, and File Name Matching</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#efficient-file-processing"><span
+class="toc-section-number">1</span> Efficient file processing</a>
+<ul>
+<li><a href="#binary-io-and-qualified-imports"><span
+class="toc-section-number">1.1</span> Binary I/O and qualified
+imports</a></li>
+<li><a href="#text-io"><span class="toc-section-number">1.2</span> Text
+I/O</a></li>
+</ul></li>
+<li><a href="#file-name-matching"><span
+class="toc-section-number">2</span> File name matching</a></li>
+<li><a href="#regular-expressions-in-haskell"><span
+class="toc-section-number">3</span> Regular expressions in Haskell</a>
+<ul>
+<li><a
+href="#todo-explain-how-to-install-regex-posix-with-cabal-or-stack"><span
+class="toc-section-number">3.1</span> TODO: Explain how to install
+regex-posix with Cabal or Stack</a></li>
+<li><a href="#the-many-types-of-result"><span
+class="toc-section-number">3.2</span> The many types of result</a></li>
+</ul></li>
+<li><a href="#more-about-regular-expressions"><span
+class="toc-section-number">4</span> More about regular expressions</a>
+<ul>
+<li><a href="#mixing-and-matching-string-types"><span
+class="toc-section-number">4.1</span> Mixing and matching string
+types</a></li>
+<li><a href="#other-things-you-should-know"><span
+class="toc-section-number">4.2</span> Other things you should
+know</a></li>
+</ul></li>
+<li><a
+href="#translating-a-glob-pattern-into-a-regular-expression"><span
+class="toc-section-number">5</span> Translating a glob pattern into a
+regular expression</a>
+<ul>
+<li><a href="#explain--xflexiblecontexts"><span
+class="toc-section-number">5.1</span> <span
+class="todo TODO">TODO</span> Explain -XFlexibleContexts</a></li>
+<li><a href="#exercises"><span class="toc-section-number">5.2</span>
+Exercises</a></li>
+</ul></li>
+<li><a href="#an-important-aside-writing-lazy-functions"><span
+class="toc-section-number">6</span> An important aside: writing lazy
+functions</a></li>
+<li><a href="#making-use-of-our-pattern-matcher"><span
+class="toc-section-number">7</span> Making use of our pattern
+matcher</a>
+<ul>
+<li><a href="#exercises-1"><span class="toc-section-number">7.1</span>
+Exercises</a></li>
+</ul></li>
+<li><a href="#handling-errors-through-api-design"><span
+class="toc-section-number">8</span> Handling errors through API
+design</a>
+<ul>
+<li><a href="#exercises-2"><span class="toc-section-number">8.1</span>
+Exercises</a></li>
+</ul></li>
+<li><a href="#putting-our-code-to-work"><span
+class="toc-section-number">9</span> Putting our code to work</a></li>
+<li><a href="#exercises-3"><span class="toc-section-number">10</span>
+Exercises</a></li>
+<li><a href="#footnotes"><span class="toc-section-number">11</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<h1 data-number="1" id="efficient-file-processing"><span
+class="header-section-number">1</span> Efficient file processing</h1>
+<p>This simple microbenchmark reads a text file full of numbers, and
+prints their sum.</p>
+<pre class="example"><code>main = do
+    contents &lt;- getContents
+    print (sumFile contents)
+  where sumFile = sum . map read . words
+</code></pre>
+<p>Although the <code>String</code> type is the default used for reading
+and writing files, it is not efficient, so a simple program like this
+will perform badly.</p>
+<p>A <code>String</code> is represented as a list of <code>Char</code>
+values; each element of a list is allocated individually, and has some
+book-keeping overhead. These factors affect the memory consumption and
+performance of a program that must read or write text or binary data. On
+simple benchmarks like this, even programs written in interpreted
+languages such as Python can outperform Haskell code that uses
+<code>String</code> by an order of magnitude.</p>
+<p>The <code>bytestring</code> library provides a fast, cheap
+alternative to the <code>String</code> type. Code written with
+<code>bytestring</code> can often match or exceed the performance and
+memory footprint of C, while maintaining Haskell's expressivity and
+conciseness.</p>
+<p>The library supplies two modules. Each defines functions that are
+nearly drop-in replacements for their <code>String</code>
+counterparts.</p>
+<ul>
+<li>The <code>Data.ByteString</code> module defines a <em>strict</em>
+type named <code>ByteString</code>. This represents a string of binary
+or text data in a single array.</li>
+<li>The <code>Data.ByteString.Lazy</code> module provides a
+<em>lazy</em> type, also named <code>ByteString</code>. This represents
+a string of data as a list of <em>chunks</em>, arrays of up to 64KB in
+size.</li>
+</ul>
+<p>Each <code>ByteString</code> type performs better under particular
+circumstances. For streaming a large quantity (hundreds of megabytes to
+terabytes) of data, the lazy <code>ByteString</code> type is usually
+best. Its chunk size is tuned to be friendly to a modern CPU's L1 cache,
+and a garbage collector can quickly discard chunks of streamed data that
+are no longer being used.</p>
+<p>The strict <code>ByteString</code> type performs best for
+applications that are less concerned with memory footprint, or that need
+to access data randomly.</p>
+<h2 data-number="1.1" id="binary-io-and-qualified-imports"><span
+class="header-section-number">1.1</span> Binary I/O and qualified
+imports</h2>
+<p>Let's develop a small function to illustrate some of the
+<code>ByteString</code> API. We will determine if a file is an ELF
+object file: this is the format used for executables on almost all
+modern Unix-like systems.</p>
+<p>This is a simple matter of looking at the first four bytes in the
+file, and seeing if they match a specific sequence of bytes. A byte
+sequence that identifies a file's type is often known as a <em>magic
+number</em>.</p>
+<pre class="example"><code>import qualified Data.ByteString.Lazy as L
+
+hasElfMagic :: L.ByteString -&gt; Bool
+hasElfMagic content = L.take 4 content == elfMagic
+    where elfMagic = L.pack [0x7f, 0x45, 0x4c, 0x46]
+</code></pre>
+<p>We import the <code>ByteString</code> modules using Haskell's
+<em>qualified import</em> syntax, the <code>import qualified</code> that
+we see above. This lets us refer to a module with a name of our
+choosing.</p>
+<p>For instance, when we want to refer to the lazy
+<code>ByteString</code> module's <code>take</code> function, we must
+write <code>L.take</code>, since we imported the module under the name
+<code>L</code>. If we are not explicit about which version of e.g.
+<code>take</code> we want, the compiler will report an error.</p>
+<p>We will always use qualified import syntax with the
+<code>ByteString</code> modules, because they provide many functions
+that have the same names as Prelude functions.</p>
+<div class="TIP">
+<p>Tip</p>
+<p>Qualified imports make it easy to switch between
+<code>ByteString</code> types. All you should need to do is modify an
+<code>import</code> declaration at the top of your source file; the rest
+of your code will probably not need any changes. You can thus handily
+benchmark the two types, to see which is best suited to your
+application's needs.</p>
+</div>
+<p>Whether or not we use qualified imports, we can always use the entire
+name of a module to identify something unambiguously. For instance, both
+<code>Data.ByteString.Lazy.length</code> and <code>L.length</code>
+identify the same function, as do <code>Prelude.sum</code> and
+<code>sum</code>.</p>
+<p>The lazy and strict <code>ByteString</code> modules are intended for
+binary I/O. The Haskell data type for representing bytes is
+<code>Word8</code>; if we need to refer to it by name, we import it from
+the <code>Data.Word</code> module.</p>
+<p>The <code>L.pack</code> function takes a list of <code>Word8a</code>
+values, and packs them into a lazy <code>ByteString</code>. (The
+<code>L.unpack</code> function performs the reverse conversion.) Our
+<code>hasElfMagic</code> function simply compares the first four bytes
+of a <code>ByteString</code> against a magic number.</p>
+<p>We are writing in classic Haskell style, where our
+<code>hasElfMagic</code> function does not perform I/O. Here is the
+function that uses it on a file.</p>
+<pre class="example"><code>isElfFile :: FilePath -&gt; IO Bool
+isElfFile path = do
+  content &lt;- L.readFile path
+  return (hasElfMagic content)
+</code></pre>
+<p>The <code>L.readFile</code> function is the lazy
+<code>ByteString</code> equivalent of <code>readFile</code>. It operates
+lazily, reading the file as data is demanded. It is also efficient,
+reading chunks of up to 64KB at once. The lazy <code>ByteString</code>
+is a good choice for our task: since we only need to read at most the
+first four bytes of the file, we can safely use this function on a file
+of any size.</p>
+<h2 data-number="1.2" id="text-io"><span
+class="header-section-number">1.2</span> Text I/O</h2>
+<p>For convenience, the <code>bytestring</code> library provides two
+other modules with limited text I/O capabilities,
+<code>Data.ByteString.Char8</code> and
+<code>Data.ByteString.Lazy.Char8</code>. These expose individual string
+elements as <code>Char</code> instead of <code>Word8</code>.</p>
+<div class="WARNING">
+<p>Warning</p>
+<p>The functions in these modules only work with byte-sized
+<code>Char</code> values, so they are only suitable for use with ASCII
+and some European character sets. Values above 255 are truncated.</p>
+</div>
+<p>The character-oriented <code>bytestring</code> modules provide useful
+functions for text processing. Here is a file that contains monthly
+stock prices for a well-known Internet company from mid-2008.</p>
+<pre class="screen"><code>ghci&gt; putStr =&lt;&lt; readFile &quot;prices.csv&quot;
+Date,Open,High,Low,Close,Volume,Adj Close
+2008-08-01,20.09,20.12,19.53,19.80,19777000,19.80
+2008-06-30,21.12,21.20,20.60,20.66,17173500,20.66
+2008-05-30,27.07,27.10,26.63,26.76,17754100,26.76
+2008-04-30,27.17,27.78,26.76,27.41,30597400,27.41
+</code></pre>
+<p>How can we find the highest closing price from a series of entries
+like this? Closing prices are in the fourth comma-separated column. This
+function obtains a closing price from one line of data.</p>
+<pre class="example"><code>import qualified Data.ByteString.Lazy.Char8 as L
+
+closing = readPrice . (!!4) . L.split &#39;,&#39;
+</code></pre>
+<p>Since this function is written in point-free style, we read from
+right to left. The <code>L.split</code> function splits a lazy
+<code>ByteString</code> into a list of them, every time it finds a
+matching character. The <code>(!!)</code> operator retrieves the /k/th
+element of a list. Our <code>readPrice</code> function turns a string
+representing a fractional price into a whole number.</p>
+<pre class="example"><code>readPrice :: L.ByteString -&gt; Maybe Int
+readPrice str =
+    case L.readInt str of
+      Nothing             -&gt; Nothing
+      Just (dollars,rest) -&gt;
+        case L.readInt (L.tail rest) of
+          Nothing           -&gt; Nothing
+          Just (cents,more) -&gt;
+            Just (dollars * 100 + cents)
+</code></pre>
+<p>We use the <code>L.readInt</code> function, which parses an integer.
+It returns both the integer and the remainder of the string once a run
+of digits is consumed. Our definition is slightly complicated by
+<code>L.readInt</code> returning <code>Nothing</code> if parsing
+fails.</p>
+<p>Our function for finding the highest closing price is
+straightforward.</p>
+<pre class="example"><code>highestClose = maximum . (Nothing:) . map closing . L.lines
+
+highestCloseFrom path = do
+    contents &lt;- L.readFile path
+    print (highestClose contents)
+</code></pre>
+<p>We use one trick to work around the fact that we cannot supply an
+empty list to the <code>maximum</code> function.</p>
+<pre class="screen"><code>ghci&gt; maximum [3,6,2,9]
+9
+ghci&gt; maximum []
+*** Exception: Prelude.maximum: empty list
+</code></pre>
+<p>Since we do not want our code to throw an exception if we have no
+stock data, the <code>(Nothing:)</code> expression ensures that the list
+of Maybe <code>Int</code> values that we supply to <code>maximum</code>
+will never be empty.</p>
+<pre class="screen"><code>ghci&gt; maximum [Nothing, Just 1]
+Just 1
+ghci&gt; maximum [Nothing]
+Nothing
+</code></pre>
+<p>Does our function work?</p>
+<pre class="screen"><code>ghci&gt; :load HighestClose
+[1 of 1] Compiling Main             ( HighestClose.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; highestCloseFrom &quot;prices.csv&quot;
+Just 2741
+</code></pre>
+<p>Since we have separated our I/O from our logic, we can test the
+no-data case without having to create an empty file.</p>
+<pre class="screen"><code>ghci&gt; highestClose L.empty
+Nothing
+</code></pre>
+<h1 data-number="2" id="file-name-matching"><span
+class="header-section-number">2</span> File name matching</h1>
+<p>Many systems-oriented programming languages provide library routines
+that let us match a file name against a pattern, or that will give a
+list of files that match the pattern. In other languages, this function
+is often named <code>fnmatch</code>.) Although Haskell's standard
+library generally has good systems programming facilities, it doesn't
+provide these kinds of pattern matching functions. We'll take this as an
+opportunity to develop our own.</p>
+<p>The kinds of patterns we'll be dealing with are commonly referred to
+as <em>glob patterns</em> (the term we'll use), wild card patterns, or
+shell-style patterns. They have just a few simple rules. You probably
+already know them, but we'll quickly recap here.</p>
+<ul>
+<li><p>Matching a string against a pattern starts at the beginning of
+the string, and finishes at the end.</p></li>
+<li><p>Most literal characters match themselves. For example, the text
+<code>foo</code> in a pattern will match <code>foo</code>, and only
+<code>foo</code>, in an input string.</p></li>
+<li><p>The <code>*</code> (asterisk) character means "match anything";
+it will match any text, including the empty string. For instance, the
+pattern <code>foo*</code> will match any string that begins with
+<code>foo</code>, such as <code>foo</code> itself, <code>foobar</code>,
+or <code>foo.c</code>. The pattern <code>quux*.c</code> will match any
+string that begins with <code>quux</code> and ends in <code>.c</code>,
+such as <code>quuxbaz.c</code>.</p></li>
+<li><p>The <code>?</code> (question mark) character matches any single
+character. The pattern <code>pic??.jpg</code> will match names like
+<code>picaa.jpg</code> or <code>pic01.jpg</code>.</p></li>
+<li><p>A <code>[</code> (open square bracket) character begins a
+<em>character class</em>, which is ended by a <code>]</code>. Its
+meaning is "match any character in this class". A character class can be
+<em>negated</em> by following the opening <code>[</code> with a
+<code>!</code>, so that it means "match any character <em>not</em> in
+this class".</p>
+<p>As a shorthand, a character followed by a <code>-</code> (dash),
+followed by another character, denotes a <em>range</em>: "match any
+character within this set".</p>
+<p>Character classes have an added subtlety; they can't be empty. The
+first character after the opening <code>[</code> or <code>[!</code> is
+part of the class, so we can write a class containing the <code>]</code>
+character as <code>[]aeiou]</code>. The pattern
+<code>pic[0-9].[pP][nN][gG]</code> will match a name consisting of the
+string <code>pic</code>, followed by a single digit, followed by any
+capitalization of the string <code>.png</code>.</p></li>
+</ul>
+<p>While Haskell doesn't provide a way to match glob patterns among its
+standard libraries, it provides a good regular expression matching
+library. Glob patterns are nothing more than cut-down regular
+expressions with slightly different syntax. It's easy to convert glob
+patterns into regular expressions, but to do so, we must first
+understand how to use regular expressions in Haskell.</p>
+<h1 data-number="3" id="regular-expressions-in-haskell"><span
+class="header-section-number">3</span> Regular expressions in
+Haskell</h1>
+<p>In this section, we will be assume that you are already familiar with
+regular expressions by way of some other language, such as Python, Perl,
+or Java<a href="#fn1" class="footnote-ref" id="fnref1"
+role="doc-noteref"><sup>1</sup></a>.</p>
+<p>For brevity, we will abbreviate "regular expression" as
+<em>regexp</em> from here on.</p>
+<p>Rather than introduce regexps as something new, we will focus on
+what's different about regexp handling in Haskell, compared to other
+languages. Haskell's regular expression matching libraries are a lot
+more expressive than those of other languages, so there's plenty to talk
+about.</p>
+<p>To begin our exploration of the regexp libraries, the only module
+we'll need to work with is <code>Text.Regex.Posix</code>. As usual, the
+most convenient way to explore this module is by interacting with it via
+<code>ghci</code>.</p>
+<h2 data-number="3.1"
+id="todo-explain-how-to-install-regex-posix-with-cabal-or-stack"><span
+class="header-section-number">3.1</span> TODO: Explain how to install
+regex-posix with Cabal or Stack</h2>
+<pre class="screen"><code>ghci&gt; :module +Text.Regex.Posix
+</code></pre>
+<p>The only function that we're likely to need for normal use is the
+regexp matching function, an infix operator named <code>(=</code>)~
+(borrowed from Perl). The first hurdle to overcome is that Haskell's
+regexp libraries make heavy use of polymorphism. As a result, the type
+signature of the <code>(=</code>)~ operator is difficult to understand,
+so we will not explain it here.</p>
+<p>The <code>=~</code> operator uses type classes for both of its
+arguments, and also for its return type. The first argument (on the left
+of the <code>=~</code>) is the text to match; the second (on the right)
+is the regular expression to match against. We can pass either a
+<code>String</code> or a <code>ByteString</code> as either argument.</p>
+<h2 data-number="3.2" id="the-many-types-of-result"><span
+class="header-section-number">3.2</span> The many types of result</h2>
+<p>The <code>=~</code> operator is polymorphic in its return type, so
+the Haskell compiler needs some way to know what type of result we would
+like. In real code, it may be able to infer the right type, due to the
+way we subsequently use the result. But such cues are often lacking when
+we're exploring with <code>ghci</code>. If we omit a specific type for
+the result, we'll get an error from the interpreter, as it does not have
+enough information to successfully infer the result type.</p>
+<p>When <code>ghci</code> can't infer the <code>target</code> type, we
+tell it what we'd like the type to be. If we want a result of type
+<code>Bool</code>, we'll get a pass/fail answer.</p>
+<pre class="screen"><code>ghci&gt; &quot;my left foot&quot; =~ &quot;foo&quot; :: Bool
+True
+ghci&gt; &quot;your right hand&quot; =~ &quot;bar&quot; :: Bool
+False
+ghci&gt; &quot;your right hand&quot; =~ &quot;(hand|foot)&quot; :: Bool
+True
+</code></pre>
+<p>In the bowels of the regexp libraries, there's a type class named
+<code>RegexContext</code> that describes how a <code>target</code> type
+should behave; the base library defines many instances of this type
+class for us. The <code>Bool</code> type is an instance of this type
+class, so we get back a usable result. Another such instance is
+<code>Int</code>, which gives us a count of the number of times the
+regexp matches.</p>
+<pre class="screen"><code>ghci&gt; &quot;a star called henry&quot; =~ &quot;planet&quot; :: Int
+0
+ghci&gt; &quot;honorificabilitudinitatibus&quot; =~ &quot;[aeiou]&quot; :: Int
+13
+</code></pre>
+<p>If we ask for a <code>String</code> result, we'll get the first
+substring that matches, or an empty string if nothing matches.</p>
+<pre class="screen"><code>ghci&gt; &quot;I, B. Ionsonii, uurit a lift&#39;d batch&quot; =~ &quot;(uu|ii)&quot; :: String
+&quot;ii&quot;
+ghci&gt; &quot;hi ludi, F. Baconis nati, tuiti orbi&quot; =~ &quot;Shakespeare&quot; :: String
+&quot;&quot;
+</code></pre>
+<p>Another valid type of result is <code>[String]</code>, which returns
+a list of <em>all</em> matching strings when using with the
+<code>getAllTextMatches</code> function.</p>
+<pre class="screen"><code>ghci&gt; getAllTextMatches (&quot;I, B. Ionsonii, uurit a lift&#39;d batch&quot; =~ &quot;(uu|ii)&quot;) :: [String]
+[&quot;ii&quot;,&quot;uu&quot;]
+</code></pre>
+<div class="NOTE">
+<p>Watch out for <code>String</code> results</p>
+<p>If you want a result that's a plain <code>String</code>, beware.
+Since <code>(=</code>)~ returns an empty string to signify "no match",
+this poses an obvious difficulty if the empty string could also be a
+valid match for the regexp. If such a case arises, you should use a
+different return type instead, such as <code>[String]</code>.</p>
+</div>
+<p>That's about it for "simple" result types, but we're not by any means
+finished. Before we continue, let's use a single pattern for our
+remaining examples. We can define this pattern as a variable in
+<code>ghci</code>, to save a little typing.</p>
+<pre class="screen"><code>ghci&gt; pat = &quot;(foo[a-z]*bar|quux)&quot;
+</code></pre>
+<p>We can obtain quite a lot of information about the context in which a
+match occurs. If we ask for a <code>(String, String, String)</code>
+tuple, we'll get back the text <em>before</em> the first match, the text
+<em>of</em> that match, and the text that <em>follows</em> it.</p>
+<pre class="screen"><code>ghci&gt; &quot;before foodiebar after&quot; =~ pat :: (String,String,String)
+(&quot;before &quot;,&quot;foodiebar&quot;,&quot; after&quot;)
+</code></pre>
+<p>If the match fails, the entire text is returned as the "before"
+element of the tuple, with the other two elements left empty.</p>
+<pre class="screen"><code>ghci&gt; &quot;no match here&quot; =~ pat :: (String,String,String)
+(&quot;no match here&quot;,&quot;&quot;,&quot;&quot;)
+</code></pre>
+<p>Asking for a four-element tuple gives us a fourth element that's a
+list of all groups in the pattern that matched.</p>
+<pre class="screen"><code>ghci&gt; &quot;before foodiebar after&quot; =~ pat :: (String,String,String,[String])
+(&quot;before &quot;,&quot;foodiebar&quot;,&quot; after&quot;,[&quot;foodiebar&quot;])
+</code></pre>
+<p>We can get numeric information about matches, too. A pair of ~Int~s
+gives us the starting offset of the first match, and its length. If we
+ask for a list of these pairs using the <code>getAllMatches</code>
+function we'll get this information for all matches.</p>
+<pre class="screen"><code>ghci&gt; &quot;before foodiebar after&quot; =~ pat :: (Int,Int)
+(7,9)
+ghci&gt; getAllMatches (&quot;i foobarbar a quux&quot; =~ pat) :: [(Int,Int)]
+[(2,9),(14,4)]
+</code></pre>
+<p>A failed match is represented by the value <code>-1</code> as the
+first element of the tuple (the match offset) if we've asked for a
+single tuple, or an empty list if we've asked for a list of tuples.</p>
+<pre class="screen"><code>ghci&gt; &quot;eleemosynary&quot; =~ pat :: (Int,Int)
+(-1,0)
+ghci&gt; getAllMatches (&quot;mondegreen&quot; =~ pat) :: [(Int,Int)]
+[]
+</code></pre>
+<p>This is not a comprehensive list of built-in instances of the
+<code>RegexContext</code> type class. For a complete list, see the
+documentation for the <code>Text.Regex.Base.Context</code> module.</p>
+<p>This ability to make a function polymorphic in its result type is an
+unusual feature for a statically typed language.</p>
+<h1 data-number="4" id="more-about-regular-expressions"><span
+class="header-section-number">4</span> More about regular
+expressions</h1>
+<h2 data-number="4.1" id="mixing-and-matching-string-types"><span
+class="header-section-number">4.1</span> Mixing and matching string
+types</h2>
+<p>As we noted earlier, the <code>=~</code> operator uses type classes
+for its argument types and its return type. We can use either
+<code>String</code> or strict <code>ByteString</code> values for both
+the regular expression and the text to match against.</p>
+<pre class="screen"><code>ghci&gt; :module +Data.ByteString.Char8
+ghci&gt; :type pack &quot;foo&quot;
+pack &quot;foo&quot; :: ByteString
+</code></pre>
+<p>We can then try using different combinations of <code>String</code>
+and <code>ByteString</code>.</p>
+<pre class="screen"><code>ghci&gt; pack &quot;foo&quot; =~ &quot;bar&quot; :: Bool
+False
+ghci&gt; &quot;foo&quot; =~ pack &quot;bar&quot; :: Int
+0
+ghci&gt; getAllMatches (pack &quot;foo&quot; =~ pack &quot;o&quot;) :: [(Int, Int)]
+[(1,1),(2,1)]
+</code></pre>
+<p>However, we need to be aware that if we want a string value in the
+result of a match, the text we're matching against must be the same type
+of string. Let's see what this means in practice.</p>
+<pre class="screen"><code>ghci&gt; getAllTextMatches (pack &quot;good food&quot; =~ &quot;.ood&quot;) :: [ByteString]
+[&quot;good&quot;,&quot;food&quot;]
+</code></pre>
+<p>In the above example, we've used the <code>pack</code> to turn a
+<code>String</code> into a <code>ByteString</code>. The type checker
+accepts this because <code>ByteString</code> appears in the result type.
+But if we try getting a <code>String</code> out, that <em>won't</em>
+work.</p>
+<pre class="screen"><code>ghci&gt; getAllTextMatches (&quot;good food&quot; =~ &quot;.ood&quot;) :: [ByteString]
+
+&lt;interactive&gt;:1:1: error:
+    • No instance for (RegexContext
+                         Regex [Char] (AllTextMatches [] ByteString))
+        arising from a use of ‘=~’
+    • In the first argument of ‘getAllTextMatches’, namely
+        ‘(&quot;good food&quot; =~ &quot;.ood&quot;)’
+      In the expression:
+          getAllTextMatches (&quot;good food&quot; =~ &quot;.ood&quot;) :: [ByteString]
+      In an equation for ‘it’:
+          it = getAllTextMatches (&quot;good food&quot; =~ &quot;.ood&quot;) :: [ByteString]
+</code></pre>
+<p>We can easily fix this problem by making the string types of the left
+hand side and the result match once again.</p>
+<pre class="screen"><code>ghci&gt; getAllTextMatches (&quot;good food&quot; =~ &quot;.ood&quot;) :: [String]
+[&quot;good&quot;,&quot;food&quot;]
+</code></pre>
+<p>This restriction does <em>not</em> apply to the type of the regexp
+we're matching against. It can be either a <code>String</code> or
+<code>ByteString</code>, unconstrained by the other types in use.</p>
+<h2 data-number="4.2" id="other-things-you-should-know"><span
+class="header-section-number">4.2</span> Other things you should
+know</h2>
+<p>When you look through Haskell library documentation, you'll see
+several regexp-related modules. The modules under
+<code>Text.Regex.Base</code> define the common API adhered to by all of
+the other regexp modules. It's possible to have multiple implementations
+of the regexp API installed at one time. The module used in this
+chapter, <code>Text.Regex.Posix</code>, as its name suggests, provides
+POSIX regexp semantics.</p>
+<div class="NOTE">
+<p>Perl and POSIX regular expressions</p>
+<p>If you're coming to Haskell from a language like Perl, Python, or
+Java, and you've used regular expressions in one of those languages, you
+should be aware that the POSIX regexps handled by the
+<code>Text.Regex.Posix</code> module are different in some significant
+ways from Perl-style regexps. Here are a few of the more notable
+differences.</p>
+<p>Perl regexp engines perform left-biased matching when matching
+alternatives, whereas POSIX engines choose the greediest match. What
+this means is that given a regexp of <code>(foo|fo*)</code> and a text
+string of <code>foooooo</code>, a Perl-style engine will give a match of
+<code>foo</code> (the leftmost match), while a POSIX engine will match
+the entire string (the greediest match).</p>
+<p>POSIX regexps have less uniform syntax than Perl-style regexps. They
+also lack a number of capabilities provided by Perl-style regexps, such
+as zero-width assertions and control over greedy matching.</p>
+</div>
+<p>Other Haskell regexp packages are available for download from
+Hackage. Some provide better performance than the current POSIX engine
+(e.g. <code>regex-tdfa</code>); others provide the Perl-style matching
+that most programmers are now familiar with (e.g.
+<code>regex-pcre</code>). All follow the standard API that we have
+covered in this section.</p>
+<h1 data-number="5"
+id="translating-a-glob-pattern-into-a-regular-expression"><span
+class="header-section-number">5</span> Translating a glob pattern into a
+regular expression</h1>
+<p>Now that we've seen the myriad of ways to match text against regular
+expressions, let's turn our attention back to glob patterns. We want to
+write a function that will take a glob pattern and return its
+representation as a regular expression. Both glob patterns and regexps
+are text strings, so the type that our function ought to have seems
+clear.</p>
+<pre class="example"><code>module GlobRegex
+    ( globToRegex
+    , matchesGlob
+    ) where
+
+import Text.Regex.Posix ((=~))
+
+globToRegex :: String -&gt; String
+</code></pre>
+<p>The regular expression that we generate must be <em>anchored</em>, so
+that it starts matching from the beginning of a string and finishes at
+the end.</p>
+<pre class="example"><code>globToRegex cs = &#39;^&#39; : globToRegex&#39; cs ++ &quot;$&quot;
+</code></pre>
+<p>Recall that the <code>String</code> is just a synonym for
+<code>[Char]</code>, a list of <code>Chars</code>. The <code>:</code>
+operator puts a value (the <code>^</code> character in this case) onto
+the front of a list, where the list is the value returned by the
+yet-to-be-seen <code>globToRegex'</code> function.</p>
+<div class="NOTE">
+<p>Using a value before defining it</p>
+<p>Haskell does not require that a value or function be declared or
+defined in a source file before it's used. It's perfectly normal for a
+definition to come <em>after</em> the first place it's used. The Haskell
+compiler doesn't care about ordering at this level. This grants us the
+flexibility to structure our code in the manner that makes most logical
+sense to us, rather than follow an order that makes the compiler
+writer's life easiest.</p>
+<p>Haskell module writers often use this flexibility to put "more
+important" code earlier in a source file, relegating "plumbing" to
+later. This is exactly how we are presenting the
+<code>globToRegex</code> function and its helpers here.</p>
+</div>
+<p>With the regular expression rooted, the <code>globToRegex'</code>
+function will do the bulk of the translation work. We'll use the
+convenience of Haskell's pattern matching to enumerate each of the cases
+we'll need to cover.</p>
+<pre class="example"><code>globToRegex&#39; :: String -&gt; String
+globToRegex&#39; &quot;&quot; = &quot;&quot;
+globToRegex&#39; (&#39;*&#39;:cs) = &quot;.*&quot; ++ globToRegex&#39; cs
+globToRegex&#39; (&#39;?&#39;:cs) = &#39;.&#39; : globToRegex&#39; cs
+globToRegex&#39; (&#39;[&#39;:&#39;!&#39;:c:cs) = &quot;[^&quot; ++ c : charClass cs
+globToRegex&#39; (&#39;[&#39;:c:cs)     = &#39;[&#39;  :  c : charClass cs
+globToRegex&#39; (&#39;[&#39;:_)        = error &quot;unterminated character class&quot;
+globToRegex&#39; (c:cs)         = escape c ++ globToRegex&#39; cs
+</code></pre>
+<p>Our first clause stipulates that if we hit the end of our glob
+pattern (by which time we'll be looking at the empty string), we return
+<code>$</code>, the regular expression symbol for "match end-of-line".
+Following this is a series of clauses that switch our pattern from glob
+syntax to regexp syntax. The last clause passes every other character
+through, possibly escaping it first.</p>
+<p>The <code>escape</code> function ensures that the regexp engine will
+not interpret certain characters as pieces of regular expression
+syntax.</p>
+<pre class="example"><code>escape :: Char -&gt; String
+escape c | c `elem` regexChars = &#39;\\&#39; : [c]
+         | otherwise = [c]
+    where regexChars = &quot;\\+()^$.{}]|&quot;
+</code></pre>
+<p>The <code>charClass</code> helper function only checks that a
+character class is correctly terminated. It passes its input through
+unmodified until it hits a <code>]</code>, when it hands control back to
+<code>globToRegex'</code>.</p>
+<pre class="example"><code>charClass :: String -&gt; String
+charClass (&#39;]&#39;:cs) = &#39;]&#39; : globToRegex&#39; cs
+charClass (c:cs)   = c : charClass cs
+charClass []       = error &quot;unterminated character class&quot;
+
+matchesGlob = undefined
+</code></pre>
+<p>Now that we've finished defining <code>globToRegex</code> and its
+helpers, let's load it into <code>ghci</code> and try it out.</p>
+<pre class="screen"><code>ghci&gt; :load GlobRegex.hs
+[1 of 1] Compiling GlobRegex        ( GlobRegex.hs, interpreted )
+Ok, one module loaded.
+</code></pre>
+<p>Sure enough, that looks like a reasonable regexp. Can we use it to
+match against a string?</p>
+<pre class="screen"><code>ghci&gt; &quot;foo.c&quot; =~ globToRegex &quot;f??.c&quot; :: Bool
+True
+ghci&gt; &quot;test.c&quot; =~ globToRegex &quot;t[ea]s*&quot; :: Bool
+True
+ghci&gt; &quot;taste.txt&quot; =~ globToRegex &quot;t[ea]s*&quot; :: Bool
+True
+</code></pre>
+<p>It works! Now let's play around a little with <code>ghci</code>. We
+can create a temporary definition for <code>fnmatch</code> and try it
+out.</p>
+<h2 data-number="5.1" id="explain--xflexiblecontexts"><span
+class="header-section-number">5.1</span> <span
+class="todo TODO">TODO</span> Explain -XFlexibleContexts</h2>
+<pre class="screen"><code>ghci&gt; :set -XFlexibleContexts
+ghci&gt; fnmatch pat name = name =~ globToRegex pat :: Bool
+ghci&gt; :type fnmatch
+fnmatch
+  :: Text.Regex.Base.RegexLike.RegexLike
+       Text.Regex.Posix.Wrap.Regex source1 =&gt;
+     String -&gt; source1 -&gt; Bool
+ghci&gt; fnmatch &quot;d*&quot; &quot;myname&quot;
+False
+</code></pre>
+<p>The name <code>fnmatch</code> doesn't really have the "Haskell
+nature", though. By far the most common Haskell style is for functions
+to have descriptive, "camel cased" names. Camel casing concatenates
+words, capitalising all but possibly the first word. For instance, the
+words "file name matches" would become the name
+<code>fileNameMatches</code>. The name "camel case" comes from the
+"humps" introduced by the capital letters. In our library, we'll give
+this function the name <code>matchesGlob</code>.</p>
+<pre class="example"><code>matchesGlob :: FilePath -&gt; String -&gt; Bool
+name `matchesGlob` pat = name =~ globToRegex pat
+</code></pre>
+<p>You may have noticed that most of the names that we have used for
+variables so far have been short. As a rule of thumb, descriptive
+variable names are more useful in longer function definitions, as they
+aid readability. For a two-line function, a long variable name has less
+value.</p>
+<h2 data-number="5.2" id="exercises"><span
+class="header-section-number">5.2</span> Exercises</h2>
+<ol>
+<li>Use <code>ghci</code> to explore what happens if you pass a
+malformed pattern, such as <code>[</code>, to <code>globToRegex</code>.
+Write a small function that calls <code>globToRegex</code>, and pass it
+a malformed pattern. What happens?</li>
+<li>While filesystems on Unix are usually sensitive to case (e.g. "G"
+vs. "g") in file names, Windows filesystems are not. Add a parameter to
+the <code>globToRegex</code> and <code>matchesGlob</code> functions that
+allows control over case sensitive matching.</li>
+</ol>
+<h1 data-number="6" id="an-important-aside-writing-lazy-functions"><span
+class="header-section-number">6</span> An important aside: writing lazy
+functions</h1>
+<p>In an imperative language, the <code>globToRegex'</code> function is
+one that we'd usually express as a loop. For example, Python's standard
+fnmatch module includes a function named <code>translate</code> that
+does exactly the same job as our <code>globToRegex</code> function. It's
+written as a loop.</p>
+<p>If you've been exposed to functional programming through a language
+such as Scheme or ML, you've probably had drilled into your head the
+notion that "the way to emulate a loop is via tail recursion".</p>
+<p>Looking at the <code>globToRegex'</code> function, we can see that it
+is <em>not</em> tail recursive. To see why, examine its final clause
+again (several of its other clauses are structured similarly).</p>
+<pre class="example"><code>globToRegex&#39; (c:cs) = escape c ++ globToRegex&#39; cs
+</code></pre>
+<p>It applies itself recursively, and the result of the recursive
+application is used as a parameter to the <code>(++)</code> function.
+Since the recursive application <em>isn't</em> the last thing the
+function does, <code>globToRegex'</code> is not tail recursive.</p>
+<p>Why is our definition of this function not tail recursive? The answer
+lies with Haskell's non-strict evaluation strategy. Before we start
+talking about that, let's quickly talk about why, in a traditional
+language, we'd try to avoid this kind of recursive definition. Here is a
+simpler definition, of the <code>(++)</code> operator. It is recursivem,
+but not tail recursive.</p>
+<pre class="example"><code>(++) :: [a] -&gt; [a] -&gt; [a]
+
+(x:xs) ++ ys = x : (xs ++ ys)
+[]     ++ ys = ys
+</code></pre>
+<p>In a strict language, if we evaluate <code>"foo" ++ "bar"</code>, the
+entire list is constructed, then returned. Non-strict evaluation defers
+much of the work until it is needed.</p>
+<p>If we demand an element of the expression
+<code>"foo" ++ "bar"</code>, the first pattern of the function's
+definition matches, and we return the expression
+<code>x : (xs ++ ys)</code>. Because the <code>(:)</code> constructor is
+non-strict, the evaluation of <code>xs ++ ys</code> can be deferred: we
+generate more elements of the result at whatever rate they are demanded.
+When we generate more of the result, we will no longer be using
+<code>x</code>, so the garbage collector can reclaim it. Since we
+generate elements of the result on demand, and do not hold onto parts
+that we are done with, the compiler can evaluate our code in constant
+space.</p>
+<h1 data-number="7" id="making-use-of-our-pattern-matcher"><span
+class="header-section-number">7</span> Making use of our pattern
+matcher</h1>
+<p>It's all very well to have a function that can match glob patterns,
+but we'd like to be able to put this to practical use. On Unix-like
+systems, the <code>glob</code> function returns the names of all files
+and directories that match a given glob pattern. Let's build a similar
+function in Haskell. Following the Haskell norm of descriptive naming,
+we'll call our function <code>namesMatching</code>.</p>
+<pre class="example"><code>module Glob (namesMatching) where
+</code></pre>
+<p>We specify that <code>namesMatching</code> is the only name that
+users of our <code>Glob</code> module will be able to see.</p>
+<p>This function will obviously have to manipulate filesystem paths a
+lot, splicing and joining them as it goes. We'll need to use a few
+previously unfamiliar modules along the way.</p>
+<p>The <code>System.Directory</code> module provides standard functions
+for working with directories and their contents.</p>
+<pre class="example"><code>import System.Directory (doesDirectoryExist, doesFileExist,
+                         getCurrentDirectory, getDirectoryContents)
+</code></pre>
+<p>The <code>System.FilePath</code> module abstracts the details of an
+operating system's path name conventions. The <code>(&lt;/&gt;)</code>
+function joins two path components.</p>
+<pre class="screen"><code>ghci&gt; :m +System.FilePath
+ghci&gt; &quot;foo&quot; &lt;/&gt; &quot;bar&quot;
+&quot;foo/bar&quot;
+</code></pre>
+<p>The name of the <code>dropTrailingPathSeparator</code> function is
+perfectly descriptive.</p>
+<pre class="screen"><code>ghci&gt; dropTrailingPathSeparator &quot;foo/&quot;
+&quot;foo&quot;
+</code></pre>
+<p>The <code>splitFileName</code> function splits a path at the last
+slash.</p>
+<pre class="screen"><code>ghci&gt; splitFileName &quot;foo/bar/Quux.hs&quot;
+(&quot;foo/bar/&quot;,&quot;Quux.hs&quot;)
+ghci&gt; splitFileName &quot;zippity&quot;
+(&quot;&quot;,&quot;zippity&quot;)
+</code></pre>
+<p>Using <code>System.FilePath</code> together with the
+<code>System.Directory</code> module, we can write a portable
+<code>namesMatching</code> function that will run on both Unix-like and
+Windows systems.</p>
+<pre class="example"><code>import System.FilePath (dropTrailingPathSeparator, splitFileName, (&lt;/&gt;))
+</code></pre>
+<p>In this module, we'll be emulating a "for" loop; getting our first
+taste of exception handling in Haskell; and of course using the
+<code>matchesGlob</code> function we just wrote.</p>
+<pre class="example"><code>import Control.Exception (handle)
+import Control.Monad (forM)
+import GlobRegex (matchesGlob)
+</code></pre>
+<p>Since directories and files live in the "real world" of activities
+that have effects, our globbing function will have to have
+<code>IO</code> in its result type.</p>
+<p>If the string we're passed contains no pattern characters, we simply
+check that the given name exists in the filesystem. (Notice that we use
+Haskell's function guard syntax here to write a nice tidy definition. An
+"if" would do, but isn't as aesthetically pleasing.)</p>
+<pre class="example"><code>isPattern :: String -&gt; Bool
+isPattern = any (`elem` &quot;[*?&quot;)
+
+namesMatching pat
+  | not (isPattern pat) = do
+    exists &lt;- doesNameExist pat
+    return (if exists then [pat] else [])
+</code></pre>
+<p>The name <code>doesNameExist</code> refers to a function that we will
+define shortly.</p>
+<p>What if the string <em>is</em> a glob pattern? Our function
+definition continues.</p>
+<pre class="example"><code>| otherwise = do
+  case splitFileName pat of
+    (&quot;&quot;, baseName) -&gt; do
+        curDir &lt;- getCurrentDirectory
+        listMatches curDir baseName
+    (dirName, baseName) -&gt; do
+        dirs &lt;- if isPattern dirName
+                then namesMatching (dropTrailingPathSeparator dirName)
+                else return [dirName]
+        let listDir = if isPattern baseName
+                      then listMatches
+                      else listPlain
+        pathNames &lt;- forM dirs $ \dir -&gt; do
+                         baseNames &lt;- listDir dir baseName
+                         return (map (dir &lt;/&gt;) baseNames)
+        return (concat pathNames)
+</code></pre>
+<p>We use <code>splitFileName</code> to split the string into a pair of
+"everything but the final name" and "the final name". If the first
+element is empty, we're looking for a pattern in the current directory.
+Otherwise, we must check the directory name and see if it contains
+patterns. If it does not, we create a singleton list of the directory
+name. If it contains a pattern, we list all of the matching
+directories.</p>
+<div class="NOTE">
+<p>Things to watch out for</p>
+<p>The <code>System.FilePath</code> module can be a little tricky. Above
+is a case in point; the <code>splitFileName</code> function leaves a
+trailing slash on the end of the directory name that it returns.</p>
+<pre class="screen"><code>ghci&gt; :module +System.FilePath
+ghci&gt; splitFileName &quot;foo/bar&quot;
+(&quot;foo/&quot;,&quot;bar&quot;)
+</code></pre>
+<p>If we didn't remember (or know enough) to remove that slash, we'd
+recurse endlessly in <code>namesMatching</code>, because of the
+following behaviour of <code>splitFileName</code>.</p>
+<pre class="screen"><code>ghci&gt; splitFileName &quot;foo/&quot;
+(&quot;foo/&quot;,&quot;&quot;)
+</code></pre>
+<p>You can guess what happened to us that led us to add this note!</p>
+</div>
+<p>Finally, we collect all matches in every directory, giving us a list
+of lists, and concatenate them into a single list of names.</p>
+<p>The unfamiliar <code>forM</code> function above acts a little like a
+"for" loop: it maps its second argument (an action) over its first (a
+list), and returns the list of results.</p>
+<p>We have a few loose ends to clean up. The first is the definition of
+the <code>doesNameExist</code> function, used above. The
+<code>System.Directory</code> module doesn't let us check to see if a
+name exists in the filesystem. It forces us to decide whether we want to
+check for a file or a directory. This API is ungainly, so we roll the
+two checks into a single function. In the name of performance, we make
+the check for a file first, since files are far more common than
+directories.</p>
+<pre class="example"><code>doesNameExist :: FilePath -&gt; IO Bool
+doesNameExist name = do
+    fileExists &lt;- doesFileExist name
+    if fileExists
+      then return True
+      else doesDirectoryExist name
+</code></pre>
+<p>We have two other functions to define, each of which returns a list
+of names in a directory. The <code>listMatches</code> function returns a
+list of all files matching the given glob pattern in a directory.</p>
+<pre class="example"><code>listMatches :: FilePath -&gt; String -&gt; IO [String]
+listMatches dirName pat = do
+    dirName&#39; &lt;- if null dirName
+                then getCurrentDirectory
+                else return dirName
+    handle ((const (return [])) :: IOError -&gt; IO [String]) $ do
+        names &lt;- getDirectoryContents dirName&#39;
+        let names&#39; = if isHidden pat
+                     then filter isHidden names
+                     else filter (not . isHidden) names
+        return (filter (`matchesGlob` pat) names&#39;)
+
+isHidden (&#39;.&#39;:_) = True
+isHidden _       = False
+</code></pre>
+<p>The <code>listPlain</code> function returns either an empty or
+singleton list, depending on whether the single name it's passed
+exists.</p>
+<pre class="example"><code>listPlain :: FilePath -&gt; String -&gt; IO [String]
+listPlain dirName baseName = do
+    exists &lt;- if null baseName
+              then doesDirectoryExist dirName
+              else doesNameExist (dirName &lt;/&gt; baseName)
+    return (if exists then [baseName] else [])
+</code></pre>
+<p>If we look closely at the definition of <code>listMatches</code>
+above, we'll see a call to a function named <code>handle</code>. Earlier
+on, we imported this from the <code>Control.Exception</code> module; as
+that import implies, this gives us our first taste of exception handling
+in Haskell. Let's drop into <code>ghci</code> and see what we can find
+out.</p>
+<pre class="screen"><code>ghci&gt; :module +Control.Exception
+ghci&gt; :type handle
+handle :: Exception e =&gt; (e -&gt; IO a) -&gt; IO a -&gt; IO a
+</code></pre>
+<p>This is telling us that <code>handle</code> takes two arguments. The
+first is a function that is passed an exception value, and can have side
+effects (see the <code>IO</code> type in its return value); this is the
+handler to run if an exception is thrown. The second argument is the
+code that might throw an exception.</p>
+<p>As for the exception handler, the type of the <code>handle</code>
+constrains it to return the same type of value as the body of code that
+threw the exception. So its choices are to either throw an exception or,
+as in our case, return a list of <code>Strings</code>.</p>
+<p>The <code>const</code> function takes two arguments; it always
+returns its first argument, no matter what its second argument is.</p>
+<pre class="screen"><code>ghci&gt; :type const
+const :: a -&gt; b -&gt; a
+ghci&gt; :type return []
+return [] :: Monad m =&gt; m [a]
+ghci&gt; :type handle ((const (return [])) :: IOError -&gt; IO [a])
+handle ((const (return [])) :: IOError -&gt; IO [a])
+  :: IO [a] -&gt; IO [a]
+</code></pre>
+<p>We use <code>const</code> to write an exception handler that ignores
+the exception it is passed. Instead, it causes our code to return an
+empty list if we catch an exception.</p>
+<p>We won't have anything more to say about exception handling here.
+There's plenty more to cover, though, so we'll be returning to the
+subject of exceptions in chapter <a
+href="19-error-handling.org">Chapter 19, <em>Error
+handling</em></a>.</p>
+<h2 data-number="7.1" id="exercises-1"><span
+class="header-section-number">7.1</span> Exercises</h2>
+<ol>
+<li>Although we've gone to some lengths to write a portable
+<code>namesMatching</code> function, the function uses our case
+sensitive <code>globToRegex</code> function. Find a way to modify
+<code>namesMatching</code> to be case sensitive on Unix, and case
+insensitive on Windows, without modifying its type signature.
+<em>Hint</em>: consider reading the documentation for
+<code>System.FilePath</code> to look for a variable that tells us
+whether we're running on a Unix-like system, or on Windows.</li>
+<li>If you're on a Unix-like system, look through the documentation for
+the <code>System.Posix.Files</code> module, and see if you can find a
+replacement for the <code>doesNameExist</code> function.</li>
+<li>The <code>*</code> wild card only matches names within a single
+directory. Many shells have an extended wild card syntax,
+<code>**</code>, that matches names recursively in all directories. For
+example, <code>**.c</code> would mean "match a name ending in
+<code>.c</code> in this directory or any subdirectory at any depth".
+Implement matching on <code>**</code> wildcards.</li>
+</ol>
+<h1 data-number="8" id="handling-errors-through-api-design"><span
+class="header-section-number">8</span> Handling errors through API
+design</h1>
+<p>It's not necessarily a disaster if our <code>globToRegex</code> is
+passed a malformed pattern. Perhaps a user mistyped a pattern, in which
+case we'd like to be able to report a meaningful error message.</p>
+<p>Calling the <code>error</code> function when this kind of problem
+occurs can be a drastic response (exploring its consequences was the
+focus of exercise <span class="spurious-link"
+target="Exercise 8.1"><em>Q:1</em></span>). The <code>error</code>
+throws an exception. Pure Haskell code cannot deal with exceptions, so
+control is going to rocket out of our pure code into the nearest caller
+that lives in <code>IO</code> and has an appropriate exception handler
+installed. If no such handler is installed, the Haskell runtime will
+default to terminating our program (or print a nasty error message, in
+<code>ghci</code>).</p>
+<p>So calling <code>error</code> is a little like pulling the handle of
+a fighter plane's ejection seat. We're bailing out of a catastrophic
+situation that we can't deal with gracefully, and there's likely to be a
+lot of flaming wreckage strewn about by the time we hit the ground.</p>
+<p>We've established that <code>error</code> is for disasters, but we're
+still using it in <code>globToRegex</code>. In that case, malformed
+input should be rejected, but not turned into a big deal. What would be
+a better way to handle this?</p>
+<p>Haskell's type system and libraries to the rescue! We can encode the
+possibility of failure in the type signature of
+<code>globToRegex</code>, using the predefined Either type.</p>
+<pre class="example"><code>type GlobError = String
+
+globToRegex :: String -&gt; Either GlobError String
+</code></pre>
+<p>A value returned by <code>globToRegex</code> will now be either
+<code>Left "an
+error message"</code> or <code>Right "a valid regexp"</code>. This
+return type forces our callers to deal with the possibility of error.
+(You'll find that this use of the <code>Either</code> type occurs
+frequently in Haskell code.)</p>
+<h2 data-number="8.1" id="exercises-2"><span
+class="header-section-number">8.1</span> Exercises</h2>
+<ol>
+<li>Write a version of <code>globToRegex</code> that uses the type
+signature above.</li>
+<li>Modify the type signature of <code>namesMatching</code> so that it
+encodes the possibility of a bad pattern, and make it use your rewritten
+<code>globToRegex</code> function.</li>
+</ol>
+<div class="TIP">
+<p>Tip</p>
+<p>You may find the amount of work involved to be surprisingly large.
+Don't worry; we will introduce more concise and sophisticated ways of
+dealing with errors in later chapters.</p>
+</div>
+<h1 data-number="9" id="putting-our-code-to-work"><span
+class="header-section-number">9</span> Putting our code to work</h1>
+<p>The <code>namesMatching</code> function isn't very exciting by
+itself, but it's a useful building block. Combine it with a few more
+functions, and we can start to do interesting things.</p>
+<p>Here's one such example. Let's define a <code>renameWith</code>
+function that, instead of simply renaming a file, applies a function to
+the file's name, and renames the file to whatever that function
+returns.</p>
+<pre class="example"><code>import System.FilePath (replaceExtension)
+import System.Directory (doesFileExist, renameDirectory, renameFile)
+import Glob (namesMatching)
+
+renameWith :: (FilePath -&gt; FilePath)
+           -&gt; FilePath
+           -&gt; IO FilePath
+
+renameWith f path = do
+    let path&#39; = f path
+    rename path path&#39;
+    return path&#39;
+</code></pre>
+<p>Once again, we work around the ungainly file/directory split in
+<code>System.Directory</code> with a helper function.</p>
+<pre class="example"><code>rename :: FilePath -&gt; FilePath -&gt; IO ()
+
+rename old new = do
+    isFile &lt;- doesFileExist old
+    let f = if isFile then renameFile else renameDirectory
+    f old new
+</code></pre>
+<p>The <code>System.FilePath</code> module provides many useful
+functions for manipulating file names. These functions mesh nicely with
+our <code>renameWith</code> and <code>namesMatching</code> functions, so
+that we can quickly use them to create functions with complex behaviour.
+As an example, this terse function changes the file name suffixing
+convention for C++ source files.</p>
+<pre class="example"><code>cc2cpp =
+  mapM (renameWith (flip replaceExtension &quot;.cpp&quot;)) =&lt;&lt; namesMatching &quot;*.cc&quot;
+</code></pre>
+<p>The <code>cc2cpp</code> function uses a few functions we'll be seeing
+over and over. The <code>flip</code> function takes another function as
+argument, and swaps the order of its arguments (inspect the type of
+<code>replaceExtension</code> in <code>ghci</code> to see why). The
+<code>=&lt;&lt;</code> function feeds the result of the action on its
+right side to the action on its left.</p>
+<h1 data-number="10" id="exercises-3"><span
+class="header-section-number">10</span> Exercises</h1>
+<ol>
+<li>Glob patterns are simple enough to interpret that it's easy to write
+a matcher directly in Haskell, rather than going through the regexp
+machinery. Give it a try.</li>
+</ol>
+<h1 data-number="11" id="footnotes"><span
+class="header-section-number">11</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>If you are not acquainted with
+regular expressions, we recommend Jeffrey Friedl's book Mastering
+Regular Expressions.<a href="#fnref1" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

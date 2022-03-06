@@ -1,0 +1,2148 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 3: Defining Types, Streamlining Functions</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 3: Defining Types, Streamlining Functions</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#defining-a-new-data-type"><span
+class="toc-section-number">1</span> Defining a new data type</a>
+<ul>
+<li><a href="#naming-types-and-values"><span
+class="toc-section-number">1.1</span> Naming types and values</a></li>
+</ul></li>
+<li><a href="#type-synonyms"><span class="toc-section-number">2</span>
+Type synonyms</a></li>
+<li><a href="#algebraic-data-types"><span
+class="toc-section-number">3</span> Algebraic data types</a>
+<ul>
+<li><a href="#tuples-algebraic-data-types-and-when-to-use-each"><span
+class="toc-section-number">3.1</span> Tuples, algebraic data types, and
+when to use each</a></li>
+<li><a
+href="#analogues-to-algebraic-data-types-in-other-languages"><span
+class="toc-section-number">3.2</span> Analogues to algebraic data types
+in other languages</a></li>
+</ul></li>
+<li><a href="#pattern-matching"><span
+class="toc-section-number">4</span> Pattern matching</a>
+<ul>
+<li><a href="#construction-and-deconstruction"><span
+class="toc-section-number">4.1</span> Construction and
+deconstruction</a></li>
+<li><a href="#further-adventures"><span
+class="toc-section-number">4.2</span> Further adventures</a></li>
+<li><a href="#variable-naming-in-patterns"><span
+class="toc-section-number">4.3</span> Variable naming in
+patterns</a></li>
+<li><a href="#the-wild-card-pattern"><span
+class="toc-section-number">4.4</span> The wild card pattern</a></li>
+<li><a href="#exhaustive-patterns-and-wild-cards"><span
+class="toc-section-number">4.5</span> Exhaustive patterns and wild
+cards</a></li>
+</ul></li>
+<li><a href="#record-syntax"><span class="toc-section-number">5</span>
+Record syntax</a></li>
+<li><a href="#parameterised-types"><span
+class="toc-section-number">6</span> Parameterised types</a></li>
+<li><a href="#recursive-types"><span class="toc-section-number">7</span>
+Recursive types</a>
+<ul>
+<li><a href="#exercises"><span class="toc-section-number">7.1</span>
+Exercises</a></li>
+</ul></li>
+<li><a href="#reporting-errors"><span
+class="toc-section-number">8</span> Reporting errors</a>
+<ul>
+<li><a href="#a-more-controlled-approach"><span
+class="toc-section-number">8.1</span> A more controlled
+approach</a></li>
+</ul></li>
+<li><a href="#introducing-local-variables"><span
+class="toc-section-number">9</span> Introducing local variables</a>
+<ul>
+<li><a href="#shadowing"><span class="toc-section-number">9.1</span>
+Shadowing</a></li>
+<li><a href="#the-where-clause"><span
+class="toc-section-number">9.2</span> The where clause</a></li>
+<li><a href="#local-functions-global-variables"><span
+class="toc-section-number">9.3</span> Local functions, global
+variables</a></li>
+</ul></li>
+<li><a href="#the-offside-rule-and-white-space-in-an-expression"><span
+class="toc-section-number">10</span> The offside rule and white space in
+an expression</a>
+<ul>
+<li><a href="#a-note-about-tabs-versus-spaces"><span
+class="toc-section-number">10.1</span> A note about tabs versus
+spaces</a></li>
+<li><a href="#the-offside-rule-is-not-mandatory"><span
+class="toc-section-number">10.2</span> The offside rule is not
+mandatory</a></li>
+</ul></li>
+<li><a href="#the-case-expression"><span
+class="toc-section-number">11</span> The case expression</a></li>
+<li><a href="#common-beginner-mistakes-with-patterns"><span
+class="toc-section-number">12</span> Common beginner mistakes with
+patterns</a>
+<ul>
+<li><a href="#incorrectly-matching-against-a-variable"><span
+class="toc-section-number">12.1</span> Incorrectly matching against a
+variable</a></li>
+<li><a href="#incorrectly-trying-to-compare-for-equality"><span
+class="toc-section-number">12.2</span> Incorrectly trying to compare for
+equality</a></li>
+</ul></li>
+<li><a href="#conditional-evaluation-with-guards"><span
+class="toc-section-number">13</span> Conditional evaluation with
+guards</a></li>
+<li><a href="#exercises-1"><span class="toc-section-number">14</span>
+Exercises</a></li>
+<li><a href="#footnotes"><span class="toc-section-number">15</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<h1 data-number="1" id="defining-a-new-data-type"><span
+class="header-section-number">1</span> Defining a new data type</h1>
+<p>Although lists and tuples are useful, we'll often want to construct
+new data types of our own. This allows us to add structure to the values
+in our programs. Instead of using an anonymous tuple, we can give a
+collection of related values a name and a distinct type. Defining our
+own types also improves the type safety of our code: Haskell will not
+allow us to accidentally mix values of two types that are structurally
+similar but have different names.</p>
+<p>For motivation, we'll consider a few kinds of data that a small
+online bookstore might need to manage. We won't make any attempt at
+complete or realistic data definitions, but at least we're tying them to
+the real world.</p>
+<p>We define a new data type using the <code>data</code> keyword.</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">BookInfo</span> <span class="ot">=</span> <span class="dt">Book</span> <span class="dt">Int</span> <span class="dt">String</span> [<span class="dt">String</span>]</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                <span class="kw">deriving</span> (<span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>The <code>BookInfo</code> after the <code>data</code> keyword is the
+name of our new type. We call <code>BookInfo</code> a <em>type
+constructor</em>. Once we have defined a type, we will use its type
+constructor to refer to it. As we've already mentioned, a type name, and
+hence a type constructor, must start with a capital letter.</p>
+<p>The <code>Book</code> that follows is the name of the <em>value
+constructor</em> (sometimes called a data constructor). We use this to
+create a value of the <code>BookInfo</code> type. A value constructor's
+name must also start with a capital letter.</p>
+<p>After <code>Book</code>, the <code>Int</code>, <code>String</code>,
+and <code>[String]</code> that follow are the <em>components</em> of the
+type. A component serves the same purpose in Haskell as a field in a
+structure or class would in another language: it's a "slot" where we
+keep a value. (We'll often refer to components as fields.)</p>
+<p>In this example, the <code>Int</code> represents a book's identifier
+(e.g. in a stock database), <code>String</code> its title, and
+<code>[String]</code> the names of its authors.</p>
+<p>To make the link to a concept we've already seen, the
+<code>BookInfo</code> Type contains the same components as a 3-tuple of
+type <code>(Int, String, [String])</code>, but it has a distinct type.
+We can't accidentally (or deliberately) use one in a context where the
+other is expected. For instance, a bookstore is also likely to carry
+magazines.</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">MagazineInfo</span> <span class="ot">=</span> <span class="dt">Magazine</span> <span class="dt">Int</span> <span class="dt">String</span> [<span class="dt">String</span>]</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">deriving</span> (<span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>Even though this <code>MagazineInfo</code> type has the same
+structure as our <code>BookInfo</code> type, Haskell treats the types as
+distinct because their type and value constructors have different
+names.</p>
+<div class="NOTE">
+<p>Deriving what?</p>
+<p>We'll explain the full meaning of <code>deriving (Show)</code> later,
+in <a href="6-using-typeclasses.org::*Show">the section called
+"Show"</a> need to tack this onto a type declaration so that
+<code>ghci</code> will automatically know how to print a value of this
+type.</p>
+</div>
+<p>We can create a new value of type <code>BookInfo</code> by treating
+<code>Book</code> as a function, and applying it with arguments of types
+<code>Int</code>, <code>String</code>, and <code>[String]</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>myInfo <span class="ot">=</span> <span class="dt">Book</span> <span class="dv">9780135072455</span> <span class="st">&quot;Algebra of Programming&quot;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>         [<span class="st">&quot;Richard Bird&quot;</span>, <span class="st">&quot;Oege de Moor&quot;</span>]</span></code></pre></div>
+</div>
+<p>Once we have defined a type, we can experiment with it in
+<code>ghci</code>. We begin by using the <code>:load</code> command to
+load our source file.</p>
+<pre class="screen"><code>ghci&gt; :load BookStore
+[1 of 1] Compiling Main             ( BookStore.hs, interpreted )
+Ok, one module loaded.
+</code></pre>
+<p>Remember the <code>myInfo</code> variable we defined in our source
+file? Here it is.</p>
+<pre class="screen"><code>ghci&gt; myInfo
+Book 9780135072455 &quot;Algebra of Programming&quot; [&quot;Richard Bird&quot;,&quot;Oege de Moor&quot;]
+ghci&gt; :type myInfo
+myInfo :: BookInfo
+</code></pre>
+<p>We can construct new values interactively in <code>ghci</code>,
+too.</p>
+<pre class="screen"><code>ghci&gt; Book 0 &quot;The Book of Imaginary Beings&quot; [&quot;Jorge Luis Borges&quot;]
+Book 0 &quot;The Book of Imaginary Beings&quot; [&quot;Jorge Luis Borges&quot;]
+</code></pre>
+<p>The <code>ghci</code> command <code>:type</code> lets us see what the
+type of an expression is.</p>
+<pre class="screen"><code>ghci&gt; :type Book 1 &quot;Cosmicomics&quot; [&quot;Italo Calvino&quot;]
+Book 1 &quot;Cosmicomics&quot; [&quot;Italo Calvino&quot;] :: BookInfo
+ghci&gt; cities = Book 173 &quot;Use of Weapons&quot; [&quot;Iain M. Banks&quot;]
+</code></pre>
+<p>To find out more about a type, we can use some of <code>ghci</code>'s
+browsing capabilities. The <code>:info</code> command gets
+<code>ghci</code> to tell us everything it knows about a name.</p>
+<pre class="screen"><code>ghci&gt; :info BookInfo
+data BookInfo = Book Int String [String]
+        -- Defined at BookStore.hs:2:1
+instance [safe] Show BookInfo -- Defined at BookStore.hs:3:27
+</code></pre>
+<p>We can also find out why we use <code>Book</code> to construct a new
+value of type BookStore.</p>
+<pre class="screen"><code>ghci&gt; :type Book
+Book :: Int -&gt; String -&gt; [String] -&gt; BookInfo
+</code></pre>
+<p>We can treat a value constructor as just another function, one that
+happens to create and return a new value of the type we desire.</p>
+<h2 data-number="1.1" id="naming-types-and-values"><span
+class="header-section-number">1.1</span> Naming types and values</h2>
+<p>When we introduced the type <code>BookInfo</code>, we deliberately
+chose to give the type constructor <code>BookInfo</code> a different
+name from the value constructor <code>Book</code>, purely to make it
+obvious which was which.</p>
+<p>However, in Haskell, the names of types and values are independent of
+each other. We only use a type constructor (i.e. the type's name) in a
+type declaration or a type signature. We only use a value constructor in
+actual code. Because these uses are distinct, there is no ambiguity if
+we give a type constructor and a value constructor the same name. If we
+are writing a type signature, we must be referring to a type
+constructor. If we are writing an expression, we must be using the value
+constructor.</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- We will introduce the CustomerID type shortly.</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">BookReview</span> <span class="ot">=</span> <span class="dt">BookReview</span> <span class="dt">BookInfo</span> <span class="dt">CustomerID</span> <span class="dt">String</span></span></code></pre></div>
+</div>
+<p>This definition says that the type named <code>BookReview</code> has
+a value constructor that is also named <code>BookReview</code>.</p>
+<p>Not only is it <em>legal</em> for a value constructor to have the
+same name as its type constructor, it's <em>normal</em>: you'll see this
+all the time in regular Haskell code.</p>
+<h1 data-number="2" id="type-synonyms"><span
+class="header-section-number">2</span> Type synonyms</h1>
+<p>We can introduce a <em>synonym</em> for an existing type at any time,
+to give a type a more descriptive name. For example, the
+<code>String</code> in our <code>BookReview</code> type doesn't tell us
+what the string is for, but we can clarify this.</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">CustomerID</span> <span class="ot">=</span> <span class="dt">Int</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">ReviewBody</span> <span class="ot">=</span> <span class="dt">String</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">BetterReview</span> <span class="ot">=</span> <span class="dt">BetterReview</span> <span class="dt">BookInfo</span> <span class="dt">CustomerID</span> <span class="dt">ReviewBody</span></span></code></pre></div>
+</div>
+<p>The <code>type</code> keyword introduces a type synonym. The new name
+is on the left of the <code>=</code>, with the existing name on the
+right. The two names identify the same type, so type synonyms are
+<em>purely</em> for making code more readable.</p>
+<p>We can also use a type synonym to create a shorter name for a verbose
+type.</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">BookRecord</span> <span class="ot">=</span> (<span class="dt">BookInfo</span>, <span class="dt">BookReview</span>)</span></code></pre></div>
+</div>
+<p>This states that we can use <code>BookRecord</code> as a synonym for
+the tuple <code>(BookInfo, BookReview)</code>. A type synonym only
+creates a new name that refers to an existing type<a href="#fn1"
+class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. We
+still use the same value constructors to create a value of the type.</p>
+<h1 data-number="3" id="algebraic-data-types"><span
+class="header-section-number">3</span> Algebraic data types</h1>
+<p>The familiar <code>Bool</code> is the simplest common example of a
+category of type called an <em>algebraic data type</em>. An algebraic
+data type can have more than one value constructor.</p>
+<div class="captioned-content">
+<div class="caption">
+Bool.hs
+</div>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Bool</span> <span class="ot">=</span> <span class="dt">False</span> <span class="op">|</span> <span class="dt">True</span></span></code></pre></div>
+</div>
+<p>The <code>Bool</code> type has two value constructors,
+<code>True</code> and <code>False</code>. Each value constructor is
+separated in the definition by a <code>|</code> character, which we can
+read as "or": we can construct a <code>Bool</code> that has the value
+<code>True</code>, or the value <code>False</code>. When a type has more
+than one value constructor, they are usually referred to as
+<em>alternatives</em> or <em>cases</em>. We can use any one of the
+alternatives to create a value of that type.</p>
+<div class="NOTE">
+<p>A note about naming</p>
+<p>Although the phrase "algebraic data type" is long, we're being
+careful to avoid using the acronym "ADT". That acronym is already widely
+understood to stand for "<em>abstract</em> data type". Since Haskell
+supports both algebraic and abstract data types, we'll be explicit and
+avoid the acronym entirely.</p>
+</div>
+<p>Each of an algebraic data type's value constructors can take zero or
+more arguments. As an example, here's one way we might represent billing
+information.</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">CardHolder</span> <span class="ot">=</span> <span class="dt">String</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">CardNumber</span> <span class="ot">=</span> <span class="dt">String</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">Address</span> <span class="ot">=</span> [<span class="dt">String</span>]</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">BillingInfo</span> <span class="ot">=</span> <span class="dt">CreditCard</span> <span class="dt">CardNumber</span> <span class="dt">CardHolder</span> <span class="dt">Address</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>                 <span class="op">|</span> <span class="dt">CashOnDelivery</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>                 <span class="op">|</span> <span class="dt">Invoice</span> <span class="dt">CustomerID</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>                   <span class="kw">deriving</span> (<span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>Here, we're saying that we support three ways to bill our customers.
+If they want to pay by credit card, they must supply a card number, the
+holder's name, and the holder's billing address as arguments to the
+<code>CreditCard</code> value constructor. Alternatively, they can pay
+the person who delivers their shipment. Since we don't need to store any
+extra information about this, we specify no arguments for the
+<code>CashOnDelivery</code> constructor. Finally, we can send an invoice
+to the specified customer, in which case we need their CustomerID as an
+argument to the <code>Invoice</code> constructor.</p>
+<p>When we use a value constructor to create a value of type
+<code>BillingInfo</code>, we must supply the arguments that it
+requires.</p>
+<pre class="screen"><code>ghci&gt; :type CreditCard
+CreditCard :: CardNumber -&gt; CardHolder -&gt; Address -&gt; BillingInfo
+ghci&gt; CreditCard &quot;2901650221064486&quot; &quot;Thomas Gradgrind&quot; [&quot;Dickens&quot;, &quot;England&quot;]
+CreditCard &quot;2901650221064486&quot; &quot;Thomas Gradgrind&quot; [&quot;Dickens&quot;,&quot;England&quot;]
+ghci&gt; :type it
+it :: BillingInfo
+ghci&gt; Invoice
+
+&lt;interactive&gt;:1:1: error:
+    • No instance for (Show (CustomerID -&gt; BillingInfo))
+        arising from a use of ‘print’
+        (maybe you haven&#39;t applied a function to enough arguments?)
+    • In a stmt of an interactive GHCi command: print it
+ghci&gt; :type it
+it :: BillingInfo
+</code></pre>
+<p>The <code>No instance</code> error message arose because we did not
+supply an argument to the <code>Invoice</code> constructor. As a result,
+we were trying to print the <code>Invoice</code> constructor itself.
+That constructor requires an argument and returns a value, so it is a
+function. We cannot print functions in Haskell, which is ultimately why
+the interpreter complained.</p>
+<h2 data-number="3.1"
+id="tuples-algebraic-data-types-and-when-to-use-each"><span
+class="header-section-number">3.1</span> Tuples, algebraic data types,
+and when to use each</h2>
+<p>There is some overlap between tuples and user-defined algebraic data
+types. If we wanted to, we could represent our <code>BookInfo</code>
+type from earlier as an <code>(Int, String, [String])</code> tuple.</p>
+<pre class="screen"><code>ghci&gt; Book 2 &quot;The Wealth of Networks&quot; [&quot;Yochai Benkler&quot;]
+Book 2 &quot;The Wealth of Networks&quot; [&quot;Yochai Benkler&quot;]
+ghci&gt; (2, &quot;The Wealth of Networks&quot;, [&quot;Yochai Benkler&quot;])
+(2,&quot;The Wealth of Networks&quot;,[&quot;Yochai Benkler&quot;])
+</code></pre>
+<p>Algebraic data types allow us to distinguish between otherwise
+identical pieces of information. Two tuples with elements of the same
+type are structurally identical, so they have the same type.</p>
+<div class="captioned-content">
+<div class="caption">
+Distinction.hs
+</div>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">=</span> (<span class="st">&quot;Porpoise&quot;</span>, <span class="st">&quot;Grey&quot;</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>b <span class="ot">=</span> (<span class="st">&quot;Table&quot;</span>, <span class="st">&quot;Oak&quot;</span>)</span></code></pre></div>
+</div>
+<p>Since they have different names, two algebraic data types have
+distinct types, even if they are otherwise structurally equivalent.</p>
+<div class="captioned-content">
+<div class="caption">
+Distinction.hs
+</div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Cetacean</span> <span class="ot">=</span> <span class="dt">Cetacean</span> <span class="dt">String</span> <span class="dt">String</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Furniture</span> <span class="ot">=</span> <span class="dt">Furniture</span> <span class="dt">String</span> <span class="dt">String</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>c <span class="ot">=</span> <span class="dt">Cetacean</span> <span class="st">&quot;Porpoise&quot;</span> <span class="st">&quot;Grey&quot;</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>d <span class="ot">=</span> <span class="dt">Furniture</span> <span class="st">&quot;Table&quot;</span> <span class="st">&quot;Oak&quot;</span></span></code></pre></div>
+</div>
+<p>This lets us bring the type system to bear in writing programs with
+fewer bugs. With the tuples we defined above, we could conceivably pass
+a description of a whale to a function expecting a chair, and the type
+system could not help us. With the algebraic data types, there is no
+such possibility of confusion.</p>
+<p>Here is a more subtle example. Consider the following representations
+of a two-dimensional vector.</p>
+<div class="captioned-content">
+<div class="caption">
+AlgebraicVector.hs
+</div>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- x and y coordinates or lengths.</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Cartesian2D</span> <span class="ot">=</span> <span class="dt">Cartesian2D</span> <span class="dt">Double</span> <span class="dt">Double</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                   <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- Angle and distance (magnitude).</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Polar2D</span> <span class="ot">=</span> <span class="dt">Polar2D</span> <span class="dt">Double</span> <span class="dt">Double</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>               <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>The cartesian and polar forms use the same types for their two
+elements. However, the <em>meanings</em> of the elements are different.
+Because <code>Cartesian2D</code> and <code>Polar2D</code> are distinct
+types, the type system will not let us accidentally use a
+<code>Cartesian2D</code> value where a <code>Polar2D</code> is expected,
+or vice versa.</p>
+<pre class="screen"><code>ghci&gt; Cartesian2D (sqrt 2) (sqrt 2) == Polar2D (pi / 4) 2
+
+&lt;interactive&gt;:2:34: error:
+    • Couldn&#39;t match expected type ‘Cartesian2D’
+                  with actual type ‘Polar2D’
+    • In the second argument of ‘(==)’, namely ‘Polar2D (pi / 4) 2’
+      In the expression:
+        Cartesian2D (sqrt 2) (sqrt 2) == Polar2D (pi / 4) 2
+      In an equation for ‘it’:
+          it = Cartesian2D (sqrt 2) (sqrt 2) == Polar2D (pi / 4) 2
+</code></pre>
+<p>The <code>(==)</code> operator requires its arguments to have the
+same type.</p>
+<div class="TIP">
+<p>Comparing for equality</p>
+<p>Notice that in the <code>deriving</code> clause for our vector types,
+we added another word, <code>Eq</code>. This causes the Haskell
+implementation to generate code that lets us compare the values for
+equality.</p>
+</div>
+<p>If we used tuples to represent these values, we could quickly land
+ourselves in hot water by mixing the two representations
+inappropriately.</p>
+<pre class="screen"><code>ghci&gt; (1, 2) == (1, 2)
+True
+</code></pre>
+<p>The type system can't rescue us here: as far as it's concerned, we're
+comparing two <code>(Double, Double)</code> pairs, which is a perfectly
+valid thing to do. Indeed, we cannot tell by inspection which of these
+values is supposed to be polar or cartesian, but <code>(1,2)</code> has
+a different meaning in each representation.</p>
+<p>There is no hard and fast rule for deciding when it's better to use a
+tuple or a distinct data type, but here's a rule of thumb to follow. If
+you're using compound values widely in your code (as almost all
+non-trivial programs do), adding <code>data</code> declarations will
+benefit you in both type safety and readability. For smaller, localised
+uses, a tuple is usually fine.</p>
+<h2 data-number="3.2"
+id="analogues-to-algebraic-data-types-in-other-languages"><span
+class="header-section-number">3.2</span> Analogues to algebraic data
+types in other languages</h2>
+<p>Algebraic data types provide a single powerful way to describe data
+types. Other languages often need several different features to achieve
+the same degree of expressiveness. Here are some analogues from C and
+C++, which might make it clearer what we can do with algebraic data
+types, and how they relate to concepts that might be more familiar.</p>
+<ol>
+<li><p>The structure</p>
+<p>With just one constructor, an algebraic data type is similar to a
+tuple: it groups related values together into a compound value. It
+corresponds to a <code>struct</code> in C or C++, and its components
+correspond to the fields of a <code>struct</code>. Here's a C equivalent
+of the <code>BookInfo</code> type that we defined earlier.</p>
+<div class="sourceCode" id="cb22" data-org-language="C"><pre
+class="sourceCode c"><code class="sourceCode c"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> book_info <span class="op">{</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> id<span class="op">;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> <span class="op">*</span>name<span class="op">;</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> <span class="op">**</span>authors<span class="op">;</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p>The main difference between the two is that the fields in the Haskell
+type are anonymous and positional.</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb23"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">BookInfo</span> <span class="ot">=</span> <span class="dt">Book</span> <span class="dt">Int</span> <span class="dt">String</span> [<span class="dt">String</span>]</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>                <span class="kw">deriving</span> (<span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>By <em>positional</em>, we mean that the section number is in the
+first field of the Haskell type, and the title is in the second. We
+refer to them by location, not by name.</p>
+<p>In <a
+href="3-defining-types-streamlining-functions.org::*Pattern matching">the
+section called "Pattern matching"</a> the fields of a
+<code>BookStore</code> value. In <a
+href="3-defining-types-streamlining-functions.org::*Record syntax">the
+section called "Record syntax"</a> syntax for defining data types that
+looks a little more C-like.</p></li>
+<li><p>The enumeration</p>
+<p>Algebraic data types also serve where we'd use an <code>enum</code>
+in C or C++, to represent a range of symbolic values. Such algebraic
+data types are sometimes referred to as enumeration types. Here's an
+example from C.</p>
+<div class="sourceCode" id="cb24" data-org-language="C"><pre
+class="sourceCode c"><code class="sourceCode c"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> roygbiv <span class="op">{</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    red<span class="op">,</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    orange<span class="op">,</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    yellow<span class="op">,</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    green<span class="op">,</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    blue<span class="op">,</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    indigo<span class="op">,</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    violet<span class="op">,</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p>And here's a Haskell equivalent.</p>
+<div class="captioned-content">
+<div class="caption">
+Roygbiv.hs
+</div>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Roygbiv</span> <span class="ot">=</span> <span class="dt">Red</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>             <span class="op">|</span> <span class="dt">Orange</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>             <span class="op">|</span> <span class="dt">Yellow</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>             <span class="op">|</span> <span class="dt">Green</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>             <span class="op">|</span> <span class="dt">Blue</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>             <span class="op">|</span> <span class="dt">Indigo</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>             <span class="op">|</span> <span class="dt">Violet</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>               <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>We can try these out in <code>ghci</code>.</p>
+<pre class="screen"><code>ghci&gt; :type Yellow
+Yellow :: Roygbiv
+ghci&gt; :type Red
+Red :: Roygbiv
+ghci&gt; Red == Yellow
+False
+ghci&gt; Green == Green
+True
+</code></pre>
+<p>In C, the elements of an <code>enum</code> are integers. We can use
+an integer in a context where an <code>enum</code> is expected, and vice
+versa: a C compiler will automatically convert values between the two
+types. This can be a source of nasty bugs. In Haskell, this kind of
+problem does not occur. For example, we cannot use a
+<code>Roygbiv</code> value where an <code>Int</code> is expected.</p>
+<pre class="screen"><code>ghci&gt; take 3 &quot;foobar&quot;
+&quot;foo&quot;
+ghci&gt; take Red &quot;foobar&quot;
+
+&lt;interactive&gt;:3:6: error:
+    • Couldn&#39;t match expected type ‘Int’ with actual type ‘Roygbiv’
+    • In the first argument of ‘take’, namely ‘Red’
+      In the expression: take Red &quot;foobar&quot;
+      In an equation for ‘it’: it = take Red &quot;foobar&quot;
+</code></pre></li>
+<li><p>The discriminated union</p>
+<p>If an algebraic data type has multiple alternatives, we can think of
+it as similar to a <code>union</code> in C or C++. A big difference
+between the two is that a union doesn't tell us which alternative is
+actually present; we have to explicitly and manually track which
+alternative we're using, usually in another field of an enclosing
+struct. This means that unions can be sources of nasty bugs, where our
+notion of which alternative we should be using is incorrect.</p>
+<div class="sourceCode" id="cb28" data-org-language="C"><pre
+class="sourceCode c"><code class="sourceCode c"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> shape_type <span class="op">{</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    shape_circle<span class="op">,</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    shape_poly<span class="op">,</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> circle <span class="op">{</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> vector centre<span class="op">;</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">float</span> radius<span class="op">;</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> poly <span class="op">{</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    <span class="dt">size_t</span> num_vertices<span class="op">;</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> vector <span class="op">*</span>vertices<span class="op">;</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> shape</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">enum</span> shape_type type<span class="op">;</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>    <span class="kw">union</span> <span class="op">{</span></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> circle circle<span class="op">;</span></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> poly poly<span class="op">;</span></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> shape<span class="op">;</span></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p>In the example above, the <code>union</code> can contain valid data
+for either a <code>struct circle</code> or a <code>struct poly</code>.
+We have to use the <code>enum shape_type</code> by hand to indicate
+which kind of value is currently stored in the <code>union</code>.</p>
+<p>The Haskell version of this code is both dramatically shorter and
+safer than the C equivalent.</p>
+<div class="captioned-content">
+<div class="caption">
+ShapeUnion.hs
+</div>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">Vector</span> <span class="ot">=</span> (<span class="dt">Double</span>, <span class="dt">Double</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Shape</span> <span class="ot">=</span> <span class="dt">Circle</span> <span class="dt">Vector</span> <span class="dt">Double</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>           <span class="op">|</span> <span class="dt">Poly</span> [<span class="dt">Vector</span>]</span></code></pre></div>
+</div>
+<p>If we create a <code>Shape</code> value using the <code>Circle</code>
+constructor, the fact that we created a <code>Circle</code> is stored.
+When we later use a <code>Circle</code>, we can't accidentally treat it
+as a <code>Square</code>. We will see why in <a
+href="3-defining-types-streamlining-functions.org::*Pattern matching">the
+section called "Pattern matching"</a></p>
+<div class="TIP">
+<p>A few notes</p>
+<p>From reading the preceding sections, it should now be clear that
+<em>all</em> of the data types that we define with the <code>data</code>
+keyword are algebraic data types. Some may have just one alternative,
+while others have several, but they're all using the same machinery.</p>
+</div></li>
+</ol>
+<h1 data-number="4" id="pattern-matching"><span
+class="header-section-number">4</span> Pattern matching</h1>
+<p>Now that we've seen how to construct values with algebraic data
+types, let's discuss how we work with these values. If we have a value
+of some type, there are two things we would like to be able to do.</p>
+<ul>
+<li>If the type has more than one value constructor, we need to be able
+to tell which value constructor was used to create the value.</li>
+<li>If the value constructor has data components, we need to be able to
+extract those values.</li>
+</ul>
+<p>Haskell has a simple, but tremendously useful, <em>pattern
+matching</em> facility that lets us do both of these things.</p>
+<p>A pattern lets us look inside a value and bind variables to the data
+it contains. Here's an example of pattern matching in action on a
+<code>Bool</code> value: we're going to reproduce the <code>not</code>
+function.</p>
+<div class="captioned-content">
+<div class="caption">
+MyNot.hs
+</div>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>myNot <span class="dt">True</span>  <span class="ot">=</span> <span class="dt">False</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>myNot <span class="dt">False</span> <span class="ot">=</span> <span class="dt">True</span></span></code></pre></div>
+</div>
+<p>It might seem that we have two functions named <code>myNot</code>
+here, but Haskell lets us define a function as a <em>series of
+equations</em>: these two clauses are defining the behavior of the same
+function for different patterns of input. On each line, the patterns are
+the items following the function name, up until the <code>=</code>
+sign.</p>
+<p>To understand how pattern matching works, let's step through an
+example, say <code>myNot False</code>.</p>
+<p>When we apply <code>myNot</code>, the Haskell runtime checks the
+value we supply against the value constructor in the first pattern. This
+does not match, so it tries against the second pattern. That match
+succeeds, so it uses the right hand side of that equation as the result
+of the function application.</p>
+<p>Here is a slightly more extended example. This function adds together
+the elements of a list.</p>
+<div class="captioned-content">
+<div class="caption">
+SumList.hs
+</div>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>sumList (x<span class="op">:</span>xs) <span class="ot">=</span> x <span class="op">+</span> sumList xs</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>sumList []     <span class="ot">=</span> <span class="dv">0</span></span></code></pre></div>
+</div>
+<p>Let us step through the evaluation of <code>sumList [1,2]</code>. The
+list notation <code>[1,2]</code> is shorthand for the expression
+<code>(1 : (2 : []))</code>. We begin by trying to match the pattern in
+the first equation of the definition of <code>sumList</code>. In the
+<code>(x : xs)</code> pattern, the "<code>:</code>" is the familiar list
+constructor, <code>(:)</code>. We are now using it to match against a
+value, not to construct one. The value <code>(1 : (2 : []))</code> was
+constructed with <code>(:)</code>, so the constructor in the value
+matches the constructor in the pattern. We say that the pattern
+<em>matches</em>, or that the match <em>succeeds</em>.</p>
+<p>The variables <code>x</code> and <code>xs</code> are now "bound to"
+the constructor's arguments, so <code>x</code> is given the value
+<code>1</code>, and <code>xs</code> the value <code>2 : []</code>.</p>
+<p>The expression we are now evaluating is
+<code>1 + sumList (2 : [])</code>. We must now recursively apply
+<code>sumList</code> to the value <code>2 : []</code>. Once again, this
+was constructed using <code>(:)</code>, so the match succeeds. In our
+recursive application of <code>sumList</code>, <code>x</code> is now
+bound to <code>2</code>, and <code>xs</code> to <code>[]</code>.</p>
+<p>We are now evaluating <code>1 + (2 + sumList [])</code>. In this
+recursive application of <code>sumList</code>, the value we are matching
+against is <code>[]</code>. The value's constructor does not match the
+constructor in the first pattern, so we skip this equation. Instead, we
+"fall through" to the next pattern, which matches. The right hand side
+of this equation is thus chosen as the result of this application.</p>
+<p>The result of <code>sumList [1,2]</code> is thus
+<code>1 + (2 + (0))</code>, or <code>3</code>.</p>
+<div class="NOTE">
+<p>Ordering is important</p>
+<p>As we have already mentioned, a Haskell implementation checks
+patterns for matches in the order in which we specify them in our
+equations. Matching proceeds from top to bottom, and stops at the first
+success. Equations below a successful match have no effect.</p>
+</div>
+<p>As a final note, there already exists a standard function,
+<code>sum</code>, that performs this sum-of-a-list for us. Our
+<code>sumList</code> is purely for illustration.</p>
+<h2 data-number="4.1" id="construction-and-deconstruction"><span
+class="header-section-number">4.1</span> Construction and
+deconstruction</h2>
+<p>Let's step back and take a look at the relationship between
+constructing a value and pattern matching on it.</p>
+<p>We apply a value constructor to build a value. The expression
+<code>Book 9 "Close Calls" ["John Long"]</code> applies the
+<code>Book</code> constructor to the values <code>9</code>,
+<code>"Close Calls"</code>, and <code>["John Long"]</code> to produce a
+new value of type <code>BookInfo</code>.</p>
+<p>When we pattern match against the <code>Book</code> constructor, we
+<em>reverse</em> the construction process. First of all, we check to see
+if the value was created using that constructor. If it was, we inspect
+it to obtain the individual values that we originally supplied to the
+constructor when we created the value.</p>
+<p>Let's consider what happens if we match the pattern
+<code>(Book id name authors)</code> against our example expression.</p>
+<ul>
+<li>The match will succeed, because the constructor in the value matches
+the one in our pattern.</li>
+<li>The variable <code>id</code> will be bound to <code>9</code>.</li>
+<li>The variable <code>name</code> will be bound to
+<code>"Close Calls"</code>.</li>
+<li>The variable <code>authors</code> will be bound to
+<code>["John Long"]</code>.</li>
+</ul>
+<p>Because pattern matching acts as the inverse of construction, it's
+sometimes referred to as /de/construction.</p>
+<div class="NOTE">
+<p>Deconstruction doesn't destroy anything</p>
+<p>If you're steeped in object oriented programming jargon, don't
+confuse deconstruction with destruction! Matching a pattern has no
+effect on the value we're examining: it just lets us "look inside"
+it.</p>
+</div>
+<h2 data-number="4.2" id="further-adventures"><span
+class="header-section-number">4.2</span> Further adventures</h2>
+<p>The syntax for pattern matching on a tuple is similar to the syntax
+for constructing a tuple. Here's a function that returns the last
+element of a 3-tuple.</p>
+<div class="captioned-content">
+<div class="caption">
+Tuple.hs
+</div>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>third (a, b, c) <span class="ot">=</span> c</span></code></pre></div>
+</div>
+<p>There's no limit on how "deep" within a value a pattern can look.
+This definition looks both inside a tuple and inside a list within that
+tuple.</p>
+<div class="captioned-content">
+<div class="caption">
+Tuple.hs
+</div>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>complicated (<span class="dt">True</span>, a, x<span class="op">:</span>xs, <span class="dv">5</span>) <span class="ot">=</span> (a, xs)</span></code></pre></div>
+</div>
+<p>We can try this out interactively.</p>
+<pre class="screen"><code>ghci&gt; :load Tuple.hs
+[1 of 1] Compiling Main             ( Tuple.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; complicated (True, 1, [1,2,3], 5)
+(1,[2,3])
+</code></pre>
+<p>Wherever a literal value is present in a pattern (<code>True</code>
+and <code>5</code> in the tuple pattern above), that value must match
+exactly for the pattern match to succeed. If every pattern within a
+series of equations fails to match, we get a runtime error.</p>
+<pre class="screen"><code>ghci&gt; complicated (False, 1, [1,2,3], 5)
+*** Exception: Tuple.hs:10:0-39: Non-exhaustive patterns in function complicated
+</code></pre>
+<p>For an explanation of this error message, skip forward a little, to
+<a
+href="3-defining-types-streamlining-functions.org::*Exhaustive patterns and wild cards">the
+section called "Exhaustive patterns and wild cards"</a></p>
+<p>We can pattern match on an algebraic data type using its value
+constructors. Recall the <code>BookInfo</code> type we defined earlier:
+we can extract the values from a <code>BookInfo</code> as follows.</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb36"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>bookID      (<span class="dt">Book</span> <span class="fu">id</span> title authors) <span class="ot">=</span> <span class="fu">id</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>bookTitle   (<span class="dt">Book</span> <span class="fu">id</span> title authors) <span class="ot">=</span> title</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>bookAuthors (<span class="dt">Book</span> <span class="fu">id</span> title authors) <span class="ot">=</span> authors</span></code></pre></div>
+</div>
+<p>Let's see it in action.</p>
+<pre class="screen"><code>ghci&gt; bookID (Book 3 &quot;Probability Theory&quot; [&quot;E.T.H. Jaynes&quot;])
+3
+ghci&gt; bookTitle (Book 3 &quot;Probability Theory&quot; [&quot;E.T.H. Jaynes&quot;])
+&quot;Probability Theory&quot;
+ghci&gt; bookAuthors (Book 3 &quot;Probability Theory&quot; [&quot;E.T.H. Jaynes&quot;])
+[&quot;E.T.H. Jaynes&quot;]
+</code></pre>
+<p>The compiler can infer the types of the accessor functions based on
+the constructor we're using in our pattern.</p>
+<pre class="screen"><code>ghci&gt; :type bookID
+bookID :: BookInfo -&gt; Int
+ghci&gt; :type bookTitle
+bookTitle :: BookInfo -&gt; String
+ghci&gt; :type bookAuthors
+bookAuthors :: BookInfo -&gt; [String]
+</code></pre>
+<p>If we use a literal value in a pattern, the corresponding part of the
+value we're matching against must contain an identical value. For
+instance, the pattern <code>(3 : xs)</code> first of all checks that a
+value is a non-empty list, by matching against the <code>(:)</code>
+constructor. It also ensures that the head of the list has the exact
+value <code>3</code>. If both of these conditions hold, the tail of the
+list will be bound to the variable <code>xs</code>.</p>
+<h2 data-number="4.3" id="variable-naming-in-patterns"><span
+class="header-section-number">4.3</span> Variable naming in
+patterns</h2>
+<p>As you read functions that match on lists, you'll frequently find
+that the names of the variables inside a pattern resemble
+<code>(x : xs)</code> or <code>(d : ds)</code>. This is a popular naming
+convention. The idea is that the name <code>xs</code> has an
+"<code>s</code>" on the end of its name as if it's the "plural" of
+<code>x</code>, because <code>x</code> contains the head of the list,
+and <code>xs</code> the remaining elements.</p>
+<h2 data-number="4.4" id="the-wild-card-pattern"><span
+class="header-section-number">4.4</span> The wild card pattern</h2>
+<p>We can indicate that we don't care what is present in part of a
+pattern. The notation for this is the underscore character
+"<code>_</code>", which we call a <em>wild card</em>. We use it as
+follows.</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>nicerID      (<span class="dt">Book</span> <span class="fu">id</span> _     _      ) <span class="ot">=</span> <span class="fu">id</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>nicerTitle   (<span class="dt">Book</span> _  title _      ) <span class="ot">=</span> title</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>nicerAuthors (<span class="dt">Book</span> _  _     authors) <span class="ot">=</span> authors</span></code></pre></div>
+</div>
+<p>Here, we have tidier versions of the accessor functions we introduced
+earlier. Now, there's no question about which element we're using in
+each function.</p>
+<p>In a pattern, a wild card acts similarly to a variable, but it
+doesn't bind a new variable. As the examples above indicate, we can use
+more than one wild card in a single pattern.</p>
+<p>Another advantage of wild cards is that a Haskell compiler can warn
+us if we introduce a variable name in a pattern, but do not use it in a
+function's body. Defining a variable, but forgetting to use it, can
+often indicate the presence of a bug, so this is a helpful feature. If
+we use a wild card instead of a variable that we do not intend to use,
+the compiler won't complain.</p>
+<h2 data-number="4.5" id="exhaustive-patterns-and-wild-cards"><span
+class="header-section-number">4.5</span> Exhaustive patterns and wild
+cards</h2>
+<p>When writing a series of patterns, it's important to cover all of a
+type's constructors. For example, if we're inspecting a list, we should
+have one equation that matches the non-empty constructor
+<code>(:)</code>, and one that matches the empty-list constructor
+<code>[]</code>.</p>
+<p>Let's see what happens if we fail to cover all the cases. Here, we
+deliberately omit a check for the <code>[]</code> constructor.</p>
+<div class="captioned-content">
+<div class="caption">
+BadPattern.hs
+</div>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>badExample (x<span class="op">:</span>xs) <span class="ot">=</span> x <span class="op">+</span> badExample xs</span></code></pre></div>
+</div>
+<p>If we apply this to a value that it cannot match, we'll get an error
+at runtime: our software has a bug!</p>
+<pre class="screen"><code>ghci&gt; badExample []
+*** Exception: BadPattern.hs:4:0-36: Non-exhaustive patterns in function badExample
+</code></pre>
+<p>In this example, no equation in the function's definition matches the
+value <code>[]</code>.</p>
+<div class="TIP">
+<p>Warning about incomplete patterns</p>
+<p>GHC provides a helpful compilation option,
+<code>-fwarn-incomplete-patterns</code>, that will cause it to print a
+warning during compilation if a sequence of patterns don't match all of
+a type's value constructors.</p>
+</div>
+<p>If we need to provide a default behavior in cases where we don't care
+about specific constructors, we can use a wild card pattern.</p>
+<div class="captioned-content">
+<div class="caption">
+BadPattern.hs
+</div>
+<div class="sourceCode" id="cb42"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>goodExample (x<span class="op">:</span>xs) <span class="ot">=</span> x <span class="op">+</span> goodExample xs</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>goodExample _      <span class="ot">=</span> <span class="dv">0</span></span></code></pre></div>
+</div>
+<p>The wild card above will match the <code>[]</code> constructor, so
+applying this function does not lead to a crash.</p>
+<pre class="screen"><code>ghci&gt; goodExample []
+0
+ghci&gt; goodExample [1,2]
+3
+</code></pre>
+<h1 data-number="5" id="record-syntax"><span
+class="header-section-number">5</span> Record syntax</h1>
+<p>Writing accessor functions for each of a data type's components can
+be repetitive and tedious.</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>nicerID      (<span class="dt">Book</span> <span class="fu">id</span> _     _      ) <span class="ot">=</span> <span class="fu">id</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>nicerTitle   (<span class="dt">Book</span> _  title _      ) <span class="ot">=</span> title</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>nicerAuthors (<span class="dt">Book</span> _  _     authors) <span class="ot">=</span> authors</span></code></pre></div>
+</div>
+<p>We call this kind of code <em>boilerplate</em>: necessary, but bulky
+and irksome. Haskell programmers don't like boilerplate. Fortunately,
+the language addresses this particular boilerplate problem: we can
+define a data type, and accessors for each of its components,
+simultaneously. (The positions of the commas here is a matter of
+preference. If you like, put them at the end of a line instead of the
+beginning.)</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Customer</span> <span class="ot">=</span> <span class="dt">Customer</span> {</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="ot">      customerID      ::</span> <span class="dt">CustomerID</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>    ,<span class="ot"> customerName    ::</span> <span class="dt">String</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    ,<span class="ot"> customerAddress ::</span> <span class="dt">Address</span></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    } <span class="kw">deriving</span> (<span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>This is almost exactly identical in meaning to the following, more
+familiar form.</p>
+<div class="captioned-content">
+<div class="caption">
+AltCustomer.hs
+</div>
+<div class="sourceCode" id="cb46"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Customer</span> <span class="ot">=</span> <span class="dt">Customer</span> <span class="dt">Int</span> <span class="dt">String</span> [<span class="dt">String</span>]</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>                <span class="kw">deriving</span> (<span class="dt">Show</span>)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="ot">customerID ::</span> <span class="dt">Customer</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>customerID (<span class="dt">Customer</span> <span class="fu">id</span> _ _) <span class="ot">=</span> <span class="fu">id</span></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="ot">customerName ::</span> <span class="dt">Customer</span> <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>customerName (<span class="dt">Customer</span> _ name _) <span class="ot">=</span> name</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a><span class="ot">customerAddress ::</span> <span class="dt">Customer</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>]</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>customerAddress (<span class="dt">Customer</span> _ _ address) <span class="ot">=</span> address</span></code></pre></div>
+</div>
+<p>For each of the fields that we name in our type definition, Haskell
+creates an accessor function of that name.</p>
+<pre class="screen"><code>ghci&gt; :type customerID
+customerID :: Customer -&gt; CustomerID
+</code></pre>
+<p>We can still use the usual application syntax to create a value of
+this type.</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb48"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>customer1 <span class="ot">=</span> <span class="dt">Customer</span> <span class="dv">271828</span> <span class="st">&quot;J.R. Hacker&quot;</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>            [<span class="st">&quot;255 Syntax Ct&quot;</span>,</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;Milpitas, CA 95134&quot;</span>,</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;USA&quot;</span>]</span></code></pre></div>
+</div>
+<p>Record syntax adds a more verbose notation for creating a value. This
+can sometimes make code more readable.</p>
+<div class="captioned-content">
+<div class="caption">
+BookStore.hs
+</div>
+<div class="sourceCode" id="cb49"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>customer2 <span class="ot">=</span> <span class="dt">Customer</span> {</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>              customerID <span class="ot">=</span> <span class="dv">271828</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>            , customerAddress <span class="ot">=</span> [<span class="st">&quot;1048576 Disk Drive&quot;</span>,</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">&quot;Milpitas, CA 95134&quot;</span>,</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>                                 <span class="st">&quot;USA&quot;</span>]</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>            , customerName <span class="ot">=</span> <span class="st">&quot;Jane Q. Citizen&quot;</span></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>            }</span></code></pre></div>
+</div>
+<p>If we use this form, we can vary the order in which we list fields.
+Here, we have moved the name and address fields from their positions in
+the declaration of the type.</p>
+<p>When we define a type using record syntax, it also changes the way
+the type's values are printed.</p>
+<pre class="screen"><code>ghci&gt; customer1
+Customer {customerID = 271828, customerName = &quot;J.R. Hacker&quot;, customerAddress = [&quot;255 Syntax Ct&quot;,&quot;Milpitas, CA 95134&quot;,&quot;USA&quot;]}
+</code></pre>
+<p>For comparison, let's look at a <code>BookInfo</code> value; we
+defined this type without record syntax.</p>
+<pre class="screen"><code>ghci&gt; cities
+Book 173 &quot;Use of Weapons&quot; [&quot;Iain M. Banks&quot;]
+</code></pre>
+<p>The accessor functions that we get "for free" when we use record
+syntax really are normal Haskell functions.</p>
+<pre class="screen"><code>ghci&gt; :type customerName
+customerName :: Customer -&gt; String
+ghci&gt; customerName customer1
+&quot;J.R. Hacker&quot;
+</code></pre>
+<p>The standard <code>System.Time</code> module makes good use of record
+syntax. Here's a type defined in that module:</p>
+<div class="sourceCode" id="cb53"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">CalendarTime</span> <span class="ot">=</span> <span class="dt">CalendarTime</span> {</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  ctYear                      ::</span> <span class="dt">Int</span>,</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="ot">  ctMonth                     ::</span> <span class="dt">Month</span>,</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>  ctDay, ctHour, ctMin,<span class="ot"> ctSec ::</span> <span class="dt">Int</span>,</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="ot">  ctPicosec                   ::</span> <span class="dt">Integer</span>,</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="ot">  ctWDay                      ::</span> <span class="dt">Day</span>,</span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a><span class="ot">  ctYDay                      ::</span> <span class="dt">Int</span>,</span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a><span class="ot">  ctTZName                    ::</span> <span class="dt">String</span>,</span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a><span class="ot">  ctTZ                        ::</span> <span class="dt">Int</span>,</span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a><span class="ot">  ctIsDST                     ::</span> <span class="dt">Bool</span></span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>In the absence of record syntax, it would be painful to extract
+specific fields from a type like this. The notation makes it easier to
+work with large structures.</p>
+<h1 data-number="6" id="parameterised-types"><span
+class="header-section-number">6</span> Parameterised types</h1>
+<p>We've repeatedly mentioned that the list type is polymorphic: the
+elements of a list can be of any type. We can also add polymorphism to
+our own types. To do this, we introduce type variables into a type
+declaration. The prelude defines a type named <code>Maybe</code>: we can
+use this to represent a value that could be either present or missing,
+e.g. a field in a database row that could be null.</p>
+<div class="captioned-content">
+<div class="caption">
+Nullable.hs
+</div>
+<div class="sourceCode" id="cb54"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Maybe</span> a <span class="ot">=</span> <span class="dt">Just</span> a</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>             <span class="op">|</span> <span class="dt">Nothing</span></span></code></pre></div>
+</div>
+<p>Here, the variable <code>a</code> is not a regular variable: it's a
+type variable. It indicates that the <code>Maybe</code> type takes
+another type as its parameter. This lets us use Maybe on values of any
+type.</p>
+<div class="captioned-content">
+<div class="caption">
+Nullable.hs
+</div>
+<div class="sourceCode" id="cb55"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>someBool <span class="ot">=</span> <span class="dt">Just</span> <span class="dt">True</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>someString <span class="ot">=</span> <span class="dt">Just</span> <span class="st">&quot;something&quot;</span></span></code></pre></div>
+</div>
+<p>As usual, we can experiment with this type in <code>ghci</code>.</p>
+<pre class="screen"><code>ghci&gt; Just 1.5
+Just 1.5
+ghci&gt; Nothing
+Nothing
+ghci&gt; :type Just &quot;invisible bike&quot;
+Just &quot;invisible bike&quot; :: Maybe [Char]
+</code></pre>
+<p>Maybe is a polymorphic, or generic, type. We give the
+<code>Maybe</code> type constructor a parameter to create a specific
+type, such as <code>Maybe Int</code> or <code>Maybe [Bool]</code>. As we
+might expect, these types are distinct.</p>
+<p>We can nest uses of parameterised types inside each other, but when
+we do, we may need to use parentheses to tell the Haskell compiler how
+to parse our expression.</p>
+<div class="captioned-content">
+<div class="caption">
+Nullable.hs
+</div>
+<div class="sourceCode" id="cb57"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>wrapped <span class="ot">=</span> <span class="dt">Just</span> (<span class="dt">Just</span> <span class="st">&quot;wrapped&quot;</span>)</span></code></pre></div>
+</div>
+<p>To once again extend an analogy to more familiar languages,
+parameterised types bear some resemblance to templates in C++, and to
+generics in Java. Just be aware that this is a shallow analogy.
+Templates and generics were added to their respective languages long
+after the languages were initially defined, and have an awkward feel.
+Haskell's parameterised types are simpler and easier to use, as the
+language was designed with them from the beginning.</p>
+<h1 data-number="7" id="recursive-types"><span
+class="header-section-number">7</span> Recursive types</h1>
+<p>The familiar list type is <em>recursive</em>: it's defined in terms
+of itself. To understand this, let's create our own list-like type.
+We'll use <code>Cons</code> in place of the <code>(:)</code>
+constructor, and <code>Nil</code> in place of <code>[]</code>.</p>
+<div class="sourceCode" id="cb58"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- file ListADT.hs</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">List</span> a <span class="ot">=</span> <span class="dt">Cons</span> a (<span class="dt">List</span> a)</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="dt">Nil</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>              <span class="kw">deriving</span> (<span class="dt">Show</span>)</span></code></pre></div>
+<p>Because <code>List a</code> appears on both the left and the right of
+the <code>=</code> sign, the type's definition refers to itself. If we
+want to use the <code>Cons</code> constructor to create a new value, we
+must supply one value of type <code>a</code>, and another of type
+<code>List a</code>. Let's see where this leads us in practice.</p>
+<p>The simplest value of type <code>List a</code> that we can create is
+<code>Nil</code>. Save the type definition in a file, then load it into
+<code>ghci</code>.</p>
+<pre class="screen"><code>ghci&gt; Nil
+Nil
+</code></pre>
+<p>Because <code>Nil</code> has a <code>List</code> type, we can use it
+as a parameter to <code>Cons</code>.</p>
+<pre class="screen"><code>ghci&gt; Cons 0 Nil
+Cons 0 Nil
+</code></pre>
+<p>And because <code>Cons 0 Nil</code> has the type <code>List a</code>,
+we can use this as a parameter to <code>Cons</code>.</p>
+<pre class="screen"><code>ghci&gt; Cons 1 it
+Cons 1 (Cons 0 Nil)
+ghci&gt; Cons 2 it
+Cons 2 (Cons 1 (Cons 0 Nil))
+ghci&gt; Cons 3 it
+Cons 3 (Cons 2 (Cons 1 (Cons 0 Nil)))
+</code></pre>
+<p>We could continue in this fashion indefinitely, creating ever longer
+<code>Cons</code> chains, each with a single <code>Nil</code> at the
+end.</p>
+<div class="TIP">
+<p>Is <code>List</code> an acceptable list?</p>
+<p>We can easily prove to ourselves that our <code>List a</code> type
+has the same shape as the built-in list type <code>[a]</code>. To do
+this, we write a function that takes any value of type <code>[a]</code>,
+and produces a value of type <code>List a</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+ListADT.hs
+</div>
+<div class="sourceCode" id="cb62"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>fromList (x<span class="op">:</span>xs) <span class="ot">=</span> <span class="dt">Cons</span> x (fromList xs)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>fromList []     <span class="ot">=</span> <span class="dt">Nil</span></span></code></pre></div>
+</div>
+<p>By inspection, this clearly substitutes a <code>Cons</code> for every
+<code>(:)</code>, and a <code>Nil</code> for each <code>[]</code>. This
+covers both of the built-in list type's constructors. The two types are
+<em>isomorphic</em>; they have the same shape.</p>
+<pre class="screen"><code>ghci&gt; fromList &quot;durian&quot;
+Cons &#39;d&#39; (Cons &#39;u&#39; (Cons &#39;r&#39; (Cons &#39;i&#39; (Cons &#39;a&#39; (Cons &#39;n&#39; Nil)))))
+ghci&gt; fromList [Just True, Nothing, Just False]
+Cons (Just True) (Cons Nothing (Cons (Just False) Nil))
+</code></pre>
+</div>
+<p>For a third example of what a recursive type is, here is a definition
+of a binary tree type.</p>
+<div class="captioned-content">
+<div class="caption">
+Tree.hs
+</div>
+<div class="sourceCode" id="cb64"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Tree</span> a <span class="ot">=</span> <span class="dt">Node</span> a (<span class="dt">Tree</span> a) (<span class="dt">Tree</span> a)</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>            <span class="op">|</span> <span class="dt">Empty</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>              <span class="kw">deriving</span> (<span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>A binary tree is either a node with two children, which are
+themselves binary trees, or an empty value.</p>
+<p>This time, let's search for insight by comparing our definition with
+one from a more familiar language. Here's a similar class definition in
+Java.</p>
+<div class="sourceCode" id="cb65"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Tree<span class="op">&lt;</span>A<span class="op">&gt;</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>    A value<span class="op">;</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>    Tree<span class="op">&lt;</span>A<span class="op">&gt;</span> left<span class="op">;</span></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>    Tree<span class="op">&lt;</span>A<span class="op">&gt;</span> right<span class="op">;</span></span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">Tree</span><span class="op">(</span>A v<span class="op">,</span> Tree<span class="op">&lt;</span>A<span class="op">&gt;</span> l<span class="op">,</span> Tree<span class="op">&lt;</span>A<span class="op">&gt;</span> r<span class="op">)</span></span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb65-9"><a href="#cb65-9" aria-hidden="true" tabindex="-1"></a>    value <span class="op">=</span> v<span class="op">;</span></span>
+<span id="cb65-10"><a href="#cb65-10" aria-hidden="true" tabindex="-1"></a>    left <span class="op">=</span> l<span class="op">;</span></span>
+<span id="cb65-11"><a href="#cb65-11" aria-hidden="true" tabindex="-1"></a>    right <span class="op">=</span> r<span class="op">;</span></span>
+<span id="cb65-12"><a href="#cb65-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb65-13"><a href="#cb65-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>The one significant difference is that Java lets us use the special
+value <code>null</code> anywhere to indicate "nothing", so we can use
+<code>null</code> to indicate that a node is missing a left or right
+child. Here's a small function that constructs a tree with two leaves (a
+leaf, by convention, has no children).</p>
+<div class="sourceCode" id="cb66"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Example</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">static</span> Tree<span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> <span class="fu">simpleTree</span><span class="op">()</span></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">new</span> Tree<span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;(</span></span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;parent&quot;</span><span class="op">,</span></span>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">new</span> Tree<span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;(</span><span class="st">&quot;left leaf&quot;</span><span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="kw">null</span><span class="op">),</span></span>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">new</span> Tree<span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;(</span><span class="st">&quot;right leaf&quot;</span><span class="op">,</span> <span class="kw">null</span><span class="op">,</span> <span class="kw">null</span><span class="op">));</span></span>
+<span id="cb66-9"><a href="#cb66-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb66-10"><a href="#cb66-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>In Haskell, we don't have an equivalent of <code>null</code>. We
+could use the <code>Maybe</code> type to provide a similar effect, but
+that bloats the pattern matching. Instead, we've decided to use a
+no-argument <code>Empty</code> constructor. Where the Java example
+provides <code>null</code> to the <code>Tree</code> constructor, we
+supply <code>Empty</code> in Haskell.</p>
+<div class="captioned-content">
+<div class="caption">
+Tree.hs
+</div>
+<div class="sourceCode" id="cb67"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>simpleTree <span class="ot">=</span> <span class="dt">Node</span> <span class="st">&quot;parent&quot;</span> (<span class="dt">Node</span> <span class="st">&quot;left child&quot;</span> <span class="dt">Empty</span> <span class="dt">Empty</span>)</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>                           (<span class="dt">Node</span> <span class="st">&quot;right child&quot;</span> <span class="dt">Empty</span> <span class="dt">Empty</span>)</span></code></pre></div>
+</div>
+<h2 data-number="7.1" id="exercises"><span
+class="header-section-number">7.1</span> Exercises</h2>
+<ol>
+<li>Write the converse of <code>fromList</code> for the List type: a
+function that takes a List a and generates a <code>[a]</code>.</li>
+<li>Define a tree type that has only one constructor, like our Java
+example. Instead of the <code>Empty</code> constructor, use the
+<code>Maybe</code> type to refer to a node's children.</li>
+</ol>
+<h1 data-number="8" id="reporting-errors"><span
+class="header-section-number">8</span> Reporting errors</h1>
+<p>Haskell provides a standard function,
+<code>error :: String -&gt; a</code>, that we can call when something
+has gone terribly wrong in our code. We give it a string parameter,
+which is the error message to display. Its type signature looks
+peculiar: how can it produce a value of any type <code>a</code> given
+only a string?</p>
+<p>It has a result type of <code>a</code> so that we can call it
+anywhere and it will always have the right type. However, it does not
+return a value like a normal function: instead, it <em>immediately
+aborts evaluation</em>, and prints the error message we give it.</p>
+<p>The <code>mySecond</code> function returns the second element of its
+input list, but fails if its input list isn't long enough.</p>
+<div class="captioned-content">
+<div class="caption">
+MySecond.hs
+</div>
+<div class="sourceCode" id="cb68"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="ot">mySecond ::</span> [a] <span class="ot">-&gt;</span> a</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>mySecond xs <span class="ot">=</span> <span class="kw">if</span> <span class="fu">null</span> (<span class="fu">tail</span> xs)</span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>              <span class="kw">then</span> <span class="fu">error</span> <span class="st">&quot;list too short&quot;</span></span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>              <span class="kw">else</span> <span class="fu">head</span> (<span class="fu">tail</span> xs)</span></code></pre></div>
+</div>
+<p>As usual, we can see how this works in practice in
+<code>ghci</code>.</p>
+<pre class="screen"><code>ghci&gt; mySecond &quot;xi&quot;
+&#39;i&#39;
+ghci&gt; mySecond [2]
+*** Exception: list too short
+ghci&gt; head (mySecond [[9]])
+*** Exception: list too short
+</code></pre>
+<p>Notice the third case above, where we try to use the result of the
+call to <code>mySecond</code> as the argument to another function.
+Evaluation still terminates and drops us back to the <code>ghci</code>
+prompt. This is the major weakness of using <code>error</code>: it
+doesn't let our caller distinguish between a recoverable error and a
+problem so severe that it really should terminate our program.</p>
+<p>As we have already seen, a pattern matching failure causes a similar
+unrecoverable error.</p>
+<pre class="screen"><code>ghci&gt; mySecond []
+*** Exception: Prelude.tail: empty list
+</code></pre>
+<h2 data-number="8.1" id="a-more-controlled-approach"><span
+class="header-section-number">8.1</span> A more controlled approach</h2>
+<p>We can use the <code>Maybe</code> type to represent the possibility
+of an error.</p>
+<p>If we want to indicate that an operation has failed, we can use the
+<code>Nothing</code> constructor. Otherwise, we wrap our value with the
+<code>Just</code> constructor.</p>
+<p>Let's see how our <code>mySecond</code> function changes if we return
+a <code>Maybe</code> value instead of calling <code>error</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+MySecond.hs
+</div>
+<div class="sourceCode" id="cb71"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="ot">safeSecond ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>safeSecond [] <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>safeSecond xs <span class="ot">=</span> <span class="kw">if</span> <span class="fu">null</span> (<span class="fu">tail</span> xs)</span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>                <span class="kw">then</span> <span class="dt">Nothing</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span> <span class="dt">Just</span> (<span class="fu">head</span> (<span class="fu">tail</span> xs))</span></code></pre></div>
+</div>
+<p>If the list we're passed is too short, we return <code>Nothing</code>
+to our caller. This lets them decide what to do, where a call to
+<code>error</code> would force a crash.</p>
+<pre class="screen"><code>ghci&gt; safeSecond []
+Nothing
+ghci&gt; safeSecond [1]
+Nothing
+ghci&gt; safeSecond [1,2]
+Just 2
+ghci&gt; safeSecond [1,2,3]
+Just 2
+</code></pre>
+<p>To return to an earlier topic, we can further improve the readability
+of this function with pattern matching.</p>
+<div class="captioned-content">
+<div class="caption">
+MySecond.hs
+</div>
+<div class="sourceCode" id="cb73"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="ot">tidySecond ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>tidySecond (_<span class="op">:</span>x<span class="op">:</span>_) <span class="ot">=</span> <span class="dt">Just</span> x</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>tidySecond _       <span class="ot">=</span> <span class="dt">Nothing</span></span></code></pre></div>
+</div>
+<p>The first pattern only matches if the list is at least two elements
+long (it contains two list constructors), and it binds the variable
+<code>x</code> to the list's second element. The second pattern is
+matched if the first fails.</p>
+<h1 data-number="9" id="introducing-local-variables"><span
+class="header-section-number">9</span> Introducing local variables</h1>
+<p>Within the body of a function, we can introduce new local variables
+whenever we need them, using a <code>let</code> expression. Here is a
+simple function that determines whether we should lend some money to a
+customer. We meet a money reserve of at least 100, we return our new
+balance after subtracting the amount we have loaned.</p>
+<div class="captioned-content">
+<div class="caption">
+Lending.hs
+</div>
+<div class="sourceCode" id="cb74"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>lend amount balance <span class="ot">=</span> <span class="kw">let</span> reserve    <span class="ot">=</span> <span class="dv">100</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>                          newBalance <span class="ot">=</span> balance <span class="op">-</span> amount</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>                      <span class="kw">in</span> <span class="kw">if</span> balance <span class="op">&lt;</span> reserve</span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>                         <span class="kw">then</span> <span class="dt">Nothing</span></span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>                         <span class="kw">else</span> <span class="dt">Just</span> newBalance</span></code></pre></div>
+</div>
+<p>The keywords to look out for here are <code>let</code>, which starts
+a block of variable declarations, and <code>in</code>, which ends it.
+Each line introduces a new variable. The name is on the left of the
+<code>=</code>, and the expression to which it is bound is on the
+right.</p>
+<div class="NOTE">
+<p>Special notes</p>
+<p>Let us re-emphasise our wording: a name in a <code>let</code> block
+is bound to an <em>expression</em>, not to a <em>value</em>. Because
+Haskell is a lazy language, the expression associated with a name won't
+actually be evaluated until it's needed. In the above example, we will
+not compute the value of <code>newBalance</code> if we do not meet our
+reserve.</p>
+<p>When we define a variable in a <code>let</code> block, we refer to it
+as a <em><code>let</code>-bound</em> variable. This simply means what it
+says: we have bound the variable in a <code>let</code> block.</p>
+<p>Also, our use of white space here is important. We'll talk in more
+detail about the layout rules in <a
+href="3-defining-types-streamlining-functions.org::*The offside rule and white space in an expression">the
+section called "The offside rule and white space in an
+expression"</a></p>
+</div>
+<p>We can use the names of a variable in a <code>let</code> block both
+within the block of declarations and in the expression that follows the
+<code>in</code> keyword.</p>
+<p>In general, we'll refer to the places within our code where we can
+use a name as the name's <em>scope</em>. If we can use a name, it's
+<em>in scope</em>, otherwise it's <em>out of scope</em>. If a name is
+visible throughout a source file, we say it's at the <em>top
+level</em>.</p>
+<h2 data-number="9.1" id="shadowing"><span
+class="header-section-number">9.1</span> Shadowing</h2>
+<p>We can "nest" multiple <code>let</code> blocks inside each other in
+an expression.</p>
+<div class="captioned-content">
+<div class="caption">
+NestedLets.hs
+</div>
+<div class="sourceCode" id="cb75"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>foo <span class="ot">=</span> <span class="kw">let</span> a <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>      <span class="kw">in</span> <span class="kw">let</span> b <span class="ot">=</span> <span class="dv">2</span></span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>         <span class="kw">in</span> a <span class="op">+</span> b</span></code></pre></div>
+</div>
+<p>It's perfectly legal, but not exactly wise, to repeat a variable name
+in a nested <code>let</code> expression.</p>
+<div class="captioned-content">
+<div class="caption">
+NestedLets.hs
+</div>
+<div class="sourceCode" id="cb76"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>bar <span class="ot">=</span> <span class="kw">let</span> x <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>      <span class="kw">in</span> ((<span class="kw">let</span> x <span class="ot">=</span> <span class="st">&quot;foo&quot;</span> <span class="kw">in</span> x), x)</span></code></pre></div>
+</div>
+<p>Here, the inner <code>x</code> is hiding, or <em>shadowing</em>, the
+outer <code>x</code>. It has the same name, but a different type and
+value.</p>
+<pre class="screen"><code>ghci&gt; bar
+(&quot;foo&quot;,1)
+</code></pre>
+<p>We can also shadow a function's parameters, leading to even stranger
+results. What is the type of this function?</p>
+<div class="captioned-content">
+<div class="caption">
+NestedLets.hs
+</div>
+<div class="sourceCode" id="cb78"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>quux a <span class="ot">=</span> <span class="kw">let</span> a <span class="ot">=</span> <span class="st">&quot;foo&quot;</span></span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>         <span class="kw">in</span> a <span class="op">++</span> <span class="st">&quot;eek!&quot;</span></span></code></pre></div>
+</div>
+<p>Because the function's argument <code>a</code> is never used in the
+body of the function, due to being shadowed by the
+<code>let</code>-bound <code>a</code>, the argument can have any type at
+all.</p>
+<pre class="screen"><code>ghci&gt; :type quux
+quux :: t -&gt; [Char]
+</code></pre>
+<div class="TIP">
+<p>Compiler warnings are your friends</p>
+<p>Shadowing can obviously lead to confusion and nasty bugs, so GHC has
+a helpful <code>-fwarn-name-shadowing</code> option. When enabled, GHC
+will print a warning message any time we shadow a name.</p>
+</div>
+<h2 data-number="9.2" id="the-where-clause"><span
+class="header-section-number">9.2</span> The where clause</h2>
+<p>We can use another mechanism to introduce local variables: the
+<code>where</code> clause. The definitions in a <code>where</code>
+clause apply to the code that <em>precedes</em> it. Here's a similar
+function to <code>lend</code>, using <code>where</code> instead of
+<code>let</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Lending.hs
+</div>
+<div class="sourceCode" id="cb80"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>lend2 amount balance <span class="ot">=</span> <span class="kw">if</span> amount <span class="op">&lt;</span> reserve <span class="op">*</span> <span class="fl">0.5</span></span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>                       <span class="kw">then</span> <span class="dt">Just</span> newBalance</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>                       <span class="kw">else</span> <span class="dt">Nothing</span></span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> reserve    <span class="ot">=</span> <span class="dv">100</span></span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>          newBalance <span class="ot">=</span> balance <span class="op">-</span> amount</span></code></pre></div>
+</div>
+<p>While a <code>where</code> clause may initially seem weird, it offers
+a wonderful aid to readability. It lets us direct our reader's focus to
+the important details of an expression, with the supporting definitions
+following afterwards. After a while, you may find yourself missing
+<code>where</code> clauses in languages that lack them.</p>
+<p>As with <code>let</code> expressions, white space is significant in
+<code>where</code> clauses. We will talk more about the layout rules
+shortly, in <a
+href="3-defining-types-streamlining-functions.org::*The offside rule and white space in an expression">the
+section called "The offside rule and white space in an
+expression"</a></p>
+<h2 data-number="9.3" id="local-functions-global-variables"><span
+class="header-section-number">9.3</span> Local functions, global
+variables</h2>
+<p>You'll have noticed that Haskell's syntax for defining a variable
+looks very similar to its syntax for defining a function. This symmetry
+is preserved in <code>let</code> and <code>where</code> blocks: we can
+define local <em>functions</em> just as easily as local
+<em>variables</em>.</p>
+<div class="captioned-content">
+<div class="caption">
+LocalFunction.hs
+</div>
+<div class="sourceCode" id="cb81"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="ot">pluralise ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">String</span>]</span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>pluralise word counts <span class="ot">=</span> <span class="fu">map</span> plural counts</span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> plural <span class="dv">0</span> <span class="ot">=</span> <span class="st">&quot;no &quot;</span> <span class="op">++</span> word <span class="op">++</span> <span class="st">&quot;s&quot;</span></span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>          plural <span class="dv">1</span> <span class="ot">=</span> <span class="st">&quot;one &quot;</span> <span class="op">++</span> word</span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a>          plural n <span class="ot">=</span> <span class="fu">show</span> n <span class="op">++</span> <span class="st">&quot; &quot;</span> <span class="op">++</span> word <span class="op">++</span> <span class="st">&quot;s&quot;</span></span></code></pre></div>
+</div>
+<p>We have defined a local function, <code>plural</code>, that consists
+of several equations. Local functions can freely use variables from the
+scopes that enclose them: here, we use <code>word</code> from the
+definition of the outer function <code>pluralise</code>. In the
+definition of <code>pluralise</code>, the <code>map</code> function
+(which we'll be revisiting in the next chapter) applies the local
+function <code>plural</code> to every element of the <code>counts</code>
+list.</p>
+<p>We can also define variables, as well as functions, at the top level
+of a source file.</p>
+<div class="captioned-content">
+<div class="caption">
+GlobalVariable.hs
+</div>
+<div class="sourceCode" id="cb82"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>itemName <span class="ot">=</span> <span class="st">&quot;Weighted Companion Cube&quot;</span></span></code></pre></div>
+</div>
+<h1 data-number="10"
+id="the-offside-rule-and-white-space-in-an-expression"><span
+class="header-section-number">10</span> The offside rule and white space
+in an expression</h1>
+<p>In our definitions of <code>lend</code> and <code>lend2</code>, the
+left margin of our text wandered around quite a bit. This was not an
+accident: normally in Haskell white space has meaning: it uses the code
+layout <a
+href="https://www.haskell.org/onlinereport/haskell2010/haskellch10.html#x17-17800010.3">as
+defined in the report</a> as a cue to parse it. This is sometimes called
+the <em>offside rule</em>.</p>
+<p>At the beginning of a source file, the first top level declaration or
+definition can start in any column, and the Haskell compiler or
+interpreter remembers that indentation level. Every subsequent top level
+declaration must have the same indentation.</p>
+<p>Here's an illustration of the top level indentation rule. Our first
+file, <code>GoodIndent.hs</code>, is well behaved.</p>
+<div class="captioned-content">
+<div class="caption">
+GoodIndent.hs
+</div>
+<div class="sourceCode" id="cb83"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- This is the leftmost column.</span></span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- It&#39;s fine for top-level declarations to start in any column...</span></span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a>  firstGoodIndentation <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-6"><a href="#cb83-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- ...provided all subsequent declarations do, too!</span></span>
+<span id="cb83-7"><a href="#cb83-7" aria-hidden="true" tabindex="-1"></a>  secondGoodIndentation <span class="ot">=</span> <span class="dv">2</span></span></code></pre></div>
+</div>
+<p>Our second, <code>BadIndent.hs</code>, doesn't play by the rules.</p>
+<div class="captioned-content">
+<div class="caption">
+BadIndent.hs
+</div>
+<div class="sourceCode" id="cb84"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- This is the leftmost column.</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">-- Our first declaration is in column 4.</span></span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>    firstBadIndentation <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">-- Our second is left of the first, which is illegal!</span></span>
+<span id="cb84-7"><a href="#cb84-7" aria-hidden="true" tabindex="-1"></a>  secondBadIndentation <span class="ot">=</span> <span class="dv">2</span></span></code></pre></div>
+</div>
+<p>Here's what happens when we try to load the two files into
+<code>ghci</code>.</p>
+<pre class="screen"><code>ghci&gt; :load GoodIndent.hs
+[1 of 1] Compiling Main             ( GoodIndent.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; :load BadIndent.hs
+[1 of 1] Compiling Main             ( BadIndent.hs, interpreted )
+
+BadIndent.hs:8:3: error:
+    parse error on input ‘secondBadIndentation’
+  |
+8 |   secondBadIndentation = 2
+  |   ^^^^^^^^^^^^^^^^^^^^
+Failed, no modules loaded.
+</code></pre>
+<p>An empty following line is treated as a continuation of the current
+item, as is a following line indented further to the right.</p>
+<p>The rules for <code>let</code> expressions and <code>where</code>
+clauses are similar. After a <code>let</code> or <code>where</code>
+keyword, the Haskell compiler or interpreter remembers the indentation
+of the next token it sees. If the line that follows is empty, or its
+indentation is further to the right, it is considered to continue the
+previous line. If the indentation is the same as the start of the
+preceding item, this is treated as beginning a new item in the same
+block.</p>
+<div class="captioned-content">
+<div class="caption">
+Indentation.hs
+</div>
+<div class="sourceCode" id="cb86"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>foo <span class="ot">=</span> <span class="kw">let</span> firstDefinition <span class="ot">=</span> blah blah</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>          <span class="co">-- a comment-only line is treated as empty</span></span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>                            continuation blah</span>
+<span id="cb86-4"><a href="#cb86-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-5"><a href="#cb86-5" aria-hidden="true" tabindex="-1"></a>          <span class="co">-- we reduce the indentation, so this is a new definition</span></span>
+<span id="cb86-6"><a href="#cb86-6" aria-hidden="true" tabindex="-1"></a>          secondDefinition <span class="ot">=</span> yada yada</span>
+<span id="cb86-7"><a href="#cb86-7" aria-hidden="true" tabindex="-1"></a>                             continuation yada</span>
+<span id="cb86-8"><a href="#cb86-8" aria-hidden="true" tabindex="-1"></a>      <span class="kw">in</span> whatever</span></code></pre></div>
+</div>
+<p>Here are nested uses of <code>let</code> and <code>where</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+LetLet.hs
+</div>
+<div class="sourceCode" id="cb87"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>bar <span class="ot">=</span> <span class="kw">let</span> b <span class="ot">=</span> <span class="dv">2</span></span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>          c <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>      <span class="kw">in</span> <span class="kw">let</span> a <span class="ot">=</span> b</span>
+<span id="cb87-4"><a href="#cb87-4" aria-hidden="true" tabindex="-1"></a>         <span class="kw">in</span> (a, c)</span></code></pre></div>
+</div>
+<p>The name <code>a</code> is only visible within the inner
+<code>let</code> expression. It's not visible in the outer
+<code>let</code>. If we try to use the name <code>a</code> there, we'll
+get a compilation error. The indentation gives both us and the compiler
+a visual cue as to what is currently in scope.</p>
+<div class="captioned-content">
+<div class="caption">
+WhereWhere.hs
+</div>
+<div class="sourceCode" id="cb88"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>foo <span class="ot">=</span> x</span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> x <span class="ot">=</span> y</span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>              <span class="kw">where</span> y <span class="ot">=</span> <span class="dv">2</span></span></code></pre></div>
+</div>
+<p>Similarly, the scope of the first <code>where</code> clause is the
+definition of <code>foo</code>, but the scope of the second is just the
+first <code>where</code> clause.</p>
+<p>The indentation we use for the <code>let</code> and
+<code>where</code> clauses makes our intentions easy to figure out.</p>
+<h2 data-number="10.1" id="a-note-about-tabs-versus-spaces"><span
+class="header-section-number">10.1</span> A note about tabs versus
+spaces</h2>
+<p>The default in Haskell code is to indent using spaces.
+<code>ghc</code> and <code>ghci</code> will warn you if you indent with
+tabs unless you disable it with the <code>-Wno-tabs</code> flag. The
+reason for this is that it is easier to align expressions using
+spaces.</p>
+<p>If you like tabs you can use them as long as you correctly align
+expressions. For the compiler a tab equals to eight spaces and uses this
+amount to determine if an indented expression is correctly aligned. In
+the next example you'll see the <code>b</code> aligned with the
+<code>a</code> only if the tab width equals eight in whichever app you
+are using to read this text.</p>
+<div class="captioned-content">
+<div class="caption">
+TabAlign.hs
+</div>
+<div class="sourceCode" id="cb89"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> <span class="kw">let</span> a <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>    b <span class="ot">=</span> <span class="dv">2</span></span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">in</span> a <span class="op">+</span> b</span></code></pre></div>
+</div>
+<p>We need the amount of characters before the <code>a</code> to be
+equal to eight or the <code>b</code> won't be aligned and won't compile.
+Totally impracticall. It is better to break the expressions as
+below.</p>
+<div class="captioned-content">
+<div class="caption">
+TabAlign2.hs
+</div>
+<div class="sourceCode" id="cb90"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> <span class="kw">let</span></span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>        a <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb90-3"><a href="#cb90-3" aria-hidden="true" tabindex="-1"></a>        b <span class="ot">=</span> <span class="dv">2</span></span>
+<span id="cb90-4"><a href="#cb90-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">in</span> a <span class="op">+</span> b</span></code></pre></div>
+</div>
+<p>As long as you correctly align expressions you can even <a
+href="http://dmwit.com/tabs/">mix spaces and tabs</a>.</p>
+<h2 data-number="10.2" id="the-offside-rule-is-not-mandatory"><span
+class="header-section-number">10.2</span> The offside rule is not
+mandatory</h2>
+<p>We can use explicit structuring instead of layout to indicate what we
+mean. To do so, we start a block of equations with an opening curly
+brace; separate each item with a semicolon; and finish the block with a
+closing curly brace. The following two uses of <code>let</code> have the
+same meanings.</p>
+<div class="captioned-content">
+<div class="caption">
+Braces.hs
+</div>
+<div class="sourceCode" id="cb91"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>bar <span class="ot">=</span> <span class="kw">let</span> a <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a>          b <span class="ot">=</span> <span class="dv">2</span></span>
+<span id="cb91-3"><a href="#cb91-3" aria-hidden="true" tabindex="-1"></a>          c <span class="ot">=</span> <span class="dv">3</span></span>
+<span id="cb91-4"><a href="#cb91-4" aria-hidden="true" tabindex="-1"></a>      <span class="kw">in</span> a <span class="op">+</span> b <span class="op">+</span> c</span>
+<span id="cb91-5"><a href="#cb91-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb91-6"><a href="#cb91-6" aria-hidden="true" tabindex="-1"></a>foo <span class="ot">=</span> <span class="kw">let</span> { a <span class="ot">=</span> <span class="dv">1</span>;  b <span class="ot">=</span> <span class="dv">2</span>;</span>
+<span id="cb91-7"><a href="#cb91-7" aria-hidden="true" tabindex="-1"></a>        c <span class="ot">=</span> <span class="dv">3</span> }</span>
+<span id="cb91-8"><a href="#cb91-8" aria-hidden="true" tabindex="-1"></a>      <span class="kw">in</span> a <span class="op">+</span> b <span class="op">+</span> c</span></code></pre></div>
+</div>
+<p>When we use explicit structuring, the normal layout rules don't
+apply, which is why we can get away with unusual indentation in the
+second <code>let</code> expression.</p>
+<p>We can use explicit structuring anywhere that we'd normally use
+layout. It's valid for <code>where</code> clauses, and even top-level
+declarations. Just remember that although the facility exists, explicit
+structuring is hardly ever actually <em>used</em> in Haskell
+programs.</p>
+<h1 data-number="11" id="the-case-expression"><span
+class="header-section-number">11</span> The case expression</h1>
+<p>Function definitions are not the only place where we can use pattern
+matching. The <code>case</code> construct lets us match patterns within
+an expression. Here's what it looks like. This function (defined for us
+in <code>Data.Maybe</code>) unwraps a <code>Maybe</code> value, using a
+default if the value is <code>Nothing</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Guard.hs
+</div>
+<div class="sourceCode" id="cb92"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>fromMaybe defval wrapped <span class="ot">=</span></span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> wrapped <span class="kw">of</span></span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Nothing</span>     <span class="ot">-&gt;</span> defval</span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Just</span> value  <span class="ot">-&gt;</span> value</span></code></pre></div>
+</div>
+<p>The <code>case</code> keyword is followed by an arbitrary expression:
+the pattern match is performed against the result of this expression.
+The <code>of</code> keyword signifies the end of the expression and the
+beginning of the block of patterns and expressions.</p>
+<p>Each item in the block consists of a pattern, followed by an arrow
+<code>-&gt;</code>, followed by an expression to evaluate if that
+pattern matches. These expressions must all have the same type. The
+result of the <code>case</code> expression is the result of the
+expression associated with the first pattern to match. Matches are
+attempted from top to bottom.</p>
+<p>To express "here's the expression to evaluate if none of the other
+patterns match", we just use the wild card pattern <code>_</code> as the
+last in our list of patterns. If a pattern match fails, we will get the
+same kind of runtime error as we saw earlier.</p>
+<h1 data-number="12" id="common-beginner-mistakes-with-patterns"><span
+class="header-section-number">12</span> Common beginner mistakes with
+patterns</h1>
+<p>There are a few ways in which new Haskell programmers can
+misunderstand or misuse patterns. Here are some attempts at pattern
+matching gone awry. Depending on what you expect one of these examples
+to do, it might contain a surprise.</p>
+<h2 data-number="12.1"
+id="incorrectly-matching-against-a-variable"><span
+class="header-section-number">12.1</span> Incorrectly matching against a
+variable</h2>
+<div class="captioned-content">
+<div class="caption">
+BogusPattern.hs
+</div>
+<div class="sourceCode" id="cb93"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Fruit</span> <span class="ot">=</span> <span class="dt">Apple</span> <span class="op">|</span> <span class="dt">Orange</span></span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb93-3"><a href="#cb93-3" aria-hidden="true" tabindex="-1"></a>apple <span class="ot">=</span> <span class="st">&quot;apple&quot;</span></span>
+<span id="cb93-4"><a href="#cb93-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb93-5"><a href="#cb93-5" aria-hidden="true" tabindex="-1"></a>orange <span class="ot">=</span> <span class="st">&quot;orange&quot;</span></span>
+<span id="cb93-6"><a href="#cb93-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb93-7"><a href="#cb93-7" aria-hidden="true" tabindex="-1"></a><span class="ot">whichFruit ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Fruit</span></span>
+<span id="cb93-8"><a href="#cb93-8" aria-hidden="true" tabindex="-1"></a>whichFruit f <span class="ot">=</span> <span class="kw">case</span> f <span class="kw">of</span></span>
+<span id="cb93-9"><a href="#cb93-9" aria-hidden="true" tabindex="-1"></a>                 apple  <span class="ot">-&gt;</span> <span class="dt">Apple</span></span>
+<span id="cb93-10"><a href="#cb93-10" aria-hidden="true" tabindex="-1"></a>                 orange <span class="ot">-&gt;</span> <span class="dt">Orange</span></span></code></pre></div>
+</div>
+<p>A naive glance suggests that this code is trying to check the value
+<code>f</code> to see whether it matches the value <code>apple</code> or
+<code>orange</code>.</p>
+<p>It is easier to spot the mistake if we rewrite the code in an
+equational style.</p>
+<div class="captioned-content">
+<div class="caption">
+BogusPattern.hs
+</div>
+<div class="sourceCode" id="cb94"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>equational apple <span class="ot">=</span> <span class="dt">Apple</span></span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>equational orange <span class="ot">=</span> <span class="dt">Orange</span></span></code></pre></div>
+</div>
+<p>Now can you see the problem? Here, it is more obvious
+<code>apple</code> does not refer to the top level value named
+<code>apple</code>: it is a local pattern variable.</p>
+<div class="NOTE">
+<p>Irrefutable patterns</p>
+<p>We refer to a pattern that always succeeds as <em>irrefutable</em>.
+Plain variable names and the wild card <code>_</code> are examples of
+irrefutable patterns.</p>
+</div>
+<p>Here's a corrected version of this function.</p>
+<div class="captioned-content">
+<div class="caption">
+BogusPattern.hs
+</div>
+<div class="sourceCode" id="cb95"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>betterFruit f <span class="ot">=</span> <span class="kw">case</span> f <span class="kw">of</span></span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;apple&quot;</span>  <span class="ot">-&gt;</span> <span class="dt">Apple</span></span>
+<span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;orange&quot;</span> <span class="ot">-&gt;</span> <span class="dt">Orange</span></span></code></pre></div>
+</div>
+<p>We fixed the problem by matching against the literal values
+<code>"apple"</code> and <code>"orange"</code>.</p>
+<h2 data-number="12.2"
+id="incorrectly-trying-to-compare-for-equality"><span
+class="header-section-number">12.2</span> Incorrectly trying to compare
+for equality</h2>
+<p>What if we want to compare the values stored in two nodes of type
+Tree, and return one of them if they're equal? Here's an attempt.</p>
+<div class="captioned-content">
+<div class="caption">
+BadTree.hs
+</div>
+<div class="sourceCode" id="cb96"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>bad_nodesAreSame (<span class="dt">Node</span> a _ _) (<span class="dt">Node</span> a _ _) <span class="ot">=</span> <span class="dt">Just</span> a</span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a>bad_nodesAreSame _            _            <span class="ot">=</span> <span class="dt">Nothing</span></span></code></pre></div>
+</div>
+<p>A name can only appear once in a set of pattern bindings. We cannot
+place a variable in multiple positions to express the notion "this value
+and that should be identical". Instead, we'll solve this problem using
+<em>guards</em>, another invaluable Haskell feature.</p>
+<h1 data-number="13" id="conditional-evaluation-with-guards"><span
+class="header-section-number">13</span> Conditional evaluation with
+guards</h1>
+<p>Pattern matching limites us to performing fixed tests of a value's
+shape. Although this is useful, we will often want to make a more
+expressive check before evaluating a function's body. Haskell provides a
+feature, <em>guards</em>, that give us this ability. We'll introduce the
+idea with a modification of the function we wrote to compare two nodes
+of a tree.</p>
+<div class="captioned-content">
+<div class="caption">
+BadTree.hs
+</div>
+<div class="sourceCode" id="cb97"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>nodesAreSame (<span class="dt">Node</span> a _ _) (<span class="dt">Node</span> b _ _)</span>
+<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> a <span class="op">==</span> b     <span class="ot">=</span> <span class="dt">Just</span> a</span>
+<span id="cb97-3"><a href="#cb97-3" aria-hidden="true" tabindex="-1"></a>nodesAreSame _ _ <span class="ot">=</span> <span class="dt">Nothing</span></span></code></pre></div>
+</div>
+<p>In this example, we use pattern matching to ensure that we are
+looking at values of the right shape, and a guard to compare pieces of
+them.</p>
+<p>A pattern can be followed by zero or more guards, each an expression
+of type <code>Bool</code>. A guard is introduced by a <code>|</code>
+symbol. This is followed by the guard expression, then an <code>=</code>
+symbol (or <code>-&gt;</code> if we're in a <code>case</code>
+expression), then the body to use if the guard expression evaluates to
+<code>True</code>. If a pattern matches, each guard associated with that
+pattern is evaluated, in the order in which they are written. If a guard
+succeeds, the body affiliated with it is used as the result of the
+function. If no guard succeeds, pattern matching moves on to the next
+pattern.</p>
+<p>When a guard expression is evaluated, all of the variables mentioned
+in the pattern with which it is associated are bound and can be
+used.</p>
+<p>Here is a reworked version of our <code>lend</code> function that
+uses guards.</p>
+<div class="captioned-content">
+<div class="caption">
+Lending.hs
+</div>
+<div class="sourceCode" id="cb98"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a>lend3 amount balance</span>
+<span id="cb98-2"><a href="#cb98-2" aria-hidden="true" tabindex="-1"></a>     <span class="op">|</span> amount <span class="op">&lt;=</span> <span class="dv">0</span>            <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb98-3"><a href="#cb98-3" aria-hidden="true" tabindex="-1"></a>     <span class="op">|</span> amount <span class="op">&gt;</span> reserve <span class="op">*</span> <span class="fl">0.5</span> <span class="ot">=</span> <span class="dt">Nothing</span></span>
+<span id="cb98-4"><a href="#cb98-4" aria-hidden="true" tabindex="-1"></a>     <span class="op">|</span> <span class="fu">otherwise</span>              <span class="ot">=</span> <span class="dt">Just</span> newBalance</span>
+<span id="cb98-5"><a href="#cb98-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> reserve    <span class="ot">=</span> <span class="dv">100</span></span>
+<span id="cb98-6"><a href="#cb98-6" aria-hidden="true" tabindex="-1"></a>          newBalance <span class="ot">=</span> balance <span class="op">-</span> amount</span></code></pre></div>
+</div>
+<p>The special-looking guard expression <code>otherwise</code> is simply
+a variable bound to the value <code>True</code>, to aid readability.</p>
+<p>We can use guards anywhere that we can use patterns. Writing a
+function as a series of equations using pattern matching and guards can
+make it much clearer. Remember the <code>myDrop</code> function we
+defined in <a
+href="2-types-and-functions.org::*Conditional evaluation">the section
+called "Conditional evaluation"</a></p>
+<div class="captioned-content">
+<div class="caption">
+myDrop.hs
+</div>
+<div class="sourceCode" id="cb99"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>myDrop n xs <span class="ot">=</span> <span class="kw">if</span> n <span class="op">&lt;=</span> <span class="dv">0</span> <span class="op">||</span> <span class="fu">null</span> xs</span>
+<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a>              <span class="kw">then</span> xs</span>
+<span id="cb99-3"><a href="#cb99-3" aria-hidden="true" tabindex="-1"></a>              <span class="kw">else</span> myDrop (n <span class="op">-</span> <span class="dv">1</span>) (<span class="fu">tail</span> xs)</span></code></pre></div>
+</div>
+<p>Here is a reformulation that uses patterns and guards.</p>
+<div class="captioned-content">
+<div class="caption">
+myDrop.hs
+</div>
+<div class="sourceCode" id="cb100"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a>niceDrop n xs <span class="op">|</span> n <span class="op">&lt;=</span> <span class="dv">0</span> <span class="ot">=</span> xs</span>
+<span id="cb100-2"><a href="#cb100-2" aria-hidden="true" tabindex="-1"></a>niceDrop _ []          <span class="ot">=</span> []</span>
+<span id="cb100-3"><a href="#cb100-3" aria-hidden="true" tabindex="-1"></a>niceDrop n (_<span class="op">:</span>xs)      <span class="ot">=</span> niceDrop (n <span class="op">-</span> <span class="dv">1</span>) xs</span></code></pre></div>
+</div>
+<p>This change in style lets us enumerate <em>up front</em> the cases in
+which we expect a function to behave differently. If we bury the
+decisions inside a function as <code>if</code> expressions, the code
+becomes harder to read.</p>
+<h1 data-number="14" id="exercises-1"><span
+class="header-section-number">14</span> Exercises</h1>
+<ol>
+<li>Write a function that computes the number of elements in a list. To
+test it, ensure that it gives the same answers as the standard
+<code>length</code> function.</li>
+<li>Add a type signature for your function to your source file. To test
+it, load the source file into <code>ghci</code> again.</li>
+<li>Write a function that computes the mean of a list, i.e. the sum of
+all elements in the list divided by its length. (You may need to use the
+<code>fromIntegral</code> function to convert the length of the list
+from an integer into a floating point number).</li>
+<li>Turn a list into a palindrome, i.e. it should read the same both
+backwards and forwards. For example, given the list
+<code>[1,2,3]</code>, your function should return
+<code>[1,2,3,3,2,1]</code>.</li>
+<li>Write a function that determines whether its input list is a
+palindrome.</li>
+<li>Create a function that sorts a list of lists based on the length of
+each sublist. (You may want to look at the <code>sortBy</code> function
+from the <code>Data.List</code> module.)</li>
+<li>Define a function that joins a list of lists together using a
+separator value:</li>
+</ol>
+<div class="captioned-content">
+<div class="caption">
+Intersperse.hs
+</div>
+<div class="sourceCode" id="cb101"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="ot">intersperse ::</span> a <span class="ot">-&gt;</span> [[a]] <span class="ot">-&gt;</span> [a]</span></code></pre></div>
+</div>
+<p>The separator should appear between elements of the list, but should
+not follow the last element. Your function should behave as follows.</p>
+<pre class="screen"><code>ghci&gt; :load Intersperse
+[1 of 1] Compiling Main             ( Intersperse.hs, interpreted )
+Ok, modules loaded: Main.
+ghci&gt; intersperse &#39;,&#39; []
+&quot;&quot;
+ghci&gt; intersperse &#39;,&#39; [&quot;foo&quot;]
+&quot;foo&quot;
+ghci&gt; intersperse &#39;,&#39; [&quot;foo&quot;,&quot;bar&quot;,&quot;baz&quot;,&quot;quux&quot;]
+&quot;foo,bar,baz,quux&quot;
+</code></pre>
+<ol>
+<li>Using the binary tree type that we defined earlier in this chapter,
+write a function that will determine the height of the tree. The height
+is the largest number of hops from the root to an <code>Empty</code>.
+For example, the tree <code>Empty</code> has height zero;
+<code>Node "x" Empty Empty</code> has height one;
+<code>Node "x" Empty (Node "y" Empty Empty)</code> has height two; and
+so on.</li>
+<li>Consider three two-dimensional points <em>a</em>, <em>b</em>, and
+<em>c</em>. If we look at the angle formed by the line segment from
+<em>a</em> to <em>b</em> and the line segment from <em>b</em> to
+<em>c</em>, it either turns left, turns right, or forms a straight line.
+Define a <code>Direction</code> data type that lets you represent these
+possibilities.</li>
+<li>Write a function that calculates the turn made by three 2D points
+and returns a Direction.</li>
+<li>Define a function that takes a list of 2D points and computes the
+direction of each successive triple. Given a list of points
+<code>[a,b,c,d,e]</code>, it should begin by computing the turn made by
+<code>[a,b,c]</code>, then the turn made by <code>[b,c,d]</code>, then
+<code>[c,d,e]</code>. Your function should return a list of
+<code>Direction</code>.</li>
+<li>Using the code from the preceding three exercises, implement
+Graham's scan algorithm for the convex hull of a set of 2D points. You
+can find good description of what a <a
+href="http://en.wikipedia.org/wiki/Convex_hull">convex hull</a> is, and
+how the <a href="http://en.wikipedia.org/wiki/Graham_scan">Graham scan
+algorithm</a> should work, on <a
+href="http://en.wikipedia.org/">Wikipedia</a>.</li>
+</ol>
+<h1 data-number="15" id="footnotes"><span
+class="header-section-number">15</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>If you are familiar with C or C++, it
+is analogous to a <code>typedef</code>.<a href="#fnref1"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

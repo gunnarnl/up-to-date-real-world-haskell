@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 21. Using Databases</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 21. Using Databases</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#overview-of-hdbc"><span
+class="toc-section-number">1</span> Overview of HDBC</a></li>
+<li><a href="#installing-hdbc-and-drivers"><span
+class="toc-section-number">2</span> Installing HDBC and Drivers</a></li>
+<li><a href="#connecting-to-databases"><span
+class="toc-section-number">3</span> Connecting to Databases</a></li>
+<li><a href="#transactions"><span class="toc-section-number">4</span>
+Transactions</a></li>
+<li><a href="#simple-queries"><span class="toc-section-number">5</span>
+Simple Queries</a></li>
+<li><a href="#sqlvalues"><span class="toc-section-number">6</span>
+<code>SqlValues</code></a></li>
+<li><a href="#query-parameters"><span
+class="toc-section-number">7</span> Query Parameters</a></li>
+<li><a href="#prepared-statements"><span
+class="toc-section-number">8</span> Prepared Statements</a></li>
+<li><a href="#reading-results"><span class="toc-section-number">9</span>
+Reading Results</a>
+<ul>
+<li><a href="#reading-with-statements"><span
+class="toc-section-number">9.1</span> Reading with Statements</a></li>
+<li><a href="#lazy-reading"><span class="toc-section-number">9.2</span>
+Lazy Reading</a></li>
+</ul></li>
+<li><a href="#database-metadata"><span
+class="toc-section-number">10</span> Database Metadata</a></li>
+<li><a href="#error-handling"><span class="toc-section-number">11</span>
+Error Handling</a></li>
+<li><a href="#footnotes"><span class="toc-section-number">12</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<p>Everything from web forums to podcatchers or even backup programs
+frequently use databases for persistent storage. SQL-based databases are
+often quite convenient: they are fast, can scale from tiny to massive
+sizes, can operate over the network, often help handle locking and
+transactions, and can even provide failover and redundancy improvements
+for applications. Databases come in many different shapes: the large
+commercial databases such as Oracle, Open Source engines such as
+PostgreSQL or MySQL, and even embeddable engines such as Sqlite.</p>
+<p>Because databases are so important, Haskell support for them is
+important as well. In this chapter, we will introduce you to one of the
+Haskell frameworks for working with databases. We will also use this
+framework to begin building a podcast downloader, which we will further
+develop in <a href="22-web-client-programming.org">Chapter 22,
+<em>Extended Example: Web Client Programming</em></a>.</p>
+<h1 data-number="1" id="overview-of-hdbc"><span
+class="header-section-number">1</span> Overview of HDBC</h1>
+<p>At the bottom of the database stack is the database engine. The
+database engine is responsible for actually storing data on disk.
+Well-known database engines include PostgreSQL, MySQL, and Oracle.</p>
+<p>Most modern database engines support SQL, the Structured Query
+Language, as a standard way of getting data into and out of relational
+databases. This book will not provide a tutorial on SQL or relational
+database management.<a href="#fn1" class="footnote-ref" id="fnref1"
+role="doc-noteref"><sup>1</sup></a></p>
+<p>Once you have a database engine that supports SQL, you need a way to
+communicate with it. Each database has its own protocol. Since SQL is
+reasonably constant across databases, it is possible to make a generic
+interface that uses drivers for each individual protocol.</p>
+<p>Haskell has several different database frameworks available, some
+providing high-level layers atop others. For this chapter, we will
+concentrate on HDBC, the Haskell DataBase Connectivity system. HDBC is a
+database abstraction library. That is, you can write code that uses HDBC
+and can access data stored in almost any SQL database with little or no
+modification.<a href="#fn2" class="footnote-ref" id="fnref2"
+role="doc-noteref"><sup>2</sup></a> Even if you never need to switch
+underlying database engines, the HDBC system of drivers makes a large
+number of choices available to you with a single interface.</p>
+<p>Another database abstraction library for Haskell is HSQL, which
+shares a similar purpose with HDBC. There is also a higher-level
+framework called HaskellDB, which sits atop either HDBC or HSQL, and is
+designed to help insulate the programmer from the details of working
+with SQL. However, it does not have as broad appeal because its design
+limits it to certain—albeit quite common— database access patterns.
+Finally, Takusen is a framework that uses a "left fold" approach to
+reading data from the database.</p>
+<h1 data-number="2" id="installing-hdbc-and-drivers"><span
+class="header-section-number">2</span> Installing HDBC and Drivers</h1>
+<p>To connect to a given database with HDBC, you need at least two
+packages: the generic interface, and a driver for your specific
+database. You can obtain the generic HDBC package, and all of the other
+drivers, from <a href="http://hackage.haskell.org/">Hackage</a><a
+href="#fn3" class="footnote-ref" id="fnref3"
+role="doc-noteref"><sup>3</sup></a>. For this chapter, we will use HDBC
+version 1.1.3 for examples.</p>
+<p>You'll also need a database backend and backend driver. For this
+chapter, we'll use Sqlite version 3. Sqlite is an embedded database, so
+it doesn't require a separate server and is easy to set up. Many
+operating systems already ship with Sqlite version 3. If yours doesn't,
+you can download it from <a
+href="http://www.sqlite.org/">http://www.sqlite.org/</a>. The HDBC
+homepage has a link to known HDBC backend drivers. The specific driver
+for Sqlite version 3 can be obtained from Hackage.</p>
+<p>If you want to use HDBC with other databases, check out the HDBC
+Known Drivers page at <a
+href="http://software.complete.org/hdbc/wiki/KnownDrivers">http://software.complete.org/hdbc/wiki/KnownDrivers</a>.
+There you will find a link to the ODBC binding, which lets you connect
+to virtually any database on virtually any platform (Windows, POSIX, and
+others). You will also find a PostgreSQL binding. MySQL is supported via
+the ODBC binding, and specific information for MySQL users can be found
+in the <a
+href="http://software.complete.org/static/hdbc-odbc/doc/HDBC-odbc/">HDBC-ODBC
+API documentation</a>.</p>
+<h1 data-number="3" id="connecting-to-databases"><span
+class="header-section-number">3</span> Connecting to Databases</h1>
+<p>To connect to a database, you will use a connection function from a
+database backend driver. Each database has its own unique method of
+connecting. The initial connection is generally the only time you will
+call anything from a backend driver module directly.</p>
+<p>The database connection function will return a database handle. The
+precise type of this handle may vary from one driver to the next, but it
+will always be an instance of the <code>IConnection</code> type class.
+All of the functions you will use to operate on databases will work with
+any type that is an instance of <code>IConnection</code>. When you're
+done talking to the database, call the <code>disconnect</code> function.
+It will disconnect you from the database. Here's an example of
+connecting to a Sqlite database:</p>
+<pre class="screen"><code>ghci&gt; :module Database.HDBC Database.HDBC.Sqlite3
+ghci&gt; conn &lt;- connectSqlite3 &quot;test1.db&quot;
+Loading package array-0.1.0.0 ... linking ... done.
+Loading package containers-0.1.0.1 ... linking ... done.
+Loading package bytestring-0.9.0.1 ... linking ... done.
+Loading package old-locale-1.0.0.0 ... linking ... done.
+Loading package old-time-1.0.0.0 ... linking ... done.
+Loading package mtl-1.1.0.0 ... linking ... done.
+Loading package HDBC-1.1.5 ... linking ... done.
+Loading package HDBC-sqlite3-1.1.4.0 ... linking ... done.
+ghci&gt; :type conn
+conn :: Connection
+ghci&gt; disconnect conn
+</code></pre>
+<h1 data-number="4" id="transactions"><span
+class="header-section-number">4</span> Transactions</h1>
+<p>Most modern SQL databases have a notion of transactions. A
+transaction is designed to ensure that all components of a modification
+get applied, or that none of them do. Furthermore, transactions help
+prevent other processes accessing the same database from seeing partial
+data from modifications that are in progress.</p>
+<p>Many databases require you to either explicitly commit all your
+changes before they appear on disk, or to run in an "autocommit" mode.
+The "autocommit" mode runs an implicit commit after every statement.
+This may make the adjustment to transactional databases easier for
+programmers not accustomed to them, but is just a hindrance to people
+who actually want to use multi-statement transactions.</p>
+<p>HDBC intentionally does not support autocommit mode. When you modify
+data in your databases, you must explicitly cause it to be committed to
+disk. There are two ways to do that in HDBC: you can call
+<code>commit</code> when you're ready to write the data to disk, or you
+can use the <code>withTransaction</code> function to wrap around your
+modification code. <code>withTransaction</code> will cause data to be
+committed upon successful completion of your function.</p>
+<p>Sometimes a problem will occur while you are working on writing data
+to the database. Perhaps you get an error from the database or discover
+a problem with the data. In these instances, you can "roll back" your
+changes. This will cause all changes you were making since your last
+<code>commit</code> or roll back to be forgotten. In HDBC, you can call
+the <code>rollback</code> function to do this. If you are using
+<code>withTransaction</code>, any uncaught exception will cause a roll
+back to be issued.</p>
+<p>Note that a roll back operation only rolls back the changes since the
+last <code>commit</code>, <code>rollback</code>, or
+<code>withTransaction</code>. A database does not maintain an extensive
+history like a version-control system. You will see examples of
+<code>commit</code> later in this chapter.</p>
+<div class="WARNING">
+<p>Warning</p>
+<p>One popular database, MySQL, does not support transactions with its
+default table type. In its default configuration, MySQL will silently
+ignore calls to <code>commit</code> or <code>rollback</code> and will
+commit all changes to disk immediately. The HDBC ODBC driver has
+instructions for configuring MySQL to indicate to HDBC that it does not
+support transactions, which will cause <code>commit</code> and
+<code>rollback</code> to generate errors. Alternatively, you can use
+InnoDB tables with MySQL, which do support transactions. InnoDB tables
+are recommended for use with HDBC.</p>
+</div>
+<h1 data-number="5" id="simple-queries"><span
+class="header-section-number">5</span> Simple Queries</h1>
+<p>Some of the simplest queries in SQL involve statements that don't
+return any data. These queries can be used to create tables, insert
+data, delete data, and set database parameters.</p>
+<p>The most basic function for sending queries to a database is
+<code>run</code>. This function takes an <code>IConnection</code>, a
+<code>String</code> representing the query itself, and a list of
+parameters. Let's use it to set up some things in our database.</p>
+<pre class="screen"><code>ghci&gt; :module Database.HDBC Database.HDBC.Sqlite3
+ghci&gt; conn &lt;- connectSqlite3 &quot;test1.db&quot;
+Loading package array-0.1.0.0 ... linking ... done.
+Loading package containers-0.1.0.1 ... linking ... done.
+Loading package bytestring-0.9.0.1 ... linking ... done.
+Loading package old-locale-1.0.0.0 ... linking ... done.
+Loading package old-time-1.0.0.0 ... linking ... done.
+Loading package mtl-1.1.0.0 ... linking ... done.
+Loading package HDBC-1.1.5 ... linking ... done.
+Loading package HDBC-sqlite3-1.1.4.0 ... linking ... done.
+ghci&gt; run conn &quot;CREATE TABLE test (id INTEGER NOT NULL, desc VARCHAR(80))&quot; []
+0
+ghci&gt; run conn &quot;INSERT INTO test (id) VALUES (0)&quot; []
+1
+ghci&gt; commit conn
+ghci&gt; disconnect conn
+</code></pre>
+<p>After connecting to the database, we first created a table called
+<code>test</code>. Then we inserted one row of data into the table.
+Finally, we committed the changes and disconnected from the database.
+Note that if we hadn't called <code>commit</code>, no final change would
+have been written to the database at all.</p>
+<p>The <code>run</code> function returns the number of rows each query
+modified. For the first query, which created a table, no rows were
+modified. The second query inserted a single row, so <code>run</code>
+returned <code class="verbatim">1</code>.</p>
+<h1 data-number="6" id="sqlvalues"><span
+class="header-section-number">6</span> <code>SqlValues</code></h1>
+<p>Before proceeding, we need to discuss a data type introduced in HDBC:
+<code>SqlValue</code>. Since both Haskell and SQL are strongly-typed
+systems, HDBC tries to preserve type information as much as possible. At
+the same time, Haskell and SQL types don't exactly mirror each other.
+Furthermore, different databases have different ways of representing
+things such as dates or special characters in strings.</p>
+<p><code>SqlValue</code> is a data type that has a number of
+constructors such as <code>SqlString</code>, <code>SqlBool</code>,
+<code>SqlNull</code>, <code>SqlInteger</code>, and more. This lets you
+represent various types of data in argument lists to the database, and
+to see various types of data in the results coming back, and still store
+it all in a list. There are convenience functions <code>toSql</code> and
+<code>fromSql</code> that you will normally use. If you care about the
+precise representation of data, you can still manually construct
+<code>SqlValue</code> data if you need to.</p>
+<h1 data-number="7" id="query-parameters"><span
+class="header-section-number">7</span> Query Parameters</h1>
+<p>HDBC, like most databases, supports a notion of replaceable
+parameters in queries. There are three primary benefits of using
+replaceable parameters: they prevent SQL injection attacks or trouble
+when the input contains quote characters, they improve performance when
+executing similar queries repeatedly, and they permit easy and portable
+insertion of data into queries.</p>
+<p>Let's say you wanted to add thousands of rows into our new table
+<code>test</code>. You could issue thousands of queries looking like
+<code>INSERT INTO test VALUES (0, 'zero')</code> and
+<code>INSERT INTO test VALUES (1, 'one')</code>. This forces the
+database server to parse each SQL statement individually. If you could
+replace the two values with a placeholder, the server could parse the
+SQL query once, and just execute it multiple times with the different
+data.</p>
+<p>A second problem involves escaping characters. What if you wanted to
+insert the string <code>"I don't like 1"</code>? SQL uses the single
+quote character to show the end of the field. Most SQL databases would
+require you to write this as <code>'I don''t like 1'</code>. But rules
+for other special characters such as backslashes differ between
+databases. Rather than trying to code this yourself, HDBC can handle it
+all for you. Let's look at an example.</p>
+<pre class="screen"><code>ghci&gt; conn &lt;- connectSqlite3 &quot;test1.db&quot;
+ghci&gt; run conn &quot;INSERT INTO test VALUES (?, ?)&quot; [toSql 0, toSql &quot;zero&quot;]
+1
+ghci&gt; commit conn
+ghci&gt; disconnect conn
+</code></pre>
+<p>The question marks in the <code>INSERT</code> query in this example
+are the placeholders. We then passed the parameters that are going to go
+there. <code>run</code> takes a list of <code>SqlValue</code>, so we
+used <code>toSql</code> to convert each item into an
+<code>SqlValue</code>. HDBC automatically handled conversion of the
+<code>String</code> <code>"zero"</code> into the appropriate
+representation for the database in use.</p>
+<p>This approach won't actually achieve any performance benefits when
+inserting large amounts of data. For that, we need more control over the
+process of creating the SQL query. We'll discuss that in the next
+section.</p>
+<div class="NOTE">
+<p>Using replaceable parameters</p>
+<p>Replaceable parameters only work for parts of the queries where the
+server is expecting a value, such as a <code>WHERE</code> clause in a
+<code>SELECT</code> statement or a value for an <code>INSERT</code>
+statement. You cannot say
+<code>run "SELECT * from ?" [toSql "tablename"]</code> and expect it to
+work. A table name is not a value, and most databases will not accept
+this syntax. That's not a big problem in practice, because there is
+rarely a call for replacing things that aren't values in this way.</p>
+</div>
+<h1 data-number="8" id="prepared-statements"><span
+class="header-section-number">8</span> Prepared Statements</h1>
+<p>HDBC defines a function <code>prepare</code> that will prepare a SQL
+query, but it does not yet bind the parameters to the query.
+<code>prepare</code> returns a <code>Statement</code> representing the
+compiled query.</p>
+<p>Once you have a <code>Statement</code>, you can do a number of things
+with it. You can call <code>execute</code> on it one or more times.
+After calling <code>execute</code> on a query that returns data, you can
+use one of the fetch functions to retrieve that data. Functions like
+<code>run</code> and <code>quickQuery'</code> use statements and
+<code>execute</code> internally; they are simply shortcuts to let you
+perform common tasks quickly. When you need more control over what's
+happening, you can use a <code>Statement</code> instead of a function
+like <code>run</code>.</p>
+<p>Let's look at using statements to insert multiple values with a
+single query. Here's an example:</p>
+<pre class="screen"><code>ghci&gt; conn &lt;- connectSqlite3 &quot;test1.db&quot;
+ghci&gt; stmt &lt;- prepare conn &quot;INSERT INTO test VALUES (?, ?)&quot;
+ghci&gt; execute stmt [toSql 1, toSql &quot;one&quot;]
+1
+ghci&gt; execute stmt [toSql 2, toSql &quot;two&quot;]
+1
+ghci&gt; execute stmt [toSql 3, toSql &quot;three&quot;]
+1
+ghci&gt; execute stmt [toSql 4, SqlNull]
+1
+ghci&gt; commit conn
+ghci&gt; disconnect conn
+</code></pre>
+<p>In this example, we created a prepared statement and called it
+<code>stmt</code>. We then executed that statement four times, and
+passed different parameters each time. These parameters are used, in
+order, to replace the question marks in the original query string.
+Finally, we commit the changes and disconnect the database.</p>
+<p>HDBC also provides a function <code>executeMany</code> that can be
+useful in situations such as this. <code>executeMany</code> simply takes
+a list of rows of data to call the statement with. Here's an
+example:</p>
+<pre class="screen"><code>ghci&gt; conn &lt;- connectSqlite3 &quot;test1.db&quot;
+ghci&gt; stmt &lt;- prepare conn &quot;INSERT INTO test VALUES (?, ?)&quot;
+ghci&gt; executeMany stmt [[toSql 5, toSql &quot;five&#39;s nice&quot;], [toSql 6, SqlNull]]
+ghci&gt; commit conn
+ghci&gt; disconnect conn
+</code></pre>
+<div class="NOTE">
+<p>More efficient execution</p>
+<p>On the server, most databases will have an optimization that they can
+apply to <code>executeMany</code> so that they only have to compile this
+query string once, rather than twice.<a href="#fn4" class="footnote-ref"
+id="fnref4" role="doc-noteref"><sup>4</sup></a> This can lead to a
+dramatic performance gain when inserting large amounts of data at once.
+Some databases can also apply this optimization to <code>execute</code>,
+but not all.</p>
+</div>
+<h1 data-number="9" id="reading-results"><span
+class="header-section-number">9</span> Reading Results</h1>
+<p>So far, we have discussed queries that insert or change data. Let's
+discuss getting data back out of the database. The type of the function
+<code>quickQuery'</code> looks very similar to <code>run</code>, but it
+returns a list of results instead of a count of changed rows.
+<code>quickQuery'</code> is normally used with <code>SELECT</code>
+statements. Let's see an example:</p>
+<pre class="screen"><code>ghci&gt; conn &lt;- connectSqlite3 &quot;test1.db&quot;
+ghci&gt; quickQuery&#39; conn &quot;SELECT * from test where id &lt; 2&quot; []
+[[SqlString &quot;0&quot;,SqlNull],[SqlString &quot;0&quot;,SqlString &quot;zero&quot;],[SqlString &quot;1&quot;,SqlString &quot;one&quot;]]
+ghci&gt; disconnect conn
+</code></pre>
+<p><code>quickQuery'</code> works with replaceable parameters, as we
+discussed above. In this case, we aren't using any, so the set of values
+to replace is the empty list at the end of the <code>quickQuery'</code>
+call. <code>quickQuery'</code> returns a list of rows, where each row is
+itself represented as <code>[SqlValue]</code>. The values in the row are
+listed in the order returned by the database. You can use
+<code>fromSql</code> to convert them into regular Haskell types as
+needed.</p>
+<p>It's a bit hard to read that output. Let's extend this example to
+format the results nicely. Here's some code to do that:</p>
+<div class="captioned-content">
+<div class="caption">
+query.hs
+</div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Database.HDBC.Sqlite3</span> (connectSqlite3)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Database.HDBC</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">{- | Define a function that takes an integer representing the maximum</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">id value to look up.  Will fetch all matching rows from the test database</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">and print them to the screen in a friendly format. -}</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="ot">query ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>query maxId <span class="ot">=</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> <span class="co">-- Connect to the database</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>       conn <span class="ot">&lt;-</span> connectSqlite3 <span class="st">&quot;test1.db&quot;</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Run the query and store the results in r</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>       r <span class="ot">&lt;-</span> quickQuery&#39; conn</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;SELECT id, desc from test where id &lt;= ? ORDER BY id, desc&quot;</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>            [toSql maxId]</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Convert each row into a String</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>       <span class="kw">let</span> stringRows <span class="ot">=</span> <span class="fu">map</span> convRow r</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- Print the rows out</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>       <span class="fu">mapM_</span> <span class="fu">putStrLn</span> stringRows</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>       <span class="co">-- And disconnect from the database</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>       disconnect conn</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span><span class="ot"> convRow ::</span> [<span class="dt">SqlValue</span>] <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>          convRow [sqlId, sqlDesc] <span class="ot">=</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>              <span class="fu">show</span> intid <span class="op">++</span> <span class="st">&quot;: &quot;</span> <span class="op">++</span> desc</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>              <span class="kw">where</span> intid <span class="ot">=</span> (fromSql sqlId)<span class="ot">::</span><span class="dt">Integer</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>                    desc <span class="ot">=</span> <span class="kw">case</span> fromSql sqlDesc <span class="kw">of</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>                             <span class="dt">Just</span> x <span class="ot">-&gt;</span> x</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>                             <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="st">&quot;NULL&quot;</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>          convRow x <span class="ot">=</span> <span class="fu">fail</span> <span class="op">$</span> <span class="st">&quot;Unexpected result: &quot;</span> <span class="op">++</span> <span class="fu">show</span> x</span></code></pre></div>
+</div>
+<p>This program does mostly the same thing as our example with
+<code>ghci</code>, but with a new addition: the <code>convRow</code>
+function. This function takes a row of data from the database and
+converts it to a <code>String</code>. This string can then be easily
+printed out.</p>
+<p>Notice how we took <code>intid</code> from <code>fromSql</code>
+directly, but processed <code>fromSql sqlDesc</code> as a
+<code>Maybe String</code> type. If you recall, we declared that the
+first column in this table can never contain a <code>NULL</code> value,
+but that the second column could. Therefore, we can safely ignore the
+potential for a <code>NULL</code> in the first column, but not in the
+second. It is possible to use <code>fromSql</code> to convert the second
+column to a <code>String</code> directly, and it would even work—until a
+row with a <code>NULL</code> in that position was encountered, which
+would cause a runtime exception. So, we convert a SQL <code>NULL</code>
+value into the string <code>"NULL"</code>. When printed, this will be
+indistinguishable from a SQL string <code>'NULL'</code>, but that's
+acceptable for this example. Let's try calling this function in
+<code>ghci</code>:</p>
+<pre class="screen"><code>ghci&gt; :load query.hs
+[1 of 1] Compiling Main             ( query.hs, interpreted )
+Ok, modules loaded: Main.
+ghci&gt; query 2
+0: NULL
+0: zero
+1: one
+2: two
+</code></pre>
+<h2 data-number="9.1" id="reading-with-statements"><span
+class="header-section-number">9.1</span> Reading with Statements</h2>
+<p>As we discussed in <a
+href="21-using-databases.org::*Prepared Statements">the section called
+"Prepared Statements"</a> you can use statements for reading. There are
+a number of ways of reading data from statements that can be useful in
+certain situations. Like <code>run</code>, <code>quickQuery'</code> is a
+convenience function that in fact uses statements to accomplish its
+task.</p>
+<p>To create a statement for reading, you use <code>prepare</code> just
+as you would for a statement that will be used to write data. You also
+use <code>execute</code> to execute it on the database server. Then, you
+can use various functions to read data from the <code>Statement</code>.
+The <code>fetchAllRows'</code> function returns
+<code>[[SqlValue]]</code>, just like <code>quickQuery'</code>. There is
+also a function called <code>sFetchAllRows'</code>, which converts every
+column's data to a <code>Maybe String</code> before returning it.
+Finally, there is <code>fetchAllRowsAL'</code>, which returns
+<code>(String, SqlValue)</code> pairs for each column. The
+<code>String</code> is the column name as returned by the database; see
+<a href="21-using-databases.org::*Database Metadata">the section called
+"Database Metadata"</a></p>
+<p>You can also read data one row at a time by calling
+<code>fetchRow</code>, which returns <code>IO (Maybe [SqlValue])</code>.
+It will be <code>Nothing</code> if all the results have already been
+read, or one row otherwise.</p>
+<h2 data-number="9.2" id="lazy-reading"><span
+class="header-section-number">9.2</span> Lazy Reading</h2>
+<p>Back in <a href="7-io.org::*Lazy I/O">the section called "Lazy
+I/O"</a> from files. It is also possible to read data lazily from
+databases. This can be particularly useful when dealing with queries
+that return an exceptionally large amount of data. By reading data
+lazily, you can still use convenient functions such as
+<code>fetchAllRows</code> instead of having to manually read each row as
+it comes in. If you are careful in your use of the data, you can avoid
+having to buffer all of the results in memory.</p>
+<p>Lazy reading from a database, however, is more complex than reading
+from a file. When you're done reading data lazily from a file, the file
+is closed, and that's generally fine. When you're done reading data
+lazily from a database, the database connection is still open—you may be
+submitting other queries with it, for instance. Some databases can even
+support multiple simultaneous queries, so HDBC can't just close the
+connection when you're done.</p>
+<p>When using lazy reading, it is critically important that you finish
+reading the entire data set before you attempt to close the connection
+or execute a new query. We encourage you to use the strict functions, or
+row-by-row processing, wherever possible to minimize complex
+interactions with lazy reading.</p>
+<div class="TIP">
+<p>Tip</p>
+<p>If you are new to HDBC or the concept of lazy reading, but have lots
+of data to read, repeated calls to <code>fetchRow</code> may be easier
+to understand. Lazy reading is a powerful and useful tool, but must be
+used correctly.</p>
+</div>
+<p>To read lazily from a database, you use the same functions you used
+before, without the apostrophe. For instance, you'd use
+<code>fetchAllRows</code> instead of <code>fetchAllRows'</code>. The
+types of the lazy functions are the same as their strict cousins. Here's
+an example of lazy reading:</p>
+<pre class="screen"><code>ghci&gt; conn &lt;- connectSqlite3 &quot;test1.db&quot;
+ghci&gt; stmt &lt;- prepare conn &quot;SELECT * from test where id &lt; 2&quot;
+ghci&gt; execute stmt []
+0
+ghci&gt; results &lt;- fetchAllRowsAL stmt
+[[(&quot;id&quot;,SqlString &quot;0&quot;),(&quot;desc&quot;,SqlNull)],[(&quot;id&quot;,SqlString &quot;0&quot;),(&quot;desc&quot;,SqlString &quot;zero&quot;)],[(&quot;id&quot;,SqlString &quot;1&quot;),(&quot;desc&quot;,SqlString &quot;one&quot;)]]
+ghci&gt; mapM_ print results
+[(&quot;id&quot;,SqlString &quot;0&quot;),(&quot;desc&quot;,SqlNull)]
+[(&quot;id&quot;,SqlString &quot;0&quot;),(&quot;desc&quot;,SqlString &quot;zero&quot;)]
+[(&quot;id&quot;,SqlString &quot;1&quot;),(&quot;desc&quot;,SqlString &quot;one&quot;)]
+ghci&gt; disconnect conn
+</code></pre>
+<p>Note that you could have used <code>fetchAllRowsAL'</code> here as
+well. However, if you had a large data set to read, it would have
+consumed a lot of memory. By reading the data lazily, we can print out
+extremely large result sets using a constant amount of memory. With the
+lazy version, results will be evaluated in chunks; with the strict
+version, all results are read up front, stored in RAM, then printed.</p>
+<h1 data-number="10" id="database-metadata"><span
+class="header-section-number">10</span> Database Metadata</h1>
+<p>Sometimes it can be useful for a program to learn information about
+the database itself. For instance, a program may want to see what tables
+exist so that it can automatically create missing tables or upgrade the
+database schema. In some cases, a program may need to alter its behavior
+depending on the database backend in use.</p>
+<p>First, there is a <code>getTables</code> function that will obtain a
+list of defined tables in a database. You can also use the
+<code>describeTable</code> function, which will provide information
+about the defined columns in a given table.</p>
+<p>You can learn about the database server in use by calling
+<code>dbServerVer</code> and <code>proxiedClientName</code>, for
+instance. The <code>dbTransactionSupport</code> function can be used to
+determine whether or not a given database supports transactions. Let's
+look at an example of some of these items:</p>
+<pre class="screen"><code>ghci&gt; conn &lt;- connectSqlite3 &quot;test1.db&quot;
+ghci&gt; getTables conn
+[&quot;test&quot;]
+ghci&gt; proxiedClientName conn
+&quot;sqlite3&quot;
+ghci&gt; dbServerVer conn
+&quot;3.5.9&quot;
+ghci&gt; dbTransactionSupport conn
+True
+ghci&gt; disconnect conn
+</code></pre>
+<p>You can also learn about the results of a specific query by obtaining
+information from its statement. The <code>describeResult</code> function
+returns <code>[(String, SqlColDesc)]</code>, a list of pairs. The first
+item gives the column name, and the second provides information about
+the column: the type, the size, whether it may be <code>NULL</code>. The
+full specification is given in the HDBC API reference.</p>
+<p>Please note that some databases may not be able to provide all this
+metadata. In these circumstances, an exception will be raised. Sqlite3,
+for instance, does not support <code>describeResult</code> or
+<code>describeTable</code> as of this writing.</p>
+<h1 data-number="11" id="error-handling"><span
+class="header-section-number">11</span> Error Handling</h1>
+<p>HDBC will raise exceptions when errors occur. The exceptions have
+type <code>SqlError</code>. They convey information from the underlying
+SQL engine, such as the database's state, the error message, and the
+database's numeric error code, if any.</p>
+<p><code>ghc</code> does not know how to display an
+<code>SqlError</code> on the screen when it occurs. While the exception
+will cause the program to terminate, it will not display a useful
+message. Here's an example:</p>
+<pre class="screen"><code>ghci&gt; conn &lt;- connectSqlite3 &quot;test1.db&quot;
+ghci&gt; quickQuery&#39; conn &quot;SELECT * from test2&quot; []
+*** Exception: (unknown)
+ghci&gt; disconnect conn
+</code></pre>
+<p>Here we tried to <code>SELECT</code> data from a table that didn't
+exist. The error message we got back wasn't helpful. There's a utility
+function, <code>handleSqlError</code>, that will catch an
+<code>SqlError</code> and re-raise it as an <code>IOError</code>. In
+this form, it will be printable on-screen, but it will be more difficult
+to extract specific pieces of information programmatically. Let's look
+at its usage:</p>
+<pre class="screen"><code>ghci&gt; conn &lt;- connectSqlite3 &quot;test1.db&quot;
+ghci&gt; handleSqlError $ quickQuery&#39; conn &quot;SELECT * from test2&quot; []
+*** Exception: user error (SQL error: SqlError {seState = &quot;&quot;, seNativeError = 1, seErrorMsg = &quot;prepare 20: SELECT * from test2: no such table: test2&quot;})
+ghci&gt; disconnect conn
+</code></pre>
+<p>Here we got more information, including even a message saying that
+there is no such table as test2. This is much more helpful. Many HDBC
+programmers make it a standard practice to start their programs with
+<code>main = handleSqlError $ do</code>, which will ensure that every
+un-caught <code>SqlError</code> will be printed in a helpful manner.</p>
+<p>There are also <code>catchSql</code> and
+<code>handleSql~—similar to the standard
+~catch</code> and <code>handle</code> functions. <code>catchSql</code>
+and <code>handleSql</code> will intercept only HDBC errors. For more
+information on error handling, refer to <a
+href="19-error-handling.org">Chapter 19, <em>Error
+handling</em></a>.</p>
+<h1 data-number="12" id="footnotes"><span
+class="header-section-number">12</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>The O'Reilly books <em>Learning
+SQL</em> and <em>SQL in a Nutshell</em> may be useful if you don't have
+experience with SQL.<a href="#fnref1" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>This assumes you restrict yourself to
+using standard SQL.<a href="#fnref2" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>For more information on installing
+Haskell software, please refer to <a
+href="installing-ghc-and-haskell-libraries.org::*Installing Haskell software">the
+section called "Installing Haskell software"</a><a href="#fnref3"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p>HDBC emulates this behavior for
+databases that do not provide it, providing programmers a unified API
+for running queries repeatedly.<a href="#fnref4" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

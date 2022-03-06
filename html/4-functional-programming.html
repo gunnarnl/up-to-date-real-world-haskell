@@ -1,0 +1,2722 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 4: Functional Programming</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 4: Functional Programming</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#thinking-in-haskell"><span
+class="toc-section-number">1</span> Thinking in Haskell</a></li>
+<li><a href="#a-simple-command-line-framework"><span
+class="toc-section-number">2</span> A simple command line
+framework</a></li>
+<li><a href="#warming-up-portably-splitting-lines-of-text"><span
+class="toc-section-number">3</span> Warming up: portably splitting lines
+of text</a>
+<ul>
+<li><a href="#a-line-ending-conversion-program"><span
+class="toc-section-number">3.1</span> A line ending conversion
+program</a></li>
+</ul></li>
+<li><a href="#infix-functions"><span class="toc-section-number">4</span>
+Infix functions</a></li>
+<li><a href="#working-with-lists"><span
+class="toc-section-number">5</span> Working with lists</a>
+<ul>
+<li><a href="#basic-list-manipulation"><span
+class="toc-section-number">5.1</span> Basic list manipulation</a></li>
+<li><a href="#safely-and-sanely-working-with-crashy-functions"><span
+class="toc-section-number">5.2</span> Safely and sanely working with
+crashy functions</a></li>
+<li><a href="#partial-and-total-functions"><span
+class="toc-section-number">5.3</span> Partial and total
+functions</a></li>
+<li><a href="#more-simple-list-manipulations"><span
+class="toc-section-number">5.4</span> More simple list
+manipulations</a></li>
+<li><a href="#working-with-sublists"><span
+class="toc-section-number">5.5</span> Working with sublists</a></li>
+<li><a href="#searching-lists"><span
+class="toc-section-number">5.6</span> Searching lists</a></li>
+<li><a href="#working-with-several-lists-at-once"><span
+class="toc-section-number">5.7</span> Working with several lists at
+once</a></li>
+<li><a href="#special-string-handling-functions"><span
+class="toc-section-number">5.8</span> Special string-handling
+functions</a></li>
+<li><a href="#exercises"><span class="toc-section-number">5.9</span>
+Exercises</a></li>
+</ul></li>
+<li><a href="#how-to-think-about-loops"><span
+class="toc-section-number">6</span> How to think about loops</a>
+<ul>
+<li><a href="#explicit-recursion"><span
+class="toc-section-number">6.1</span> Explicit recursion</a></li>
+<li><a href="#transforming-every-piece-of-input"><span
+class="toc-section-number">6.2</span> Transforming every piece of
+input</a></li>
+<li><a href="#mapping-over-a-list"><span
+class="toc-section-number">6.3</span> Mapping over a list</a></li>
+<li><a href="#selecting-pieces-of-input"><span
+class="toc-section-number">6.4</span> Selecting pieces of input</a></li>
+<li><a href="#computing-one-answer-over-a-collection"><span
+class="toc-section-number">6.5</span> Computing one answer over a
+collection</a></li>
+<li><a href="#the-left-fold"><span class="toc-section-number">6.6</span>
+The left fold</a></li>
+<li><a href="#why-use-folds-maps-and-filters"><span
+class="toc-section-number">6.7</span> Why use folds, maps, and
+filters?</a></li>
+<li><a href="#folding-from-the-right"><span
+class="toc-section-number">6.8</span> Folding from the right</a></li>
+<li><a href="#left-folds-laziness-and-space-leaks"><span
+class="toc-section-number">6.9</span> Left folds, laziness, and space
+leaks</a></li>
+<li><a href="#exercises-1"><span class="toc-section-number">6.10</span>
+Exercises</a></li>
+<li><a href="#further-reading"><span
+class="toc-section-number">6.11</span> Further reading</a></li>
+</ul></li>
+<li><a href="#anonymous-lambda-functions"><span
+class="toc-section-number">7</span> Anonymous (lambda)
+functions</a></li>
+<li><a href="#partial-function-application-and-currying"><span
+class="toc-section-number">8</span> Partial function application and
+currying</a>
+<ul>
+<li><a href="#sections"><span class="toc-section-number">8.1</span>
+Sections</a></li>
+</ul></li>
+<li><a href="#as-patterns"><span class="toc-section-number">9</span>
+As-patterns</a></li>
+<li><a href="#code-reuse-through-composition"><span
+class="toc-section-number">10</span> Code reuse through composition</a>
+<ul>
+<li><a href="#use-your-head-wisely"><span
+class="toc-section-number">10.1</span> Use your head wisely</a></li>
+</ul></li>
+<li><a href="#tips-for-writing-readable-code"><span
+class="toc-section-number">11</span> Tips for writing readable
+code</a></li>
+<li><a href="#space-leaks-and-strict-evaluation"><span
+class="toc-section-number">12</span> Space leaks and strict
+evaluation</a>
+<ul>
+<li><a href="#avoiding-space-leaks-with-seq"><span
+class="toc-section-number">12.1</span> Avoiding space leaks with
+seq</a></li>
+<li><a href="#learning-to-use-seq"><span
+class="toc-section-number">12.2</span> Learning to use seq</a></li>
+</ul></li>
+<li><a href="#footnotes"><span class="toc-section-number">13</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<h1 data-number="1" id="thinking-in-haskell"><span
+class="header-section-number">1</span> Thinking in Haskell</h1>
+<p>Our early learning of Haskell has two distinct aspects. The first is
+coming to terms with the shift in mindset from imperative programming to
+functional: we have to replace our programming habits from other
+languages. We do this not because imperative techniques are bad, but
+because in a functional language other techniques work better.</p>
+<p>Our second challenge is learning our way around the standard Haskell
+libraries. As in any language, the libraries act as a lever, enabling us
+to multiply our problem solving power. Haskell libraries tend to operate
+at a higher level of abstraction than those in many other languages.
+We'll need to work a little harder to learn to use the libraries, but in
+exchange they offer a lot of power.</p>
+<p>In this chapter, we'll introduce a number of common functional
+programming techniques. We'll draw upon examples from imperative
+languages to highlight the shift in thinking that we'll need to make. As
+we do so, we'll walk through some of the fundamentals of Haskell's
+standard libraries. We'll also intermittently cover a few more language
+features along the way.</p>
+<h1 data-number="2" id="a-simple-command-line-framework"><span
+class="header-section-number">2</span> A simple command line
+framework</h1>
+<p>In most of this chapter, we will concern ourselves with code that has
+no interaction with the outside world. To maintain our focus on
+practical code, we will begin by developing a gateway between our "pure"
+code and the outside world. Our framework simply reads the contents of
+one file, applies a function to the file, and writes the result to
+another file.</p>
+<div class="captioned-content">
+<div class="caption">
+InteractWith.hs
+</div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Save this in a source file, e.g. Interact.hs</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Environment</span> (getArgs)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>interactWith function inputFile outputFile <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  input <span class="ot">&lt;-</span> <span class="fu">readFile</span> inputFile</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">writeFile</span> outputFile (function input)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> mainWith myFunction</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> mainWith function <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>          args <span class="ot">&lt;-</span> getArgs</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>          <span class="kw">case</span> args <span class="kw">of</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            [input,output] <span class="ot">-&gt;</span> interactWith function input output</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            _ <span class="ot">-&gt;</span> <span class="fu">putStrLn</span> <span class="st">&quot;error: exactly two arguments needed&quot;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="co">-- replace &quot;id&quot; with the name of our function below</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>        myFunction <span class="ot">=</span> <span class="fu">id</span></span></code></pre></div>
+</div>
+<p>This is all we need to write simple, but complete, file processing
+programs. This is a complete program. We can compile it to an executable
+named <code>InteractWith</code> as follows.</p>
+<pre class="screen"><code>$ ghc --make InteractWith
+[1 of 1] Compiling Main             ( InteractWith.hs, InteractWith.o )
+Linking InteractWith ...
+</code></pre>
+<p>If we run this program from the shell or command prompt, it will
+accept two file names: the name of a file to read, and the name of a
+file to write.</p>
+<pre class="screen"><code>$ ./Interact
+error: exactly two arguments needed
+$ ./Interact hello-in.txt hello-out.txt
+$ cat hello-in.txt
+hello world
+$ cat hello-out.txt
+hello world
+</code></pre>
+<p>Some of the notation in our source file is new. The <code>do</code>
+keyword introduces a block of <em>actions</em> that can cause effects in
+the real world, such as reading or writing a file. The
+<code>&lt;-</code> operator is the equivalent of assignment inside a
+<code>do</code> block. This is enough explanation to get us started. We
+will talk in much more detail about these details of notation, and I/O
+in general, in <a href="7-io.org">Chapter 7, <em>I/O</em></a>.</p>
+<p>When we want to test a function that cannot talk to the outside
+world, we simply replace the name <code>id</code> in the code above with
+the name of the function we want to test. Whatever our function does, it
+will need to have the type <code>String -&gt; String</code>: in other
+words, it must accept a string, and return a string.</p>
+<h1 data-number="3"
+id="warming-up-portably-splitting-lines-of-text"><span
+class="header-section-number">3</span> Warming up: portably splitting
+lines of text</h1>
+<p>Haskell provides a built-in function, <code>lines</code>, that lets
+us split a text string on line boundaries. It returns a list of strings
+with line termination characters omitted.</p>
+<pre class="screen"><code>ghci&gt; :type lines
+lines :: String -&gt; [String]
+ghci&gt; lines &quot;line 1\nline 2&quot;
+[&quot;line 1&quot;,&quot;line 2&quot;]
+ghci&gt; lines &quot;foo\n\nbar\n&quot;
+[&quot;foo&quot;,&quot;&quot;,&quot;bar&quot;]
+</code></pre>
+<p>While <code>lines</code> looks useful, it relies on us reading a file
+in "text mode" in order to work. Text mode is a feature common to many
+programming languages: it provides a special behavior when we read and
+write files on Windows. When we read a file in text mode, the file I/O
+library translates the line ending sequence <code>"\r\n"</code>
+(carriage return followed by newline) to <code>"\n"</code> (newline
+alone), and it does the reverse when we write a file. On Unix-like
+systems, text mode does not perform any translation. As a result of this
+difference, if we read a file on one platform that was written on the
+other, the line endings are likely to become a mess. (Both
+<code>readFile</code> and <code>writeFile</code> operate in text
+mode.)</p>
+<pre class="screen"><code>ghci&gt; lines &quot;a\r\nb&quot;
+[&quot;a\r&quot;,&quot;b&quot;]
+</code></pre>
+<p>The <code>lines</code> function only splits on newline characters,
+leaving carriage returns dangling at the ends of lines. If we read a
+Windows-generated text file on a Linux or Unix box, we'll get trailing
+carriage returns at the end of each line.</p>
+<p>We have comfortably used Python's "universal newline" support for
+years: this transparently handles Unix and Windows line ending
+conventions for us. We would like to provide something similar in
+Haskell.</p>
+<p>Since we are still early in our career of reading Haskell code, we
+will discuss our Haskell implementation in quite some detail.</p>
+<div class="captioned-content">
+<div class="caption">
+SplitLines.hs
+</div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ot">splitLines ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>]</span></code></pre></div>
+</div>
+<p>Our function's type signature indicates that it accepts a single
+string, the contents of a file with some unknown line ending convention.
+It returns a list of strings, representing each line from the file.</p>
+<div class="captioned-content">
+<div class="caption">
+SplitLines.hs
+</div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>splitLines [] <span class="ot">=</span> []</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>splitLines cs <span class="ot">=</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> (pre, suf) <span class="ot">=</span> <span class="fu">break</span> isLineTerminator cs</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">in</span>  pre <span class="op">:</span> <span class="kw">case</span> suf <span class="kw">of</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                (<span class="ch">&#39;\r&#39;</span><span class="op">:</span><span class="ch">&#39;\n&#39;</span><span class="op">:</span>rest) <span class="ot">-&gt;</span> splitLines rest</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                (<span class="ch">&#39;\r&#39;</span><span class="op">:</span>rest)      <span class="ot">-&gt;</span> splitLines rest</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                (<span class="ch">&#39;\n&#39;</span><span class="op">:</span>rest)      <span class="ot">-&gt;</span> splitLines rest</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                _                <span class="ot">-&gt;</span> []</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>isLineTerminator c <span class="ot">=</span> c <span class="op">==</span> <span class="ch">&#39;\r&#39;</span> <span class="op">||</span> c <span class="op">==</span> <span class="ch">&#39;\n&#39;</span></span></code></pre></div>
+</div>
+<p>Before we dive into detail, notice first how we have organized our
+code. We have presented the important pieces of code first, keeping the
+definition of <code>isLineTerminator</code> until later. Because we have
+given the helper function a readable name, we can guess what it does
+even before we've read it, which eases the smooth "flow" of reading the
+code.</p>
+<p>The prelude defines a function named <code>break</code> that we can
+use to partition a list into two parts. It takes a function as its first
+parameter. That function must examine an element of the list, and return
+a <code>Bool</code> to indicate whether to break the list at that point.
+The <code>break</code> function returns a pair, which consists of the
+sublist consumed before the predicate returned <code>True</code> (the
+<em>prefix</em>), and the rest of the list (the <em>suffix</em>).</p>
+<pre class="screen"><code>ghci&gt; break odd [2,4,5,6,8]
+([2,4],[5,6,8])
+ghci&gt; :module +Data.Char
+ghci&gt; break isUpper &quot;isUpper&quot;
+(&quot;is&quot;,&quot;Upper&quot;)
+</code></pre>
+<p>Since we only need to match a single carriage return or newline at a
+time, examining one element of the list at a time is good enough for our
+needs.</p>
+<p>The first equation of <code>splitLines</code> indicates that if we
+match an empty string, we have no further work to do.</p>
+<p>In the second equation, we first apply <code>break</code> to our
+input string. The prefix is the substring before a line terminator, and
+the suffix is the remainder of the string. The suffix will include the
+line terminator, if any is present.</p>
+<p>The "<code>pre :</code>" expression tells us that we should add the
+<code>pre</code> value to the front of the list of lines. We then use a
+<code>case</code> expression to inspect the suffix, so we can decide
+what to do next. The result of the <code>case</code> expression will be
+used as the second argument to the <code>(:)</code> list
+constructor.</p>
+<p>The first pattern matches a string that begins with a carriage
+return, followed by a newline. The variable <code>rest</code> is bound
+to the remainder of the string. The other patterns are similar, so they
+ought to be easy to follow.</p>
+<p>A prose description of a Haskell function isn't necessarily easy to
+follow. We can gain a better understanding by stepping into
+<code>ghci</code>, and oberving the behavior of the function in
+different circumstances.</p>
+<p>Let's start by partitioning a string that doesn't contain any line
+terminators.</p>
+<pre class="screen"><code>ghci&gt; splitLines &quot;foo&quot;
+[&quot;foo&quot;]
+</code></pre>
+<p>Here, our application of <code>break</code> never finds a line
+terminator, so the suffix it returns is empty.</p>
+<pre class="screen"><code>ghci&gt; break isLineTerminator &quot;foo&quot;
+(&quot;foo&quot;,&quot;&quot;)
+</code></pre>
+<p>The <code>case</code> expression in <code>splitLines</code> must thus
+be matching on the fourth branch, and we're finished. What about a
+slightly more interesting case?</p>
+<pre class="screen"><code>ghci&gt; splitLines &quot;foo\r\nbar&quot;
+[&quot;foo&quot;,&quot;bar&quot;]
+</code></pre>
+<p>Our first application of <code>break</code> gives us a non-empty
+suffix.</p>
+<pre class="screen"><code>ghci&gt; break isLineTerminator &quot;foo\r\nbar&quot;
+(&quot;foo&quot;,&quot;\r\nbar&quot;)
+</code></pre>
+<p>Because the suffix begins with a carriage return, followed by a
+newline, we match on the first branch of the <code>case</code>
+expression. This gives us <code>pre</code> bound to <code>"foo"</code>,
+and <code>suf</code> bound to <code>"bar"</code>. We apply
+<code>splitLines</code> recursively, this time on <code>"bar"</code>
+alone.</p>
+<pre class="screen"><code>ghci&gt; splitLines &quot;bar&quot;
+[&quot;bar&quot;]
+</code></pre>
+<p>The result is that we construct a list whose head is
+<code>"foo"</code> and whose tail is <code>["bar"]</code>.</p>
+<pre class="screen"><code>ghci&gt; &quot;foo&quot; : [&quot;bar&quot;]
+[&quot;foo&quot;,&quot;bar&quot;]
+</code></pre>
+<p>This sort of experimenting with <code>ghci</code> is a helpful way to
+understand and debug the behavior of a piece of code. It has an even
+more important benefit that is almost accidental in nature. It can be
+tricky to test complicated code from <code>ghci</code>, so we will tend
+to write smaller functions. This can further help the readability of our
+code.</p>
+<p>This style of creating and reusing small, powerful pieces of code is
+a fundamental part of functional programming.</p>
+<h2 data-number="3.1" id="a-line-ending-conversion-program"><span
+class="header-section-number">3.1</span> A line ending conversion
+program</h2>
+<p>Let's hook our <code>splitLines</code> function into the little
+framework we wrote earlier. Make a copy of the <code>Interact.hs</code>
+source file; let's call the new file <code>FixLines.hs</code>. Add the
+<code>splitLines</code> function to the new source file. Since our
+function must produce a single string, we must stitch the list of lines
+back together. The prelude provides an <code>unlines</code> function
+that concatenates a list of strings, adding a newline to the end of
+each.</p>
+<div class="captioned-content">
+<div class="caption">
+SplitLines.hs
+</div>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fixLines ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>fixLines input <span class="ot">=</span> <span class="fu">unlines</span> (splitLines input)</span></code></pre></div>
+</div>
+<p>If we replace the <code>id</code> function with
+<code>fixLines</code>, we can compile an executable that will convert a
+text file to our system's native line ending.</p>
+<pre class="screen"><code>$ ghc --make FixLines
+[1 of 1] Compiling Main             ( FixLines.hs, FixLines.o )
+Linking FixLines ...
+</code></pre>
+<p>If you are on a Windows system, find and download a text file that
+was created on a Unix system (for example <a
+href="http://www.gnu.org/licenses/gpl-3.0.txt">gpl-3.0.txt</a>). Open it
+in the standard Notepad text editor. The lines should all run together,
+making the file almost unreadable. Process the file using the
+<code>FixLines</code> command you just created, and open the output file
+in Notepad. The line endings should now be fixed up.</p>
+<p>On Unix-like systems, the standard pagers and editors hide Windows
+line endings. This makes it more difficult to verify that
+<code>FixLines</code> is actually eliminating them. Here are a few
+commands that should help.</p>
+<pre class="screen"><code>$ file gpl-3.0.txt
+gpl-3.0.txt: ASCII English text
+$ unix2dos gpl-3.0.txt
+unix2dos: converting file gpl-3.0.txt to DOS format ...
+$ file gpl-3.0.txt
+gpl-3.0.txt: ASCII English text, with CRLF line terminators
+</code></pre>
+<h1 data-number="4" id="infix-functions"><span
+class="header-section-number">4</span> Infix functions</h1>
+<p>Usually, when we define or apply a function in Haskell, we write the
+name of the function, followed by its arguments. This notation is
+referred to as <em>prefix</em>, because the name of the function comes
+before its arguments.</p>
+<p>If a function or constructor takes two or more arguments, we have the
+option of using it in <em>infix</em> form, where we place it
+<em>between</em> its first and second arguments. This allows us to use
+functions as infix operators.</p>
+<p>To define or apply a function or value constructor using infix
+notation, we enclose its name in backtick characters (sometimes known as
+backquotes). Here are simple infix definitions of a function and a
+type.</p>
+<div class="captioned-content">
+<div class="caption">
+Plus.hs
+</div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">`plus`</span> b <span class="ot">=</span> a <span class="op">+</span> b</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> a <span class="ot">`Pair`</span> b <span class="ot">=</span> a <span class="ot">`Pair`</span> b</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">deriving</span> (<span class="dt">Show</span>)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co">-- we can use the constructor either prefix or infix</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>foo <span class="ot">=</span> <span class="dt">Pair</span> <span class="dv">1</span> <span class="dv">2</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>bar <span class="ot">=</span> <span class="dt">True</span> <span class="ot">`Pair`</span> <span class="st">&quot;quux&quot;</span></span></code></pre></div>
+</div>
+<p>Since infix notation is purely a syntactic convenience, it does not
+change a function's behavior.</p>
+<pre class="screen"><code>ghci&gt; 1 `plus` 2
+3
+ghci&gt; plus 1 2
+3
+ghci&gt; True `Pair` &quot;something&quot;
+True `Pair` &quot;something&quot;
+ghci&gt; Pair True &quot;something&quot;
+True `Pair` &quot;something&quot;
+</code></pre>
+<p>Infix notation can often help readability. For instance, the prelude
+defines a function, <code>elem</code>, that indicates whether a value is
+present in a list. If we use <code>elem</code> using prefix notation, it
+is fairly easy to read.</p>
+<pre class="screen"><code>ghci&gt; elem &#39;a&#39; &quot;camogie&quot;
+True
+</code></pre>
+<p>If we switch to infix notation, the code becomes even easier to
+understand. It is now clearer that we're checking to see if the value on
+the left is present in the list on the right.</p>
+<pre class="screen"><code>ghci&gt; 3 `elem` [1,2,4,8]
+False
+</code></pre>
+<p>We see a more pronounced improvement with some useful functions from
+the <code>Data.List</code> module. The <code>isPrefixOf</code> function
+tells us if one list matches the beginning of another.</p>
+<pre class="screen"><code>ghci&gt; :module +Data.List
+ghci&gt; &quot;foo&quot; `isPrefixOf` &quot;foobar&quot;
+True
+</code></pre>
+<p>The <code>isInfixOf</code> and <code>isSuffixOf</code> functions
+match anywhere in a list and at its end, respectively.</p>
+<pre class="screen"><code>ghci&gt; &quot;needle&quot; `isInfixOf` &quot;haystack full of needle thingies&quot;
+True
+ghci&gt; &quot;end&quot; `isSuffixOf` &quot;the end&quot;
+True
+</code></pre>
+<p>There is no hard-and-fast rule that dictates when you ought to use
+infix versus prefix notation, although prefix notation is far more
+common. It's best to choose whichever makes your code more readable in a
+specific situation.</p>
+<div class="NOTE">
+<p>Beware familiar notation in an unfamiliar language</p>
+<p>A few other programming languages use backticks, but in spite of the
+visual similarities, the purpose of backticks in Haskell does not
+remotely resemble their meaning in, for example, Perl, Python, or Unix
+shell scripts.</p>
+<p>The only legal thing we can do with backticks in Haskell is wrap them
+around the name of a function. We can't, for example, use them to
+enclose a complex expression whose value is a function. It might be
+convenient if we could, but that's not how the language is today.</p>
+</div>
+<h1 data-number="5" id="working-with-lists"><span
+class="header-section-number">5</span> Working with lists</h1>
+<p>As the bread and butter of functional programming, lists deserve some
+serious attention. The standard prelude defines dozens of functions for
+dealing with lists. Many of these will be indispensable tools, so it's
+important that we learn them early on.</p>
+<p>For better or worse, this section is going to read a bit like a
+"laundry list" of functions. Why present so many functions at once?
+These functions are both easy to learn and absolutely ubiquitous. If we
+don't have this toolbox at our fingertips, we'll end up wasting time by
+reinventing simple functions that are already present in the standard
+libraries. So bear with us as we go through the list; the effort you'll
+save will be huge.</p>
+<p>The <code>Data.List</code> module is the "real" logical home of all
+standard list functions. The prelude merely re-exports a large subset of
+the functions exported by <code>Data.List</code>. Several useful
+functions in <code>Data.List</code> are <em>not</em> re-exported by the
+standard prelude. As we walk through list functions in the sections that
+follow, we will explicitly mention those that are only in
+<code>Data.List</code>.</p>
+<pre class="screen"><code>ghci&gt; :module +Data.List
+</code></pre>
+<p>Because none of these functions is complex or takes more than about
+three lines of Haskell to write, we'll be brief in our descriptions of
+each. In fact, a quick and useful learning exercise is to write a
+definition of each function after you've read about it.</p>
+<h2 data-number="5.1" id="basic-list-manipulation"><span
+class="header-section-number">5.1</span> Basic list manipulation</h2>
+<p>The <code>length</code> function tells us how many elements are in a
+list.</p>
+<pre class="screen"><code>ghci&gt; :type length
+length :: [a] -&gt; Int
+ghci&gt; length []
+0
+ghci&gt; length [1,2,3]
+3
+ghci&gt; length &quot;strings are lists, too&quot;
+22
+</code></pre>
+<p>If you need to determine whether a list is empty, use the
+<code>null</code> function.</p>
+<pre class="screen"><code>ghci&gt; :type null
+null :: [a] -&gt; Bool
+ghci&gt; null []
+True
+ghci&gt; null &quot;plugh&quot;
+False
+</code></pre>
+<p>To access the first element of a list, we use the <code>head</code>
+function.</p>
+<pre class="screen"><code>ghci&gt; :type head
+head :: [a] -&gt; a
+ghci&gt; head [1,2,3]
+1
+</code></pre>
+<p>The converse, <code>tail</code>, returns all <em>but</em> the head of
+a list.</p>
+<pre class="screen"><code>ghci&gt; :type tail
+tail :: [a] -&gt; [a]
+ghci&gt; tail &quot;foo&quot;
+&quot;oo&quot;
+</code></pre>
+<p>Another function, <code>last</code>, returns the very last element of
+a list.</p>
+<pre class="screen"><code>ghci&gt; :type last
+last :: [a] -&gt; a
+ghci&gt; last &quot;bar&quot;
+&#39;r&#39;
+</code></pre>
+<p>The converse of <code>last</code> is <code>init</code>, which returns
+a list of all but the last element of its input.</p>
+<pre class="screen"><code>ghci&gt; :type init
+init :: [a] -&gt; [a]
+ghci&gt; init &quot;bar&quot;
+&quot;ba&quot;
+</code></pre>
+<p>Several of the functions above behave poorly on empty lists, so be
+careful if you don't know whether or not a list is empty. What form does
+their misbehavior take?</p>
+<pre class="screen"><code>ghci&gt; head []
+*** Exception: Prelude.head: empty list
+</code></pre>
+<p>Try each of the above functions in <code>ghci</code>. Which ones
+crash when given an empty list?</p>
+<h2 data-number="5.2"
+id="safely-and-sanely-working-with-crashy-functions"><span
+class="header-section-number">5.2</span> Safely and sanely working with
+crashy functions</h2>
+<p>When we want to use a function like <code>head</code>, where we know
+that it might blow up on us if we pass in an empty list, the temptation
+might initially be strong to check the length of the list before we call
+<code>head</code>. Let's construct an artificial example to illustrate
+our point.</p>
+<div class="captioned-content">
+<div class="caption">
+EfficientList.hs
+</div>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>myDumbExample xs <span class="ot">=</span> <span class="kw">if</span> <span class="fu">length</span> xs <span class="op">&gt;</span> <span class="dv">0</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>                   <span class="kw">then</span> <span class="fu">head</span> xs</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>                   <span class="kw">else</span> <span class="ch">&#39;Z&#39;</span></span></code></pre></div>
+</div>
+<p>If we're coming from a language like Perl or Python, this might seem
+like a perfectly natural way to write this test. Behind the scenes,
+Python lists are arrays; and Perl arrays are, well, arrays. So they
+necessarily know how long they are, and calling <code>len(foo)</code> or
+<code>scalar(@foo)</code> is a perfectly natural thing to do. But as
+with many other things, it's not a good idea to blindly transplant such
+an assumption into Haskell.</p>
+<p>We've already seen the definition of the list algebraic data type
+many times, and know that a list doesn't store its own length
+explicitly. Thus, the only way that <code>length</code> can operate is
+to walk the entire list.</p>
+<p>Therefore, when we only care whether or not a list is empty, calling
+<code>length</code> isn't a good strategy. It can potentially do a lot
+more work than we want, if the list we're working with is finite. Since
+Haskell lets us easily create infinite lists, a careless use of
+<code>length</code> may even result in an infinite loop.</p>
+<p>A more appropriate function to call here instead is
+<code>null</code>, which runs in constant time. Better yet, using
+<code>null</code> makes our code indicate what property of the list we
+really care about. Here are two improved ways of expressing
+<code>myDumbExample</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+EfficientList.hs
+</div>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>mySmartExample xs <span class="ot">=</span> <span class="kw">if</span> <span class="fu">not</span> (<span class="fu">null</span> xs)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">then</span> <span class="fu">head</span> xs</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">else</span> <span class="ch">&#39;Z&#39;</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>myOtherExample (x<span class="op">:</span>_) <span class="ot">=</span> x</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>myOtherExample [] <span class="ot">=</span> <span class="ch">&#39;Z&#39;</span></span></code></pre></div>
+</div>
+<h2 data-number="5.3" id="partial-and-total-functions"><span
+class="header-section-number">5.3</span> Partial and total
+functions</h2>
+<p>Functions that only have return values defined for a subset of valid
+inputs are called <em>partial</em> functions (calling <code>error</code>
+doesn't qualify as returning a value!). We call functions that return
+valid results over their entire input domains <em>total</em>
+functions.</p>
+<p>It's always a good idea to know whether a function you're using is
+partial or total. Calling a partial function with an input that it can't
+handle is probably the single biggest source of straightforward,
+avoidable bugs in Haskell programs.</p>
+<p>Some Haskell programmers go so far as to give partial functions names
+that begin with a prefix such as <code>unsafe</code>, so that they can't
+shoot themselves in the foot accidentally.</p>
+<p>It's arguably a deficiency of the standard prelude that it defines
+quite a few "unsafe" partial functions, like <code>head</code>, without
+also providing "safe" total equivalents.</p>
+<h2 data-number="5.4" id="more-simple-list-manipulations"><span
+class="header-section-number">5.4</span> More simple list
+manipulations</h2>
+<p>Haskell's name for the "append" function is <code>(++)</code>.</p>
+<pre class="screen"><code>ghci&gt; :type (++)
+(++) :: [a] -&gt; [a] -&gt; [a]
+ghci&gt; &quot;foo&quot; ++ &quot;bar&quot;
+&quot;foobar&quot;
+ghci&gt; [] ++ [1,2,3]
+[1,2,3]
+ghci&gt; [True] ++ []
+[True]
+</code></pre>
+<p>The <code>concat</code> function takes a list of lists, all of the
+same type, and concatenates them into a single list.</p>
+<pre class="screen"><code>ghci&gt; :type concat
+concat :: [[a]] -&gt; [a]
+ghci&gt; concat [[1,2,3], [4,5,6]]
+[1,2,3,4,5,6]
+</code></pre>
+<p>It removes one level of nesting.</p>
+<pre class="screen"><code>ghci&gt; concat [[[1,2],[3]], [[4],[5],[6]]]
+[[1,2],[3],[4],[5],[6]]
+ghci&gt; concat (concat [[[1,2],[3]], [[4],[5],[6]]])
+[1,2,3,4,5,6]
+</code></pre>
+<p>The <code>reverse</code> function returns the elements of a list in
+reverse order.</p>
+<pre class="screen"><code>ghci&gt; :type reverse
+reverse :: [a] -&gt; [a]
+ghci&gt; reverse &quot;foo&quot;
+&quot;oof&quot;
+</code></pre>
+<p>For lists of <code>Bool</code>, the <code>and</code> and
+<code>or</code> functions generalise their two-argument cousins,
+<code>(&amp;&amp;)</code> and <code>(||)</code>, over lists.</p>
+<pre class="screen"><code>ghci&gt; :type and
+and :: [Bool] -&gt; Bool
+ghci&gt; and [True,False,True]
+False
+ghci&gt; and []
+True
+ghci&gt; :type or
+or :: [Bool] -&gt; Bool
+ghci&gt; or [False,False,False,True,False]
+True
+ghci&gt; or []
+False
+</code></pre>
+<p>They have more useful cousins, <code>all</code> and <code>any</code>,
+which operate on lists of any type. Each one takes a predicate as its
+first argument; <code>all</code> returns <code>True</code> if that
+predicate succeeds on every element of the list, while <code>any</code>
+returns <code>True</code> if the predicate succeeds on at least one
+element of the list.</p>
+<pre class="screen"><code>ghci&gt; :type all
+all :: (a -&gt; Bool) -&gt; [a] -&gt; Bool
+ghci&gt; all odd [1,3,5]
+True
+ghci&gt; all odd [3,1,4,1,5,9,2,6,5]
+False
+ghci&gt; all odd []
+True
+ghci&gt; :type any
+any :: (a -&gt; Bool) -&gt; [a] -&gt; Bool
+ghci&gt; any even [3,1,4,1,5,9,2,6,5]
+True
+ghci&gt; any even []
+False
+</code></pre>
+<h2 data-number="5.5" id="working-with-sublists"><span
+class="header-section-number">5.5</span> Working with sublists</h2>
+<p>The <code>take</code> function, which we already met in <a
+href="2-types-and-functions.org::*Function application">the section
+called "Function application"</a> consisting of the first <em>k</em>
+elements from a list. Its converse, <code>drop</code>, drops <em>k</em>
+elements from the start of the list.</p>
+<pre class="screen"><code>ghci&gt; :type take
+take :: Int -&gt; [a] -&gt; [a]
+ghci&gt; take 3 &quot;foobar&quot;
+&quot;foo&quot;
+ghci&gt; take 2 [1]
+[1]
+ghci&gt; :type drop
+drop :: Int -&gt; [a] -&gt; [a]
+ghci&gt; drop 3 &quot;xyzzy&quot;
+&quot;zy&quot;
+ghci&gt; drop 1 []
+[]
+</code></pre>
+<p>The <code>splitAt</code> function combines the functions of
+<code>take</code> and <code>drop</code>, returning a pair of the input
+list, split at the given index.</p>
+<pre class="screen"><code>ghci&gt; :type splitAt
+splitAt :: Int -&gt; [a] -&gt; ([a], [a])
+ghci&gt; splitAt 3 &quot;foobar&quot;
+(&quot;foo&quot;,&quot;bar&quot;)
+</code></pre>
+<p>The <code>takeWhile</code> and <code>dropWhile</code> functions take
+predicates: <code>takeWhile</code> takes elements from the beginning of
+a list as long as the predicate returns <code>True</code>, while
+<code>dropWhile</code> drops elements from the list as long as the
+predicate returns <code>True</code>.</p>
+<pre class="screen"><code>ghci&gt; :type takeWhile
+takeWhile :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+ghci&gt; takeWhile odd [1,3,5,6,8,9,11]
+[1,3,5]
+ghci&gt; :type dropWhile
+dropWhile :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+ghci&gt; dropWhile even [2,4,6,7,9,10,12]
+[7,9,10,12]
+</code></pre>
+<p>Just as <code>splitAt</code> "tuples up" the results of
+<code>take</code> and <code>drop</code>, the functions
+<code>break</code> (which we already saw in <a
+href="4-functional-programming.org::*Warming up: portably splitting lines of text">the
+section called "Warming up: portably splitting lines of text"</a> and
+<code>span</code> tuple up the results of <code>takeWhile</code> and
+<code>dropWhile</code>.</p>
+<p>Each function takes a predicate; <code>break</code> consumes its
+input while its predicate fails, while <code>span</code> consumes while
+its predicate succeeds.</p>
+<pre class="screen"><code>ghci&gt; :type span
+span :: (a -&gt; Bool) -&gt; [a] -&gt; ([a], [a])
+ghci&gt; span even [2,4,6,7,9,10,11]
+([2,4,6],[7,9,10,11])
+ghci&gt; :type break
+break :: (a -&gt; Bool) -&gt; [a] -&gt; ([a], [a])
+ghci&gt; break even [1,3,5,6,8,9,10]
+([1,3,5],[6,8,9,10])
+</code></pre>
+<h2 data-number="5.6" id="searching-lists"><span
+class="header-section-number">5.6</span> Searching lists</h2>
+<p>As we've already seen, the <code>elem</code> function indicates
+whether a value is present in a list. It has a companion function,
+<code>notElem</code>.</p>
+<pre class="screen"><code>ghci&gt; :type elem
+elem :: (Eq a) =&gt; a -&gt; [a] -&gt; Bool
+ghci&gt; 2 `elem` [5,3,2,1,1]
+True
+ghci&gt; 2 `notElem` [5,3,2,1,1]
+False
+</code></pre>
+<p>For a more general search, <code>filter</code> takes a predicate, and
+returns every element of the list on which the predicate succeeds.</p>
+<pre class="screen"><code>ghci&gt; :type filter
+filter :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+ghci&gt; filter odd [2,4,1,3,6,8,5,7]
+[1,3,5,7]
+</code></pre>
+<p>In <code>Data.List</code>, three predicates, <code>isPrefixOf</code>,
+<code>isInfixOf</code>, and <code>isSuffixOf</code>, let us test for the
+presence of sublists within a bigger list. The easiest way to use them
+is using infix notation.</p>
+<p>The <code>isPrefixOf</code> function tells us whether its left
+argument matches the beginning of its right argument.</p>
+<pre class="screen"><code>ghci&gt; :module +Data.List
+ghci&gt; :type isPrefixOf
+isPrefixOf :: (Eq a) =&gt; [a] -&gt; [a] -&gt; Bool
+ghci&gt; &quot;foo&quot; `isPrefixOf` &quot;foobar&quot;
+True
+ghci&gt; [1,2] `isPrefixOf` []
+False
+</code></pre>
+<p>The <code>isInfixOf</code> function indicates whether its left
+argument is a sublist of its right.</p>
+<pre class="screen"><code>ghci&gt; :module +Data.List
+ghci&gt; [2,6] `isInfixOf` [3,1,4,1,5,9,2,6,5,3,5,8,9,7,9]
+True
+ghci&gt; &quot;funk&quot; `isInfixOf` &quot;sonic youth&quot;
+False
+</code></pre>
+<p>The operation of <code>isSuffixOf</code> shouldn't need any
+explanation.</p>
+<pre class="screen"><code>ghci&gt; :module +Data.List
+ghci&gt; &quot;.c&quot; `isSuffixOf` &quot;crashme.c&quot;
+True
+</code></pre>
+<h2 data-number="5.7" id="working-with-several-lists-at-once"><span
+class="header-section-number">5.7</span> Working with several lists at
+once</h2>
+<p>The <code>zip</code> function takes two lists and "zips" them into a
+single list of pairs. The resulting list is the same length as the
+shorter of the two inputs.</p>
+<pre class="screen"><code>ghci&gt; :type zip
+zip :: [a] -&gt; [b] -&gt; [(a, b)]
+ghci&gt; zip [12,72,93] &quot;zippity&quot;
+[(12,&#39;z&#39;),(72,&#39;i&#39;),(93,&#39;p&#39;)]
+</code></pre>
+<p>More useful is <code>zipWith</code>, which takes two lists and
+applies a function to each pair of elements, generating a list that is
+the same length as the shorter of the two.</p>
+<pre class="screen"><code>ghci&gt; :type zipWith
+zipWith :: (a -&gt; b -&gt; c) -&gt; [a] -&gt; [b] -&gt; [c]
+ghci&gt; zipWith (+) [1,2,3] [4,5,6]
+[5,7,9]
+</code></pre>
+<p>Haskell's type system makes it an interesting challenge to write
+functions that take variable numbers of arguments<a href="#fn1"
+class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. So
+if we want to zip three lists together, we call <code>zip3</code> or
+<code>zipWith3</code>, and so on up to <code>zip7</code> and
+<code>zipWith7</code>.</p>
+<h2 data-number="5.8" id="special-string-handling-functions"><span
+class="header-section-number">5.8</span> Special string-handling
+functions</h2>
+<p>We've already encountered the standard <code>lines</code> function in
+<a
+href="4-functional-programming.org::*Warming up: portably splitting lines of text">the
+section called "Warming up: portably splitting lines of text"</a> and
+its standard counterpart, <code>unlines</code>. Notice that
+<code>unlines</code> always places a newline on the end of its
+result.</p>
+<pre class="screen"><code>ghci&gt; lines &quot;foo\nbar&quot;
+[&quot;foo&quot;,&quot;bar&quot;]
+ghci&gt; unlines [&quot;foo&quot;, &quot;bar&quot;]
+&quot;foo\nbar\n&quot;
+</code></pre>
+<p>The <code>words</code> function splits an input string on any white
+space. Its counterpart, <code>unwords</code>, uses a single space to
+join a list of words.</p>
+<pre class="screen"><code>ghci&gt; words &quot;the  \r  quick \t  brown\n\n\nfox&quot;
+[&quot;the&quot;,&quot;quick&quot;,&quot;brown&quot;,&quot;fox&quot;]
+ghci&gt; unwords [&quot;jumps&quot;, &quot;over&quot;, &quot;the&quot;, &quot;lazy&quot;, &quot;dog&quot;]
+&quot;jumps over the lazy dog&quot;
+</code></pre>
+<h2 data-number="5.9" id="exercises"><span
+class="header-section-number">5.9</span> Exercises</h2>
+<ol>
+<li><p>Write your own "safe" definitions of the standard partial list
+functions, but make sure that yours never fail. As a hint, you might
+want to consider using the following types.</p>
+<div class="captioned-content">
+<div class="caption">
+exercises.hs
+</div>
+<div class="sourceCode" id="cb53"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="ot">safeHead ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="ot">safeTail ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> [a]</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="ot">safeLast ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> a</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="ot">safeInit ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Maybe</span> [a]</span></code></pre></div>
+</div></li>
+<li><p>Write a function <code>splitWith</code> that acts similarly to
+<code>words</code>, but takes a predicate and a list of any type, and
+splits its input list on every element for which the predicate returns
+<code>False</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+exercises.hs
+</div>
+<div class="sourceCode" id="cb54"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="ot">splitWith ::</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [[a]]</span></code></pre></div>
+</div></li>
+<li><p>Using the command framework from <a
+href="4-functional-programming.org::*A simple command line framework">the
+section called "A simple command line framework"</a> program that prints
+the first word of each line of its input.</p></li>
+<li><p>Write a program that transposes the text in a file. For instance,
+it should convert <code>"hello\nworld\n"</code> to
+<code>"hw\neo\nlr\nll\nod\n"</code>.</p></li>
+</ol>
+<h1 data-number="6" id="how-to-think-about-loops"><span
+class="header-section-number">6</span> How to think about loops</h1>
+<p>Unlike traditional languages, Haskell has neither a <code>for</code>
+loop nor a <code>while</code> loop. If we've got a lot of data to
+process, what do we use instead? There are several possible answers to
+this question.</p>
+<h2 data-number="6.1" id="explicit-recursion"><span
+class="header-section-number">6.1</span> Explicit recursion</h2>
+<div class="sourceCode" id="cb55" data-org-language="C"><pre
+class="sourceCode c"><code class="sourceCode c"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> as_int<span class="op">(</span><span class="dt">char</span> <span class="op">*</span>str<span class="op">)</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> acc<span class="op">;</span> <span class="co">/* accumulate the partial result */</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>acc <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> isdigit<span class="op">(*</span>str<span class="op">);</span> str<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>    acc <span class="op">=</span> acc <span class="op">*</span> <span class="dv">10</span> <span class="op">+</span> <span class="op">(*</span>str <span class="op">-</span> <span class="ch">&#39;0&#39;</span><span class="op">);</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> acc<span class="op">;</span></span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Given that Haskell doesn't have any looping constructs, how should we
+think about representing a fairly straightforward piece of code like
+this?</p>
+<p>We don't have to start off by writing a type signature, but it helps
+to remind us of what we're working with.</p>
+<div class="captioned-content">
+<div class="caption">
+IntParse.hs
+</div>
+<div class="sourceCode" id="cb56"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Char</span> (digitToInt) <span class="co">-- we&#39;ll need ord shortly</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="ot">asInt ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span></code></pre></div>
+</div>
+<p>The C code computes the result incrementally as it traverses the
+string; the Haskell code can do the same. However, in Haskell, we can
+express the equivalent of a loop as a function. We'll call ours
+<code>loop</code> just to keep things nice and explicit.</p>
+<div class="captioned-content">
+<div class="caption">
+IntParse.hs
+</div>
+<div class="sourceCode" id="cb57"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="ot">loop ::</span> <span class="dt">Int</span> <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>asInt xs <span class="ot">=</span> loop <span class="dv">0</span> xs</span></code></pre></div>
+</div>
+<p>That first parameter to <code>loop</code> is the accumulator variable
+we'll be using. Passing zero into it is equivalent to initialising the
+<code>acc</code> variable in C at the beginning of the loop.</p>
+<p>Rather than leap into blazing code, let's think about the data we
+have to work with. Our familiar <code>String</code> is just a synonym
+for <code>[Char]</code>, a list of characters. The easiest way for us to
+get the traversal right is to think about the structure of a list: it's
+either empty, or a single element followed by the rest of the list.</p>
+<p>We can express this structural thinking directly by pattern matching
+on the list type's constructors. It's often handy to think about the
+easy cases first: here, that means we will consider the empty-list
+case.</p>
+<div class="captioned-content">
+<div class="caption">
+IntParse.hs
+</div>
+<div class="sourceCode" id="cb58"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>loop acc [] <span class="ot">=</span> acc</span></code></pre></div>
+</div>
+<p>An empty list doesn't just mean "the input string is empty"; it's
+also the case we'll encounter when we traverse all the way to the end of
+a non-empty list. So we don't want to "error out" if we see an empty
+list. Instead, we should do something sensible. Here, the sensible thing
+is to terminate the loop, and return our accumulated value.</p>
+<p>The other case we have to consider arises when the input list is not
+empty. We need to do something with the current element of the list, and
+something with the rest of the list.</p>
+<div class="captioned-content">
+<div class="caption">
+IntParse.hs
+</div>
+<div class="sourceCode" id="cb59"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>loop acc (x<span class="op">:</span>xs) <span class="ot">=</span> <span class="kw">let</span> acc&#39; <span class="ot">=</span> acc <span class="op">*</span> <span class="dv">10</span> <span class="op">+</span> <span class="fu">digitToInt</span> x</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>                  <span class="kw">in</span> loop acc&#39; xs</span></code></pre></div>
+</div>
+<p>We compute a new value for the accumulator, and give it the name
+<code>acc'</code>. We then call the <code>loop</code> function again,
+passing it the updated value <code>acc'</code> and the rest of the input
+list; this is equivalent to the loop starting another round in C.</p>
+<div class="NOTE">
+<p>Single quotes in variable names</p>
+<p>Remember, a single quote is a legal character to use in a Haskell
+variable name, and is pronounced "prime". There's a common idiom in
+Haskell programs involving a variable, say <code>foo</code>, and another
+variable, say <code>foo'</code>. We can usually assume that
+<code>foo'</code> is somehow related to <code>foo</code>. It's often a
+new value for <code>foo</code>, as in our code above.</p>
+<p>Sometimes we'll see this idiom extended, such as <code>foo''</code>.
+Since keeping track of the number of single quotes tacked onto the end
+of a name rapidly becomes tedious, use of more than two in a row is
+thankfully rare. Indeed, even one single quote can be easy to miss,
+which can lead to confusion on the part of readers. It might be better
+to think of the use of single quotes as a coding convention that you
+should be able to recognize, and less as one that you should actually
+follow.</p>
+</div>
+<p>Each time the <code>loop</code> function calls itself, it has a new
+value for the accumulator, and it consumes one element of the input
+list. Eventually, it's going to hit the end of the list, at which time
+the <code>[]</code> pattern will match, and the recursive calls will
+cease.</p>
+<p>How well does this function work? For positive integers, it's
+perfectly cromulent.</p>
+<pre class="screen"><code>ghci&gt; asInt &quot;33&quot;
+33
+</code></pre>
+<p>But because we were focusing on how to traverse lists, not error
+handling, our poor function misbehaves if we try to feed it
+nonsense.</p>
+<pre class="screen"><code>ghci&gt; asInt &quot;&quot;
+0
+ghci&gt; asInt &quot;potato&quot;
+*** Exception: Char.digitToInt: not a digit &#39;p&#39;
+</code></pre>
+<p>We'll defer fixing our function's shortcomings to <span
+class="spurious-link" target="Exercise 4.1"><em>Q:1</em></span>.</p>
+<p>Because the last thing that <code>loop</code> does is simply call
+itself, it's an example of a tail recursive function. There's another
+common idiom in this code, too. Thinking about the structure of the
+list, and handling the empty and non-empty cases separately, is a kind
+of approach called <em>structural recursion</em>.</p>
+<p>We call the non-recursive case (when the list is empty) the <em>base
+case</em> (sometimes the <em>terminating case</em>). We'll see people
+refer to the case where the function calls itself as the recursive case
+(surprise!), or they might give a nod to mathematical induction and call
+it the <em>inductive case</em>.</p>
+<p>As a useful technique, structural recursion is not confined to lists;
+we can use it on other algebraic data types, too. We'll have more to say
+about it later.</p>
+<div class="NOTE">
+<p>In an imperative language, a loop executes in constant space. Lacking
+loops, we use tail recursive functions in Haskell instead. Normally, a
+recursive function allocates some space each time it applies itself, so
+it knows where to return to.</p>
+<p>Clearly, a recursive function would be at a huge disadvantage
+relative to a loop if it allocated memory for every recursive
+application: this would require linear space instead of constant space.
+However, functional language implementations detect uses of tail
+recursion, and transform tail recursive calls to run in constant space;
+this is called <em>tail call optimisation</em>, abbreviated TCO.</p>
+<p>Few imperative language implementations perform TCO; this is why
+using any kind of ambitiously functional style in an imperative language
+often leads to memory leaks and poor performance.</p>
+</div>
+<h2 data-number="6.2" id="transforming-every-piece-of-input"><span
+class="header-section-number">6.2</span> Transforming every piece of
+input</h2>
+<p>Consider another C function, <code>square</code>, which squares every
+element in an array.</p>
+<div class="sourceCode" id="cb62" data-org-language="C"><pre
+class="sourceCode c"><code class="sourceCode c"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> square<span class="op">(</span><span class="dt">double</span> <span class="op">*</span>out<span class="op">,</span> <span class="dt">const</span> <span class="dt">double</span> <span class="op">*</span>in<span class="op">,</span> <span class="dt">size_t</span> length<span class="op">)</span></span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> length<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>        out<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> in<span class="op">[</span>i<span class="op">]</span> <span class="op">*</span> in<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>This contains a straightforward and common kind of loop, one that
+does exactly the same thing to every element of its input array. How
+might we write this loop in Haskell?</p>
+<div class="captioned-content">
+<div class="caption">
+Map.hs
+</div>
+<div class="sourceCode" id="cb63"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="ot">square ::</span> [<span class="dt">Double</span>] <span class="ot">-&gt;</span> [<span class="dt">Double</span>]</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>square (x<span class="op">:</span>xs) <span class="ot">=</span> x<span class="op">*</span>x <span class="op">:</span> square xs</span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>square []     <span class="ot">=</span> []</span></code></pre></div>
+</div>
+<p>Our <code>square</code> function consists of two pattern matching
+equations. The first "deconstructs" the beginning of a non-empty list,
+to get its head and tail. It squares the first element, then puts that
+on the front of a new list, which is constructed by calling
+<code>square</code> on the remainder of the empty list. The second
+equation ensures that <code>square</code> halts when it reaches the end
+of the input list.</p>
+<p>The effect of <code>square</code> is to construct a new list that's
+the same length as its input list, with every element in the input list
+substituted with its square in the output list.</p>
+<p>Here's another such C loop, one that ensures that every letter in a
+string is converted to uppercase.</p>
+<div class="sourceCode" id="cb64" data-org-language="C"><pre
+class="sourceCode c"><code class="sourceCode c"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;ctype.h&gt;</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> <span class="op">*</span>uppercase<span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>in<span class="op">)</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> <span class="op">*</span>out <span class="op">=</span> strdup<span class="op">(</span>in<span class="op">);</span></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>out <span class="op">!=</span> NULL<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">size_t</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> out<span class="op">[</span>i<span class="op">]</span> <span class="op">!=</span> <span class="ch">&#39;\0&#39;</span><span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a>            out<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> toupper<span class="op">(</span>out<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out<span class="op">;</span></span>
+<span id="cb64-14"><a href="#cb64-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Let's look at a Haskell equivalent.</p>
+<div class="captioned-content">
+<div class="caption">
+Map.hs
+</div>
+<div class="sourceCode" id="cb65"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Char</span> (toUpper)</span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="ot">upperCase ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">String</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>upperCase (x<span class="op">:</span>xs) <span class="ot">=</span> <span class="fu">toUpper</span> x <span class="op">:</span> upperCase xs</span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>upperCase []     <span class="ot">=</span> []</span></code></pre></div>
+</div>
+<p>Here, we're importing the <code>toUpper</code> function from the
+standard <code>Data.Char</code> module, which contains lots of useful
+functions for working with <code>Char</code> data.</p>
+<p>Our <code>upperCase</code> function follows a similar pattern to our
+earlier <code>square</code> function. It terminates with an empty list
+when the input list is empty; and when the input isn't empty, it calls
+<code>toUpper</code> on the first element, then constructs a new list
+cell from that and the result of calling itself on the rest of the input
+list.</p>
+<p>These examples follow a common pattern for writing recursive
+functions over lists in Haskell. The <em>base case</em> handles the
+situation where our input list is empty. The <em>recursive case</em>
+deals with a non-empty list; it does something with the head of the
+list, and calls itself recursively on the tail.</p>
+<h2 data-number="6.3" id="mapping-over-a-list"><span
+class="header-section-number">6.3</span> Mapping over a list</h2>
+<p>The <code>square</code> and <code>upperCase</code> functions that we
+just defined produce new lists that are the same lengths as their input
+lists, and do only one piece of work per element. This is such a common
+pattern that Haskell's prelude defines a function, <code>map</code>, to
+make it easier. <code>map</code> takes a function, and applies it to
+every element of a list, returning a new list constructed from the
+results of these applications.</p>
+<p>Here are our <code>square</code> and <code>upperCase</code> functions
+rewritten to use <code>map</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Map.hs
+</div>
+<div class="sourceCode" id="cb66"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>square2 xs <span class="ot">=</span> <span class="fu">map</span> squareOne xs</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> squareOne x <span class="ot">=</span> x <span class="op">*</span> x</span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>upperCase2 xs <span class="ot">=</span> <span class="fu">map</span> <span class="fu">toUpper</span> xs</span></code></pre></div>
+</div>
+<p>This is our first close look at a function that takes another
+function as its argument. We can learn a lot about what <code>map</code>
+does by simply inspecting its type.</p>
+<pre class="screen"><code>ghci&gt; :type map
+map :: (a -&gt; b) -&gt; [a] -&gt; [b]
+</code></pre>
+<p>The signature tells us that <code>map</code> takes two arguments. The
+first is a function that takes a value of one type, <code>a</code>, and
+returns a value of another type, <code>b</code>.</p>
+<p>Since <code>map</code> takes a function as argument, we refer to it
+as a <em>higher-order</em> function. (In spite of the name, there's
+nothing mysterious about higher-order functions; it's just a term for
+functions that take other functions as arguments, or return
+functions.)</p>
+<p>Since <code>map</code> abstracts out the pattern common to our
+<code>square</code> and <code>upperCase</code> functions so that we can
+reuse it with less boilerplate, we can look at what those functions have
+in common and figure out how to implement it ourselves.</p>
+<div class="captioned-content">
+<div class="caption">
+Map.hs
+</div>
+<div class="sourceCode" id="cb68"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="ot">myMap ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [b]</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>myMap f (x<span class="op">:</span>xs) <span class="ot">=</span> f x <span class="op">:</span> myMap f xs</span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>myMap _ _      <span class="ot">=</span> []</span></code></pre></div>
+</div>
+<div class="NOTE">
+<p>What are those wild cards doing there?</p>
+<p>If you're new to functional programming, the reasons for matching
+patterns in certain ways won't always be obvious. For example, in the
+definition of <code>myMap</code> above, the first equation binds the
+function we're mapping to the variable <code>f</code>, but the second
+uses wild cards for both parameters. What's going on?</p>
+<p>We use a wild card in place of <code>f</code> to indicate that we
+aren't calling the function <code>f</code> on the right hand side of the
+equation. What about the list parameter? The list type has two
+constructors. We've already matched on the non-empty constructor in the
+first equation that defines <code>myMap</code>. By elimination, the
+constructor in the second equation is necessarily the empty list
+constructor, so there's no need to perform a match to see what its value
+really is.</p>
+<p>As a matter of style, it is fine to use wild cards for well known
+simple types like lists and <code>Maybe</code>. For more complicated or
+less familiar types, it can be safer and more readable to name
+constructors explicitly.</p>
+</div>
+<p>We try out our <code>myMap</code> function to give ourselves some
+assurance that it behaves similarly to the standard
+<code>map</code>.</p>
+<pre class="screen"><code>ghci&gt; :module +Data.Char
+ghci&gt; map toLower &quot;SHOUTING&quot;
+&quot;shouting&quot;
+ghci&gt; myMap toUpper &quot;whispering&quot;
+&quot;WHISPERING&quot;
+ghci&gt; map negate [1,2,3]
+[-1,-2,-3]
+</code></pre>
+<p>This pattern of spotting a repeated idiom, then abstracting it so we
+can reuse (and write less!) code, is a common aspect of Haskell
+programming. While abstraction isn't unique to Haskell, higher order
+functions make it remarkably easy.</p>
+<h2 data-number="6.4" id="selecting-pieces-of-input"><span
+class="header-section-number">6.4</span> Selecting pieces of input</h2>
+<p>Another common operation on a sequence of data is to comb through it
+for elements that satisfy some criterion. Here's a function that walks a
+list of numbers and returns those that are odd. Our code has a recursive
+case that's a bit more complex than our earlier functions: it only puts
+a number in the list it returns if the number is odd. Using a guard
+expresses this nicely.</p>
+<div class="captioned-content">
+<div class="caption">
+Filter.hs
+</div>
+<div class="sourceCode" id="cb70"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="ot">oddList ::</span> [<span class="dt">Int</span>] <span class="ot">-&gt;</span> [<span class="dt">Int</span>]</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>oddList (x<span class="op">:</span>xs) <span class="op">|</span> <span class="fu">odd</span> x     <span class="ot">=</span> x <span class="op">:</span> oddList xs</span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>               <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> oddList xs</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>oddList _                  <span class="ot">=</span> []</span></code></pre></div>
+</div>
+<p>Let's see that in action.</p>
+<pre class="screen"><code>ghci&gt; oddList [1,1,2,3,5,8,13,21,34]
+[1,1,3,5,13,21]
+</code></pre>
+<p>Once again, this idiom is so common that the prelude defines a
+function, <code>filter</code>, which we have already introduced. It
+removes the need for boilerplate code to recurse over the list.</p>
+<pre class="screen"><code>ghci&gt; :type filter
+filter :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+ghci&gt; filter odd [3,1,4,1,5,9,2,6,5]
+[3,1,1,5,9,5]
+</code></pre>
+<p>The <code>filter</code> function takes a predicate and applies it to
+every element in its input list, returning a list of only those for
+which the predicate evaluates to <code>True</code>. We'll revisit
+<code>filter</code> again soon, in <a
+href="4-functional-programming.org::*Folding from the right">the section
+called "Folding from the right"</a></p>
+<h2 data-number="6.5" id="computing-one-answer-over-a-collection"><span
+class="header-section-number">6.5</span> Computing one answer over a
+collection</h2>
+<p>Another common thing to do with a collection is reduce it to a single
+value. A simple example of this is summing the values of a list.</p>
+<div class="captioned-content">
+<div class="caption">
+Sum.hs
+</div>
+<div class="sourceCode" id="cb73"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>mySum xs <span class="ot">=</span> helper <span class="dv">0</span> xs</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> helper acc (x<span class="op">:</span>xs) <span class="ot">=</span> helper (acc <span class="op">+</span> x) xs</span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>          helper acc _      <span class="ot">=</span> acc</span></code></pre></div>
+</div>
+<p>Our <code>helper</code> function is tail recursive, and uses an
+accumulator parameter, <code>acc</code>, to hold the current partial sum
+of the list. As we already saw with <code>asInt</code>, this is a
+"natural" way to represent a loop in a pure functional language.</p>
+<p>For something a little more complicated, let's take a look at the
+Adler-32 checksum. This is a popular checksum algorithm; it concatenates
+two 16-bit checksums into a single 32-bit checksum. The first checksum
+is the sum of all input bytes, plus one. The second is the sum of all
+intermediate values of the first checksum. In each case, the sums are
+computed modulo 65521. Here's a straightforward, unoptimised Java
+implementation. (It's safe to skip it if you don't read Java.)</p>
+<div class="sourceCode" id="cb74"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> <span class="bu">Adler32</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">static</span> <span class="dt">final</span> <span class="dt">int</span> base <span class="op">=</span> <span class="dv">65521</span><span class="op">;</span></span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">int</span> <span class="fu">compute</span><span class="op">(</span><span class="dt">byte</span><span class="op">[]</span> data<span class="op">,</span> <span class="dt">int</span> offset<span class="op">,</span> <span class="dt">int</span> length<span class="op">)</span></span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> a <span class="op">=</span> <span class="dv">1</span><span class="op">,</span> b <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> offset<span class="op">;</span> i <span class="op">&lt;</span> offset <span class="op">+</span> length<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a>            a <span class="op">=</span> <span class="op">(</span>a <span class="op">+</span> <span class="op">(</span>data<span class="op">[</span>i<span class="op">]</span> <span class="op">&amp;</span> <span class="bn">0xff</span><span class="op">))</span> <span class="op">%</span> base<span class="op">;</span></span>
+<span id="cb74-11"><a href="#cb74-11" aria-hidden="true" tabindex="-1"></a>            b <span class="op">=</span> <span class="op">(</span>a <span class="op">+</span> b<span class="op">)</span> <span class="op">%</span> base<span class="op">;</span></span>
+<span id="cb74-12"><a href="#cb74-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb74-13"><a href="#cb74-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-14"><a href="#cb74-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="op">(</span>b <span class="op">&lt;&lt;</span> <span class="dv">16</span><span class="op">)</span> <span class="op">|</span> a<span class="op">;</span></span>
+<span id="cb74-15"><a href="#cb74-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb74-16"><a href="#cb74-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Although Adler-32 is a simple checksum, this code isn't particularly
+easy to read on account of the bit-twiddling involved. Can we do any
+better with a Haskell implementation?</p>
+<div class="captioned-content">
+<div class="caption">
+Adler32.hs
+</div>
+<div class="sourceCode" id="cb75"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Char</span> (ord)</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Bits</span> (shiftL, (.&amp;.), (.|.))</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>base <span class="ot">=</span> <span class="dv">65521</span></span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>adler32 xs <span class="ot">=</span> helper <span class="dv">1</span> <span class="dv">0</span> xs</span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> helper a b (x<span class="op">:</span>xs) <span class="ot">=</span> <span class="kw">let</span> a&#39; <span class="ot">=</span> (a <span class="op">+</span> (<span class="fu">ord</span> x <span class="op">.&amp;.</span> <span class="bn">0xff</span>)) <span class="ot">`mod`</span> base</span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a>                                  b&#39; <span class="ot">=</span> (a&#39; <span class="op">+</span> b) <span class="ot">`mod`</span> base</span>
+<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a>                              <span class="kw">in</span> helper a&#39; b&#39; xs</span>
+<span id="cb75-10"><a href="#cb75-10" aria-hidden="true" tabindex="-1"></a>          helper a b _      <span class="ot">=</span> (b <span class="ot">`shiftL`</span> <span class="dv">16</span>) <span class="op">.|.</span> a</span></code></pre></div>
+</div>
+<p>This code isn't exactly easier to follow than the Java code, but
+let's look at what's going on. First of all, we've introduced some new
+functions. The <code>shiftL</code> function implements a logical shift
+left; <code>(.&amp;.)</code> provides bitwise "and"; and
+<code>(.|.)</code> provides bitwise "or".</p>
+<p>Once again, our <code>helper</code> function is tail recursive. We've
+turned the two variables we updated on every loop iteration in Java into
+accumulator parameters. When our recursion terminates on the end of the
+input list, we compute our checksum and return it.</p>
+<p>If we take a step back, we can restructure our Haskell
+<code>adler32</code> to more closely resemble our earlier
+<code>mySum</code> function. Instead of two accumulator parameters, we
+can use a pair as the accumulator.</p>
+<div class="captioned-content">
+<div class="caption">
+Adler32.hs
+</div>
+<div class="sourceCode" id="cb76"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>adler32_try2 xs <span class="ot">=</span> helper (<span class="dv">1</span>,<span class="dv">0</span>) xs</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> helper (a,b) (x<span class="op">:</span>xs) <span class="ot">=</span></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>              <span class="kw">let</span> a&#39; <span class="ot">=</span> (a <span class="op">+</span> (<span class="fu">ord</span> x <span class="op">.&amp;.</span> <span class="bn">0xff</span>)) <span class="ot">`mod`</span> base</span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>                  b&#39; <span class="ot">=</span> (a&#39; <span class="op">+</span> b) <span class="ot">`mod`</span> base</span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>              <span class="kw">in</span> helper (a&#39;,b&#39;) xs</span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>          helper (a,b) _      <span class="ot">=</span> (b <span class="ot">`shiftL`</span> <span class="dv">16</span>) <span class="op">.|.</span> a</span></code></pre></div>
+</div>
+<p>Why would we want to make this seemingly meaningless structural
+change? Because as we've already seen with <code>map</code> and
+<code>filter</code>, we can extract the common behavior shared by
+<code>mySum</code> and <code>adler32_try2</code> into a higher-order
+function. We can describe this behavior as "do something to every
+element of a list, updating an accumulator as we go, and returning the
+accumulator when we're done".</p>
+<p>This kind of function is called a <em>fold</em>, because it "folds
+up" a list. There are two kinds of fold over lists, <code>foldl</code>
+for folding from the left (the start) and <code>foldr</code> for folding
+from the right (the end).</p>
+<h2 data-number="6.6" id="the-left-fold"><span
+class="header-section-number">6.6</span> The left fold</h2>
+<p>Here is the definition of <code>foldl</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb77"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foldl</span><span class="ot"> ::</span> (a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> [b] <span class="ot">-&gt;</span> a</span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a><span class="fu">foldl</span> step zero (x<span class="op">:</span>xs) <span class="ot">=</span> <span class="fu">foldl</span> step (step zero x) xs</span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a><span class="fu">foldl</span> _    zero []     <span class="ot">=</span> zero</span></code></pre></div>
+</div>
+<p>The <code>foldl</code> function takes a "step" function, an initial
+value for its accumulator, and a list. The "step" takes an accumulator
+and an element from the list, and returns a new accumulator value. All
+<code>foldl</code> does is call the "stepper" on the current accumulator
+and an element of the list, and passes the new accumulator value to
+itself recursively to consume the rest of the list.</p>
+<p>We refer to <code>foldl</code> as a "left fold" because it consumes
+the list from left (the head) to right.</p>
+<p>Here's a rewrite of <code>mySum</code> using <code>foldl</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Sum.hs
+</div>
+<div class="sourceCode" id="cb78"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>foldlSum xs <span class="ot">=</span> <span class="fu">foldl</span> step <span class="dv">0</span> xs</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> step acc x <span class="ot">=</span> acc <span class="op">+</span> x</span></code></pre></div>
+</div>
+<p>That local function <code>step</code> just adds two numbers, so let's
+simply use the addition operator instead, and eliminate the unnecessary
+<code>where</code> clause.</p>
+<div class="captioned-content">
+<div class="caption">
+Sum.hs
+</div>
+<div class="sourceCode" id="cb79"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="ot">niceSum ::</span> [<span class="dt">Integer</span>] <span class="ot">-&gt;</span> <span class="dt">Integer</span></span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>niceSum xs <span class="ot">=</span> <span class="fu">foldl</span> (<span class="op">+</span>) <span class="dv">0</span> xs</span></code></pre></div>
+</div>
+<p>Notice how much simpler this code is than our original
+<code>mySum</code>? We're no longer using explicit recursion, because
+<code>foldl</code> takes care of that for us. We've simplified our
+problem down to two things: what the initial value of the accumulator
+should be (the second parameter to <code>foldl</code>), and how to
+update the accumulator (the <code>(+)</code> function). As an added
+bonus, our code is now shorter, too, which makes it easier to
+understand.</p>
+<p>Let's take a deeper look at what <code>foldl</code> is doing here, by
+manually writing out each step in its evaluation when we call
+<code>niceSum [1,2,3]</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb80"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foldl</span> (<span class="op">+</span>) <span class="dv">0</span> (<span class="dv">1</span><span class="op">:</span><span class="dv">2</span><span class="op">:</span><span class="dv">3</span><span class="op">:</span>[])</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>          <span class="op">==</span> <span class="fu">foldl</span> (<span class="op">+</span>) (<span class="dv">0</span> <span class="op">+</span> <span class="dv">1</span>)             (<span class="dv">2</span><span class="op">:</span><span class="dv">3</span><span class="op">:</span>[])</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>          <span class="op">==</span> <span class="fu">foldl</span> (<span class="op">+</span>) ((<span class="dv">0</span> <span class="op">+</span> <span class="dv">1</span>) <span class="op">+</span> <span class="dv">2</span>)       (<span class="dv">3</span><span class="op">:</span>[])</span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>          <span class="op">==</span> <span class="fu">foldl</span> (<span class="op">+</span>) (((<span class="dv">0</span> <span class="op">+</span> <span class="dv">1</span>) <span class="op">+</span> <span class="dv">2</span>) <span class="op">+</span> <span class="dv">3</span>) []</span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>          <span class="op">==</span>           (((<span class="dv">0</span> <span class="op">+</span> <span class="dv">1</span>) <span class="op">+</span> <span class="dv">2</span>) <span class="op">+</span> <span class="dv">3</span>)</span></code></pre></div>
+</div>
+<p>We can rewrite <code>adler32_try2</code> using <code>foldl</code> to
+let us focus on the details that are important.</p>
+<div class="captioned-content">
+<div class="caption">
+Adler32.hs
+</div>
+<div class="sourceCode" id="cb81"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>adler32_foldl xs <span class="ot">=</span> <span class="kw">let</span> (a, b) <span class="ot">=</span> <span class="fu">foldl</span> step (<span class="dv">1</span>, <span class="dv">0</span>) xs</span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>                   <span class="kw">in</span> (b <span class="ot">`shiftL`</span> <span class="dv">16</span>) <span class="op">.|.</span> a</span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> step (a, b) x <span class="ot">=</span> <span class="kw">let</span> a&#39; <span class="ot">=</span> a <span class="op">+</span> (<span class="fu">ord</span> x <span class="op">.&amp;.</span> <span class="bn">0xff</span>)</span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>                          <span class="kw">in</span> (a&#39; <span class="ot">`mod`</span> base, (a&#39; <span class="op">+</span> b) <span class="ot">`mod`</span> base)</span></code></pre></div>
+</div>
+<p>Here, our accumulator is a pair, so the result of <code>foldl</code>
+will be, too. We pull the final accumulator apart when
+<code>foldl</code> returns, and bit-twiddle it into a "proper"
+checksum.</p>
+<h2 data-number="6.7" id="why-use-folds-maps-and-filters"><span
+class="header-section-number">6.7</span> Why use folds, maps, and
+filters?</h2>
+<p>A quick glance reveals that <code>adler32_foldl</code> isn't really
+any shorter than <code>adler32_try2</code>. Why should we use a fold in
+this case? The advantage here lies in the fact that folds are extremely
+common in Haskell, and they have regular, predictable behavior.</p>
+<p>This means that a reader with a little experience will have an easier
+time understanding a use of a fold than code that uses explicit
+recursion. A fold isn't going to produce any surprises, but the behavior
+of a function that recurses explicitly isn't immediately obvious.
+Explicit recursion requires us to read closely to understand exactly
+what's going on.</p>
+<p>This line of reasoning applies to other higher-order library
+functions, including those we've already seen, <code>map</code> and
+<code>filter</code>. Because they're library functions with well-defined
+behavior, we only need to learn what they do once, and we'll have an
+advantage when we need to understand any code that uses them. These
+improvements in readability also carry over to writing code. Once we
+start to think with higher order functions in mind, we'll produce
+concise code more quickly.</p>
+<h2 data-number="6.8" id="folding-from-the-right"><span
+class="header-section-number">6.8</span> Folding from the right</h2>
+<p>The counterpart to <code>foldl</code> is <code>foldr</code>, which
+folds from the right of a list.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb82"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foldr</span><span class="ot"> ::</span> (a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> b</span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a><span class="fu">foldr</span> step zero (x<span class="op">:</span>xs) <span class="ot">=</span> step x (<span class="fu">foldr</span> step zero xs)</span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a><span class="fu">foldr</span> _    zero []     <span class="ot">=</span> zero</span></code></pre></div>
+</div>
+<p>Let's follow the same manual evaluation process with
+<code>foldr (+) 0 [1,2,3]</code> as we did with <code>niceSum</code> in
+<a href="4-functional-programming.org::*The left fold">the section
+called "The left fold"</a></p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb83"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foldr</span> (<span class="op">+</span>) <span class="dv">0</span> (<span class="dv">1</span><span class="op">:</span><span class="dv">2</span><span class="op">:</span><span class="dv">3</span><span class="op">:</span>[])</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>          <span class="op">==</span> <span class="dv">1</span> <span class="op">+</span>           <span class="fu">foldr</span> (<span class="op">+</span>) <span class="dv">0</span> (<span class="dv">2</span><span class="op">:</span><span class="dv">3</span><span class="op">:</span>[])</span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a>          <span class="op">==</span> <span class="dv">1</span> <span class="op">+</span> (<span class="dv">2</span> <span class="op">+</span>      <span class="fu">foldr</span> (<span class="op">+</span>) <span class="dv">0</span> (<span class="dv">3</span><span class="op">:</span>[])</span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a>          <span class="op">==</span> <span class="dv">1</span> <span class="op">+</span> (<span class="dv">2</span> <span class="op">+</span> (<span class="dv">3</span> <span class="op">+</span> <span class="fu">foldr</span> (<span class="op">+</span>) <span class="dv">0</span> []))</span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a>          <span class="op">==</span> <span class="dv">1</span> <span class="op">+</span> (<span class="dv">2</span> <span class="op">+</span> (<span class="dv">3</span> <span class="op">+</span> <span class="dv">0</span>))</span></code></pre></div>
+</div>
+<p>The difference between <code>foldl</code> and <code>foldr</code>
+should be clear from looking at where the parentheses and the "empty
+list" elements show up. With <code>foldl</code>, the empty list element
+is on the left, and all the parentheses group to the left. With
+<code>foldr</code>, the <code>zero</code> value is on the right, and the
+parentheses group to the right.</p>
+<p>There is a lovely intuitive explanation of how <code>foldr</code>
+works: it replaces the empty list with the <code>zero</code> value, and
+every constructor in the list with an application of the step
+function.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb84"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="op">:</span> (<span class="dv">2</span> <span class="op">:</span> (<span class="dv">3</span> <span class="op">:</span> []))</span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="op">+</span> (<span class="dv">2</span> <span class="op">+</span> (<span class="dv">3</span> <span class="op">+</span> <span class="dv">0</span> ))</span></code></pre></div>
+</div>
+<p>At first glance, <code>foldr</code> might seem less useful than
+<code>foldl</code>: what use is a function that folds from the right?
+But consider the prelude's <code>filter</code> function, which we last
+encountered in <a
+href="4-functional-programming.org::*Selecting pieces of input">the
+section called "Selecting pieces of input"</a> <code>filter</code> using
+explicit recursion, it will look something like this.</p>
+<div class="captioned-content">
+<div class="caption">
+Filter.hs
+</div>
+<div class="sourceCode" id="cb85"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span><span class="ot"> ::</span> (a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]</span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span> p []   <span class="ot">=</span> []</span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a><span class="fu">filter</span> p (x<span class="op">:</span>xs)</span>
+<span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> p x       <span class="ot">=</span> x <span class="op">:</span> <span class="fu">filter</span> p xs</span>
+<span id="cb85-5"><a href="#cb85-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> <span class="fu">filter</span> p xs</span></code></pre></div>
+</div>
+<p>Perhaps surprisingly, though, we can write <code>filter</code> as a
+fold, using <code>foldr</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Filter.hs
+</div>
+<div class="sourceCode" id="cb86"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>myFilter p xs <span class="ot">=</span> <span class="fu">foldr</span> step [] xs</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> step x ys <span class="op">|</span> p x       <span class="ot">=</span> x <span class="op">:</span> ys</span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>                    <span class="op">|</span> <span class="fu">otherwise</span> <span class="ot">=</span> ys</span></code></pre></div>
+</div>
+<p>This is the sort of definition that could cause us a headache, so
+let's examine it in a little depth. Like <code>foldl</code>,
+<code>foldr</code> takes a function and a base case (what to do when the
+input list is empty) as arguments. From reading the type of
+<code>filter</code>, we know that our <code>myFilter</code> function
+must return a list of the same type as it consumes, so the base case
+should be a list of this type, and the <code>step</code> helper function
+must return a list.</p>
+<p>Since we know that <code>foldr</code> calls <code>step</code> on one
+element of the input list at a time, with the accumulator as its second
+argument, what <code>step</code> does must be quite simple. If the
+predicate returns <code>True</code>, it pushes that element onto the
+accumulated list; otherwise, it leaves the list untouched.</p>
+<p>The class of functions that we can express using <code>foldr</code>
+is called <em>primitive recursive</em>. A surprisingly large number of
+list manipulation functions are primitive recursive. For example, here's
+<code>map</code> written in terms of <code>foldr</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb87"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="ot">myMap ::</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [b]</span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>myMap f xs <span class="ot">=</span> <span class="fu">foldr</span> step [] xs</span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> step x ys <span class="ot">=</span> f x <span class="op">:</span> ys</span></code></pre></div>
+</div>
+<p>In fact, we can even write <code>foldl</code> using
+<code>foldr</code>!</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb88"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="ot">myFoldl ::</span> (a <span class="ot">-&gt;</span> b <span class="ot">-&gt;</span> a) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> [b] <span class="ot">-&gt;</span> a</span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>myFoldl f z xs <span class="ot">=</span> <span class="fu">foldr</span> step <span class="fu">id</span> xs z</span>
+<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> step x g a <span class="ot">=</span> g (f a x)</span></code></pre></div>
+</div>
+<div class="TIP">
+<p>Understanding foldl in terms of foldr</p>
+<p>If you want to set yourself a solid challenge, try to follow the
+above definition of <code>foldl</code> using <code>foldr</code>. Be
+warned: this is not trivial! You might want to have the following tools
+at hand: some headache pills and a glass of water, <code>ghci</code> (so
+that you can find out what the <code>id</code> function does), and a
+pencil and paper.</p>
+<p>You will want to follow the same manual evaluation process as we
+outlined above to see what <code>foldl</code> and <code>foldr</code>
+were really doing. If you get stuck, you may find the task easier after
+reading <a
+href="4-functional-programming.org::*Partial function application and currying">the
+section called "Partial function application and currying"</a></p>
+</div>
+<p>Returning to our earlier intuitive explanation of what
+<code>foldr</code> does, another useful way to think about it is that it
+<em>transforms</em> its input list. Its first two arguments are "what to
+do with each head/tail element of the list", and "what to substitute for
+the end of the list".</p>
+<p>The "identity" transformation with <code>foldr</code> thus replaces
+the empty list with itself, and applies the list constructor to each
+head/tail pair:</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb89"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="ot">identity ::</span> [a] <span class="ot">-&gt;</span> [a]</span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>identity xs <span class="ot">=</span> <span class="fu">foldr</span> (<span class="op">:</span>) [] xs</span></code></pre></div>
+</div>
+<p>It transforms a list into a copy of itself.</p>
+<pre class="screen"><code>ghci&gt; identity [1,2,3]
+[1,2,3]
+</code></pre>
+<p>If <code>foldr</code> replaces the end of a list with some other
+value, this gives us another way to look at Haskell's list append
+function, <code>(++)</code>.</p>
+<pre class="screen"><code>ghci&gt; [1,2,3] ++ [4,5,6]
+[1,2,3,4,5,6]
+</code></pre>
+<p>All we have to do to append a list onto another is substitute that
+second list for the end of our first list.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb92"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="ot">append ::</span> [a] <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [a]</span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>append xs ys <span class="ot">=</span> <span class="fu">foldr</span> (<span class="op">:</span>) ys xs</span></code></pre></div>
+</div>
+<p>Let's try this out.</p>
+<pre class="screen"><code>ghci&gt; append [1,2,3] [4,5,6]
+[1,2,3,4,5,6]
+</code></pre>
+<p>Here, we replace each list constructor with another list constructor,
+but we replace the empty list with the list we want to append onto the
+end of our first list.</p>
+<p>As our extended treatment of folds should indicate, the
+<code>foldr</code> function is nearly as important a member of our
+list-programming toolbox as the more basic list functions we saw in <a
+href="4-functional-programming.org::*Working with lists">the section
+called "Working with lists"</a> produce a list incrementally, which
+makes it useful for writing lazy data processing code.</p>
+<h2 data-number="6.9" id="left-folds-laziness-and-space-leaks"><span
+class="header-section-number">6.9</span> Left folds, laziness, and space
+leaks</h2>
+<p>To keep our initial discussion simple, we used <code>foldl</code>
+throughout most of this section. This is convenient for testing, but we
+will never use <code>foldl</code> in practice.</p>
+<p>The reason has to do with Haskell's non-strict evaluation. If we
+apply <code>foldl (+) [1,2,3]</code>, it evaluates to the expression
+<code>(((0 + 1) + 2) + 3)</code>. We can see this occur if we revisit
+the way in which the function gets expanded.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb94"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="fu">foldl</span> (<span class="op">+</span>) <span class="dv">0</span> (<span class="dv">1</span><span class="op">:</span><span class="dv">2</span><span class="op">:</span><span class="dv">3</span><span class="op">:</span>[])</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>          <span class="op">==</span> <span class="fu">foldl</span> (<span class="op">+</span>) (<span class="dv">0</span> <span class="op">+</span> <span class="dv">1</span>)             (<span class="dv">2</span><span class="op">:</span><span class="dv">3</span><span class="op">:</span>[])</span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>          <span class="op">==</span> <span class="fu">foldl</span> (<span class="op">+</span>) ((<span class="dv">0</span> <span class="op">+</span> <span class="dv">1</span>) <span class="op">+</span> <span class="dv">2</span>)       (<span class="dv">3</span><span class="op">:</span>[])</span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>          <span class="op">==</span> <span class="fu">foldl</span> (<span class="op">+</span>) (((<span class="dv">0</span> <span class="op">+</span> <span class="dv">1</span>) <span class="op">+</span> <span class="dv">2</span>) <span class="op">+</span> <span class="dv">3</span>) []</span>
+<span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a>          <span class="op">==</span>           (((<span class="dv">0</span> <span class="op">+</span> <span class="dv">1</span>) <span class="op">+</span> <span class="dv">2</span>) <span class="op">+</span> <span class="dv">3</span>)</span></code></pre></div>
+</div>
+<p>The final expression will not be evaluated to <code>6</code> until
+its value is demanded. Before it is evaluated, it must be stored as a
+thunk. Not surprisingly, a thunk is more expensive to store than a
+single number, and the more complex the thunked expression, the more
+space it needs. For something cheap like arithmetic, thunking an
+expresion is more computationally expensive than evaluating it
+immediately. We thus end up paying both in space and in time.</p>
+<p>When GHC is evaluating a thunked expression, it uses an internal
+stack to do so. Because a thunked expression could potentially be
+infinitely large, GHC places a fixed limit on the maximum size of this
+stack. Thanks to this limit, we can try a large thunked expression in
+<code>ghci</code> without needing to worry that it might consume all of
+memory.</p>
+<pre class="screen"><code>ghci&gt; foldl (+) 0 [1..1000]
+500500
+</code></pre>
+<p>From looking at the expansion above, we can surmise that this creates
+a thunk that consists of 1000 integers and 999 applications of
+<code>(+)</code>. That's a lot of memory and effort to represent a
+single number! With a larger expression, although the size is still
+modest, the results are more dramatic.</p>
+<pre class="screen"><code>ghci&gt; foldl (+) 0 [1..1000000]
+*** Exception: stack overflow
+</code></pre>
+<p>On small expressions, <code>foldl</code> will work correctly but
+slowly, due to the thunking overhead that it incurs. We refer to this
+invisible thunking as a <em>space leak</em>, because our code is
+operating normally, but using far more memory than it should.</p>
+<p>On larger expressions, code with a space leak will simply fail, as
+above. A space leak with <code>foldl</code> is a classic roadblock for
+new Haskell programmers. Fortunately, this is easy to avoid.</p>
+<p>The <code>Data.List</code> module defines a function named
+<code>foldl'</code> that is similar to <code>foldl</code>, but does not
+build up thunks. The difference in behavior between the two is
+immediately obvious.</p>
+<pre class="screen"><code>ghci&gt; foldl  (+) 0 [1..1000000]
+*** Exception: stack overflow
+ghci&gt; :module +Data.List
+ghci&gt; foldl&#39; (+) 0 [1..1000000]
+500000500000
+</code></pre>
+<p>Due to the thunking behavior of <code>foldl</code>, it is wise to
+avoid this function in real programs: even if it doesn't fail outright,
+it will be unnecessarily inefficient. Instead, import
+<code>Data.List</code> and use <code>foldl'</code>.</p>
+<h2 data-number="6.10" id="exercises-1"><span
+class="header-section-number">6.10</span> Exercises</h2>
+<ol>
+<li><p>Use a fold (choosing the appropriate fold will make your code
+much simpler) to rewrite and improve upon the <code>asInt</code>
+function from <a
+href="4-functional-programming.org::*Explicit recursion">the section
+called "Explicit recursion"</a></p>
+<div class="captioned-content">
+<div class="caption">
+exercises.hs
+</div>
+<div class="sourceCode" id="cb98"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="ot">asInt_fold ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Int</span></span></code></pre></div>
+</div>
+<p>Your function should behave as follows.</p>
+<pre class="screen"><code>ghci&gt; asInt_fold &quot;101&quot;
+ghci&gt; asInt_fold &quot;-31337&quot;
+-31337
+ghci&gt; asInt_fold &quot;1798&quot;
+1798
+</code></pre>
+<p>Extend your function to handle the following kinds of exceptional
+conditions by calling <code>error</code>.</p>
+<pre class="screen"><code>ghci&gt; asInt_fold &quot;&quot;
+0
+ghci&gt; asInt_fold &quot;-&quot;
+0
+ghci&gt; asInt_fold &quot;-3&quot;
+-3
+ghci&gt; asInt_fold &quot;2.7&quot;
+*** Exception: Char.digitToInt: not a digit &#39;.&#39;
+ghci&gt; asInt_fold &quot;314159265358979323846&quot;
+564616105916946374
+</code></pre></li>
+<li><p>The <code>asInt_fold</code> function uses <code>error</code>, so
+its callers cannot handle errors. Rewrite it to fix this problem.</p>
+<div class="captioned-content">
+<div class="caption">
+exercises.hs
+</div>
+<div class="sourceCode" id="cb101"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">ErrorMessage</span> <span class="ot">=</span> <span class="dt">String</span></span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a><span class="ot">asInt_either ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">ErrorMessage</span> <span class="dt">Int</span></span></code></pre></div>
+</div>
+<pre class="screen"><code>ghci&gt; asInt_either &quot;33&quot;
+Right 33
+ghci&gt; asInt_either &quot;foo&quot;
+Left &quot;non-digit &#39;o&#39;&quot;
+</code></pre></li>
+<li><p>The Prelude function <code>concat</code> concatenates a list of
+lists into a single list, and has the following type.</p>
+<div class="captioned-content">
+<div class="caption">
+exercises.hs
+</div>
+<div class="sourceCode" id="cb103"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="fu">concat</span><span class="ot"> ::</span> [[a]] <span class="ot">-&gt;</span> [a]</span></code></pre></div>
+</div>
+<p>Write your own definition of <code>concat</code> using
+<code>foldr</code>.</p></li>
+<li><p>Write your own definition of the standard <code>takeWhile</code>
+function, first using explicit recursion, then
+<code>foldr</code>.</p></li>
+<li><p>The <code>Data.List</code> module defines a function,
+<code>groupBy</code>, which has the following type.</p>
+<div class="captioned-content">
+<div class="caption">
+exercises.hs
+</div>
+<div class="sourceCode" id="cb104"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="ot">groupBy ::</span> (a <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> <span class="dt">Bool</span>) <span class="ot">-&gt;</span> [a] <span class="ot">-&gt;</span> [[a]]</span></code></pre></div>
+</div>
+<p>Use <code>ghci</code> to load the <code>Data.List</code> module and
+figure out what <code>groupBy</code> does, then write your own
+implementation using a fold.</p></li>
+<li><p>How many of the following prelude functions can you rewrite using
+list folds?</p>
+<ul>
+<li><code>any</code></li>
+<li><code>cycle</code></li>
+<li><code>words</code></li>
+<li><code>unlines</code></li>
+</ul>
+<p>For those functions where you can use either <code>foldl'</code> or
+<code>foldr</code>, which is more appropriate in each case?</p></li>
+</ol>
+<h2 data-number="6.11" id="further-reading"><span
+class="header-section-number">6.11</span> Further reading</h2>
+<p>The article [<a href="bibliography.org::Hutton99">Hutton99</a>] is an
+excellent and deep tutorial covering folds. It includes many examples of
+how to use simple, systematic calculation techniques to turn functions
+that use explicit recursion into folds.</p>
+<h1 data-number="7" id="anonymous-lambda-functions"><span
+class="header-section-number">7</span> Anonymous (lambda) functions</h1>
+<p>In many of the function definitions we've seen so far, we've written
+short helper functions.</p>
+<div class="captioned-content">
+<div class="caption">
+Partial.hs
+</div>
+<div class="sourceCode" id="cb105"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a>isInAny needle haystack <span class="ot">=</span> <span class="fu">any</span> inSequence haystack</span>
+<span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> inSequence s <span class="ot">=</span> needle <span class="ot">`isInfixOf`</span> s</span></code></pre></div>
+</div>
+<p>Haskell lets us write completely anonymous functions, which we can
+use to avoid the need to give names to our helper functions. Anonymous
+functions are often called "lambda" functions, in a nod to their
+heritage in the lambda calculus. We introduce an anonymous function with
+a backslash character, <code>\</code>, pronounced <em>lambda</em><a
+href="#fn2" class="footnote-ref" id="fnref2"
+role="doc-noteref"><sup>2</sup></a>. This is followed by the function's
+arguments (which can include patterns), then an arrow <code>-&gt;</code>
+to introduce the function's body.</p>
+<p>Lambdas are most easily illustrated by example. Here's a rewrite of
+<code>isInAny</code> using an anonymous function.</p>
+<div class="captioned-content">
+<div class="caption">
+Partial.hs
+</div>
+<div class="sourceCode" id="cb106"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a>isInAny2 needle haystack <span class="ot">=</span> <span class="fu">any</span> (\s <span class="ot">-&gt;</span> needle <span class="ot">`isInfixOf`</span> s) haystack</span></code></pre></div>
+</div>
+<p>We've wrapped the lambda in parentheses here so that Haskell can tell
+where the function body ends.</p>
+<p>Anonymous functions behave in every respect identically to functions
+that have names, but Haskell places a few important restrictions on how
+we can define them. Most importantly, while we can write a normal
+function using multiple clauses containing different patterns and
+guards, a lambda can only have a single clause in its definition.</p>
+<p>The limitation to a single clause restricts how we can use patterns
+in the definition of a lambda. We'll usually write a normal function
+with several clauses to cover different pattern matching
+possibilities.</p>
+<div class="captioned-content">
+<div class="caption">
+Lambda.hs
+</div>
+<div class="sourceCode" id="cb107"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>safeHead (x<span class="op">:</span>_) <span class="ot">=</span> <span class="dt">Just</span> x</span>
+<span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>safeHead _ <span class="ot">=</span> <span class="dt">Nothing</span></span></code></pre></div>
+</div>
+<p>But as we can't write multiple clauses to define a lambda, we must be
+certain that any patterns we use will match.</p>
+<div class="captioned-content">
+<div class="caption">
+Lambda.hs
+</div>
+<div class="sourceCode" id="cb108"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a>unsafeHead <span class="ot">=</span> \(x<span class="op">:</span>_) <span class="ot">-&gt;</span> x</span></code></pre></div>
+</div>
+<p>This definition of <code>unsafeHead</code> will explode in our faces
+if we call it with a value on which pattern matching fails.</p>
+<pre class="screen"><code>ghci&gt; :type unsafeHead
+unsafeHead :: [t] -&gt; t
+ghci&gt; unsafeHead [1]
+1
+ghci&gt; unsafeHead []
+*** Exception: Lambda.hs:7:13-23: Non-exhaustive patterns in lambda
+</code></pre>
+<p>The definition type-checks, so it will compile, so the error will
+occur at runtime. The moral of this story is to be careful in how you
+use patterns when defining an anonymous function: make sure your
+patterns can't fail!</p>
+<p>Another thing to notice about the <code>isInAny</code> and
+<code>isInAny2</code> functions we showed above is that the first
+version, using a helper function that has a name, is a little easier to
+read than the version that plops an anonymous function into the middle.
+The named helper function doesn't disrupt the "flow" of the function in
+which it's used, and the judiciously chosen name gives us a little bit
+of information about what the function is expected to do.</p>
+<p>In contrast, when we run across a lambda in the middle of a function
+body, we have to switch gears and read its definition fairly carefully
+to understand what it does. To help with readability and
+maintainability, then, we tend to avoid lambdas in many situations where
+we could use them to trim a few characters from a function definition.
+Very often, we'll use a partially applied function instead, resulting in
+clearer and more readable code than either a lambda or an explicit
+function. Don't know what a partially applied function is yet? Read
+on!</p>
+<p>We don't intend these caveats to suggest that lambdas are useless,
+merely that we ought to be mindful of the potential pitfalls when we're
+thinking of using them. In later chapters, we will see that they are
+often invaluable as "glue".</p>
+<h1 data-number="8" id="partial-function-application-and-currying"><span
+class="header-section-number">8</span> Partial function application and
+currying</h1>
+<p>You may wonder why the <code>-&gt;</code> arrow is used for what
+seems to be two purposes in the type signature of a function.</p>
+<pre class="screen"><code>ghci&gt; :type dropWhile
+dropWhile :: (a -&gt; Bool) -&gt; [a] -&gt; [a]
+</code></pre>
+<p>It looks like the <code>-&gt;</code> is separating the arguments to
+<code>dropWhile</code> from each other, but that it also separates the
+arguments from the return type. But in fact <code>-&gt;</code> has only
+one meaning: it denotes a function that takes an argument of the type on
+the left, and returns a value of the type on the right.</p>
+<p>The implication here is very important: in Haskell, <em>all functions
+take only one argument</em>. While <code>dropWhile</code> <em>looks</em>
+like a function that takes two arguments, it is actually a function of
+one argument, which returns a function that takes one argument. Here's a
+perfectly valid Haskell expression.</p>
+<pre class="screen"><code>ghci&gt; :module +Data.Char
+ghci&gt; :type dropWhile isSpace
+dropWhile isSpace :: [Char] -&gt; [Char]
+</code></pre>
+<p>Well, <em>that</em> looks useful. The value
+<code>dropWhile isSpace</code> is a function that strips leading white
+space from a string. How is this useful? As one example, we can use it
+as an argument to a higher order function.</p>
+<pre class="screen"><code>ghci&gt; map (dropWhile isSpace) [&quot; a&quot;,&quot;f&quot;,&quot;   e&quot;]
+[&quot;a&quot;,&quot;f&quot;,&quot;e&quot;]
+</code></pre>
+<p>Every time we supply an argument to a function, we can "chop" an
+element off the front of its type signature. Let's take
+<code>zip3</code> as an example to see what we mean; this is a function
+that zips three lists into a list of three-tuples.</p>
+<pre class="screen"><code>ghci&gt; :type zip3
+zip3 :: [a] -&gt; [b] -&gt; [c] -&gt; [(a, b, c)]
+ghci&gt; zip3 &quot;foo&quot; &quot;bar&quot; &quot;quux&quot;
+[(&#39;f&#39;,&#39;b&#39;,&#39;q&#39;),(&#39;o&#39;,&#39;a&#39;,&#39;u&#39;),(&#39;o&#39;,&#39;r&#39;,&#39;u&#39;)]
+</code></pre>
+<p>If we apply <code>zip3</code> with just one argument, we get a
+function that accepts two arguments. No matter what arguments we supply
+to this compound function, its first argument will always be the fixed
+value we specified.</p>
+<pre class="screen"><code>ghci&gt; :type zip3 &quot;foo&quot;
+zip3 &quot;foo&quot; :: [b] -&gt; [c] -&gt; [(Char, b, c)]
+ghci&gt; let zip3foo = zip3 &quot;foo&quot;
+ghci&gt; :type zip3foo
+zip3foo :: [b] -&gt; [c] -&gt; [(Char, b, c)]
+ghci&gt; (zip3 &quot;foo&quot;) &quot;aaa&quot; &quot;bbb&quot;
+[(&#39;f&#39;,&#39;a&#39;,&#39;b&#39;),(&#39;o&#39;,&#39;a&#39;,&#39;b&#39;),(&#39;o&#39;,&#39;a&#39;,&#39;b&#39;)]
+ghci&gt; zip3foo &quot;aaa&quot; &quot;bbb&quot;
+[(&#39;f&#39;,&#39;a&#39;,&#39;b&#39;),(&#39;o&#39;,&#39;a&#39;,&#39;b&#39;),(&#39;o&#39;,&#39;a&#39;,&#39;b&#39;)]
+ghci&gt; zip3foo [1,2,3] [True,False,True]
+[(&#39;f&#39;,1,True),(&#39;o&#39;,2,False),(&#39;o&#39;,3,True)]
+</code></pre>
+<p>When we pass fewer arguments to a function than the function can
+accept, we call this <em>partial application</em> of the function: we're
+applying the function to only some of its arguments.</p>
+<p>In the example above, we have a partially applied function,
+<code>zip3 "foo"</code>, and a new function, <code>zip3foo</code>. We
+can see that the type signatures of the two and their behavior are
+identical.</p>
+<p>This applies just as well if we fix two arguments, giving us a
+function of just one argument.</p>
+<pre class="screen"><code>ghci&gt; let zip3foobar = zip3 &quot;foo&quot; &quot;bar&quot;
+ghci&gt; :type zip3foobar
+zip3foobar :: [c] -&gt; [(Char, Char, c)]
+ghci&gt; zip3foobar &quot;quux&quot;
+[(&#39;f&#39;,&#39;b&#39;,&#39;q&#39;),(&#39;o&#39;,&#39;a&#39;,&#39;u&#39;),(&#39;o&#39;,&#39;r&#39;,&#39;u&#39;)]
+ghci&gt; zip3foobar [1,2]
+[(&#39;f&#39;,&#39;b&#39;,1),(&#39;o&#39;,&#39;a&#39;,2)]
+</code></pre>
+<p>Partial function application lets us avoid writing tiresome throwaway
+functions. It's often more useful for this purpose than the anonymous
+functions we introduced in <a
+href="4-functional-programming.org::*Anonymous (lambda) functions">the
+section called "Anonymous (lambda) functions"</a> the
+<code>isInAny</code> function we defined there, here's how we'd use a
+partially applied function instead of a named helper function or a
+lambda.</p>
+<div class="captioned-content">
+<div class="caption">
+Partial.hs
+</div>
+<div class="sourceCode" id="cb116"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>isInAny3 needle haystack <span class="ot">=</span> <span class="fu">any</span> (isInfixOf needle) haystack</span></code></pre></div>
+</div>
+<p>Here, the expression <code>isInfixOf needle</code> is the partially
+applied function. We're taking the function <code>isInfixOf</code>, and
+"fixing" its first argument to be the <code>needle</code> variable from
+our parameter list. This gives us a partially applied function that has
+exactly the same type and behavior as the helper and lambda in our
+earlier definitions.</p>
+<p>Partial function application is named <em>currying</em>, after the
+logician Haskell Curry (for whom the Haskell language is named).</p>
+<p>As another example of currying in use, let's return to the
+list-summing function we wrote in <a
+href="4-functional-programming.org::*The left fold">the section called
+"The left fold"</a></p>
+<div class="captioned-content">
+<div class="caption">
+Sum.hs
+</div>
+<div class="sourceCode" id="cb117"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a><span class="ot">niceSum ::</span> [<span class="dt">Integer</span>] <span class="ot">-&gt;</span> <span class="dt">Integer</span></span>
+<span id="cb117-2"><a href="#cb117-2" aria-hidden="true" tabindex="-1"></a>niceSum xs <span class="ot">=</span> <span class="fu">foldl</span> (<span class="op">+</span>) <span class="dv">0</span> xs</span></code></pre></div>
+</div>
+<p>We don't need to fully apply <code>foldl</code>; we can omit the list
+<code>xs</code> from both the parameter list and the parameters to
+<code>foldl</code>, and we'll end up with a more compact function that
+has the same type.</p>
+<div class="captioned-content">
+<div class="caption">
+Sum.hs
+</div>
+<div class="sourceCode" id="cb118"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="ot">nicerSum ::</span> [<span class="dt">Integer</span>] <span class="ot">-&gt;</span> <span class="dt">Integer</span></span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>nicerSum <span class="ot">=</span> <span class="fu">foldl</span> (<span class="op">+</span>) <span class="dv">0</span></span></code></pre></div>
+</div>
+<h2 data-number="8.1" id="sections"><span
+class="header-section-number">8.1</span> Sections</h2>
+<p>Haskell provides a handy notational shortcut to let us write a
+partially applied function in infix style. If we enclose an operator in
+parentheses, we can supply its left or right argument inside the
+parentheses to get a partially applied function. This kind of partial
+application is called a <em>section</em>.</p>
+<pre class="screen"><code>ghci&gt; (1+) 2
+3
+ghci&gt; map (*3) [24,36]
+[72,108]
+ghci&gt; map (2^) [3,5,7,9]
+[8,32,128,512]
+</code></pre>
+<p>If we provide the left argument inside the section, then calling the
+resulting function with one argument supplies the operator's right
+argument. And vice versa.</p>
+<p>Recall that we can wrap a function name in backquotes to use it as an
+infix operator. This lets us use sections with functions.</p>
+<pre class="screen"><code>ghci&gt; :type (`elem` [&#39;a&#39;..&#39;z&#39;])
+(`elem` [&#39;a&#39;..&#39;z&#39;]) :: Char -&gt; Bool
+</code></pre>
+<p>The above definition fixes <code>elem</code>'s second argument,
+giving us a function that checks to see whether its argument is a
+lowercase letter.</p>
+<pre class="screen"><code>ghci&gt; (`elem` [&#39;a&#39;..&#39;z&#39;]) &#39;f&#39;
+True
+</code></pre>
+<p>Using this as an argument to <code>all</code>, we get a function that
+checks an entire string to see if it's all lowercase.</p>
+<pre class="screen"><code>ghci&gt; all (`elem` [&#39;a&#39;..&#39;z&#39;]) &quot;Frobozz&quot;
+False
+</code></pre>
+<p>If we use this style, we can further improve the readability of our
+earlier <code>isInAny3</code> function.</p>
+<div class="captioned-content">
+<div class="caption">
+Partial.hs
+</div>
+<div class="sourceCode" id="cb123"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>isInAny4 needle haystack <span class="ot">=</span> <span class="fu">any</span> (needle <span class="ot">`isInfixOf`</span>) haystack</span></code></pre></div>
+</div>
+<h1 data-number="9" id="as-patterns"><span
+class="header-section-number">9</span> As-patterns</h1>
+<p>Haskell's <code>tails</code> function, in the <code>Data.List</code>
+module, generalises the <code>tail</code> function we introduced
+earlier. Instead of returning one "tail" of a list, it returns
+<em>all</em> of them.</p>
+<pre class="screen"><code>ghci&gt; :m +Data.List
+ghci&gt; tail &quot;foobar&quot;
+&quot;oobar&quot;
+ghci&gt; tail (tail &quot;foobar&quot;)
+&quot;obar&quot;
+ghci&gt; tails &quot;foobar&quot;
+[&quot;foobar&quot;,&quot;oobar&quot;,&quot;obar&quot;,&quot;bar&quot;,&quot;ar&quot;,&quot;r&quot;,&quot;&quot;]
+</code></pre>
+<p>Each of these strings is a <em>suffix</em> of the initial string, so
+<code>tails</code> produces a list of all suffixes, plus an extra empty
+list at the end. It always produces that extra empty list, even when its
+input list is empty.</p>
+<pre class="screen"><code>ghci&gt; tails []
+</code></pre>
+<p>What if we want a function that behaves like <code>tails</code>, but
+which <em>only</em> returns the non-empty suffixes? One possibility
+would be for us to write our own version by hand. We'll use a new piece
+of notation, the <code>@</code> symbol.</p>
+<div class="captioned-content">
+<div class="caption">
+SuffixTree.hs
+</div>
+<div class="sourceCode" id="cb126"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="ot">suffixes ::</span> [a] <span class="ot">-&gt;</span> [[a]]</span>
+<span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>suffixes xs<span class="op">@</span>(_<span class="op">:</span>xs&#39;) <span class="ot">=</span> xs <span class="op">:</span> suffixes xs&#39;</span>
+<span id="cb126-3"><a href="#cb126-3" aria-hidden="true" tabindex="-1"></a>suffixes _ <span class="ot">=</span> []</span></code></pre></div>
+</div>
+<p>The pattern <code>xs @ (_ : xs')</code> is called an
+<em>as-pattern</em>, and it means "bind the variable <code>xs</code> to
+the value that matches the right side of the <code>@</code> symbol".</p>
+<p>In our example, if the pattern after the "@" matches, <code>xs</code>
+will be bound to the entire list that matched, and <code>xs'</code> to
+all but the head of the list (we used the wild card <code>_</code>
+pattern to indicate that we're not interested in the value of the head
+of the list).</p>
+<pre class="screen"><code>ghci&gt; tails &quot;foo&quot;
+[&quot;foo&quot;,&quot;oo&quot;,&quot;o&quot;,&quot;&quot;]
+ghci&gt; suffixes &quot;foo&quot;
+[&quot;foo&quot;,&quot;oo&quot;,&quot;o&quot;]
+</code></pre>
+<p>The as-pattern makes our code more readable. To see how it helps, let
+us compare a definition that lacks an as-pattern.</p>
+<div class="captioned-content">
+<div class="caption">
+SuffixTree.hs
+</div>
+<div class="sourceCode" id="cb128"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="ot">noAsPattern ::</span> [a] <span class="ot">-&gt;</span> [[a]]</span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a>noAsPattern (x<span class="op">:</span>xs) <span class="ot">=</span> (x<span class="op">:</span>xs) <span class="op">:</span> noAsPattern xs</span>
+<span id="cb128-3"><a href="#cb128-3" aria-hidden="true" tabindex="-1"></a>noAsPattern _ <span class="ot">=</span> []</span></code></pre></div>
+</div>
+<p>Here, the list that we've deconstructed in the pattern match just
+gets put right back together in the body of the function.</p>
+<p>As-patterns have a more practical use than simple readability: they
+can help us to share data instead of copying it. In our definition of
+<code>noAsPattern</code>, when we match <code>(x : xs)</code>, we
+construct a new copy of it in the body of our function. This causes us
+to allocate a new list node at run time. That may be cheap, but it isn't
+free. In contrast, when we defined <code>suffixes</code>, we reused the
+value <code>xs</code> that we matched with our as-pattern. Since we
+reuse an existing value, we avoid a little allocation.</p>
+<h1 data-number="10" id="code-reuse-through-composition"><span
+class="header-section-number">10</span> Code reuse through
+composition</h1>
+<p>It seems a shame to introduce a new function, <code>suffixes</code>,
+that does almost the same thing as the existing <code>tails</code>
+function. Surely we can do better?</p>
+<p>Recall the <code>init</code> function we introduced in <a
+href="4-functional-programming.org::*Working with lists">the section
+called "Working with lists"</a> last element of a list.</p>
+<div class="captioned-content">
+<div class="caption">
+SuffixTree.hs
+</div>
+<div class="sourceCode" id="cb129"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb129-1"><a href="#cb129-1" aria-hidden="true" tabindex="-1"></a>suffixes2 xs <span class="ot">=</span> <span class="fu">init</span> (tails xs)</span></code></pre></div>
+</div>
+<p>This <code>suffixes2</code> function behaves identically to
+<code>suffixes</code>, but it's a single line of code.</p>
+<pre class="screen"><code>ghci&gt; suffixes2 &quot;foo&quot;
+[&quot;foo&quot;,&quot;oo&quot;,&quot;o&quot;]
+</code></pre>
+<p>If we take a step back, we see the glimmer of a pattern here: we're
+applying a function, then applying another function to its result. Let's
+turn that pattern into a function definition.</p>
+<div class="captioned-content">
+<div class="caption">
+SuffixTree.hs
+</div>
+<div class="sourceCode" id="cb131"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a><span class="ot">compose ::</span> (b <span class="ot">-&gt;</span> c) <span class="ot">-&gt;</span> (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> a <span class="ot">-&gt;</span> c</span>
+<span id="cb131-2"><a href="#cb131-2" aria-hidden="true" tabindex="-1"></a>compose f g x <span class="ot">=</span> f (g x)</span></code></pre></div>
+</div>
+<p>We now have a function, <code>compose</code>, that we can use to
+"glue" two other functions together.</p>
+<div class="captioned-content">
+<div class="caption">
+SuffixTree.hs
+</div>
+<div class="sourceCode" id="cb132"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a>suffixes3 xs <span class="ot">=</span> compose <span class="fu">init</span> tails xs</span></code></pre></div>
+</div>
+<p>Haskell's automatic currying lets us drop the <code>xs</code>
+variable, so we can make our definition even shorter.</p>
+<div class="captioned-content">
+<div class="caption">
+SuffixTree.hs
+</div>
+<div class="sourceCode" id="cb133"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a>suffixes4 <span class="ot">=</span> compose <span class="fu">init</span> tails</span></code></pre></div>
+</div>
+<p>Fortunately, we don't need to write our own <code>compose</code>
+function. Plugging functions into each other like this is so common that
+the Prelude provides function composition via the <code>(.)</code>
+operator.</p>
+<div class="captioned-content">
+<div class="caption">
+SuffixTree.hs
+</div>
+<div class="sourceCode" id="cb134"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a>suffixes5 <span class="ot">=</span> <span class="fu">init</span> <span class="op">.</span> tails</span></code></pre></div>
+</div>
+<p>The <code>(.)</code> operator isn't a special piece of language
+syntax; it's just a normal operator.</p>
+<pre class="screen"><code>ghci&gt; :type (.)
+(.) :: (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+ghci&gt; :type suffixes
+suffixes :: [a] -&gt; [[a]]
+ghci&gt; :type suffixes5
+suffixes5 :: [a] -&gt; [[a]]
+ghci&gt; suffixes5 &quot;foo&quot;
+[&quot;foo&quot;,&quot;oo&quot;,&quot;o&quot;]
+</code></pre>
+<p>We can create new functions at any time by writing chains of composed
+functions, stitched together with <code>(.)</code>, so long (of course)
+as the result type of the function on the right of each <code>(.)</code>
+matches the type of parameter that the function on the left can
+accept.</p>
+<p>As an example, let's solve a simple puzzle: counting the number of
+words in a string that begin with a capital letter.</p>
+<pre class="screen"><code>ghci&gt; :module +Data.Char
+ghci&gt; let capCount = length . filter (isUpper . head) . words
+ghci&gt; capCount &quot;Hello there, Mom!&quot;
+2
+</code></pre>
+<p>We can understand what this composed function does by examining its
+pieces. The <code>(.)</code> function is right associative, so we will
+proceed from right to left.</p>
+<pre class="screen"><code>ghci&gt; :type words
+words :: String -&gt; [String]
+</code></pre>
+<p>The <code>words</code> function has a result type of
+<code>[String]</code>, so whatever is on the left side of
+<code>(.)</code> must accept a compatible argument.</p>
+<pre class="screen"><code>ghci&gt; :type isUpper . head
+isUpper . head :: [Char] -&gt; Bool
+</code></pre>
+<p>This function returns <code>True</code> if a word begins with a
+capital letter (try it in <code>ghci</code>), so
+<code>filter (isUpper . head)</code> returns a list of
+<code>Strings</code> containing only words that begin with capital
+letters.</p>
+<pre class="screen"><code>ghci&gt; :type filter (isUpper . head)
+filter (isUpper . head) :: [[Char]] -&gt; [[Char]]
+</code></pre>
+<p>Since this expression returns a list, all that remains is calculate
+the length of the list, which we do with another composition.</p>
+<p>Here's another example, drawn from a real application. We want to
+extract a list of macro names from a C header file shipped with
+<code>libpcap</code>, a popular network packet filtering library. The
+header file contains a large number definitions of the following
+form.</p>
+<div class="sourceCode" id="cb140" data-org-language="C"><pre
+class="sourceCode c"><code class="sourceCode c"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define DLT_EN10MB      1       </span><span class="co">/* Ethernet (10Mb) */</span></span>
+<span id="cb140-2"><a href="#cb140-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define DLT_EN3MB       2       </span><span class="co">/* Experimental Ethernet (3Mb) */</span></span>
+<span id="cb140-3"><a href="#cb140-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#define DLT_AX25        3       </span><span class="co">/* Amateur Radio AX.25 */</span></span></code></pre></div>
+<p>Our goal is to extract names such as <code>DLT_EN10MB</code> and
+<code>DLT_AX25</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+dlts.hs
+</div>
+<div class="sourceCode" id="cb141"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb141-1"><a href="#cb141-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span> (isPrefixOf)</span>
+<span id="cb141-2"><a href="#cb141-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb141-3"><a href="#cb141-3" aria-hidden="true" tabindex="-1"></a><span class="ot">dlts ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> [<span class="dt">String</span>]</span>
+<span id="cb141-4"><a href="#cb141-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb141-5"><a href="#cb141-5" aria-hidden="true" tabindex="-1"></a>dlts <span class="ot">=</span> <span class="fu">foldr</span> step [] <span class="op">.</span> <span class="fu">lines</span></span></code></pre></div>
+</div>
+<p>We treat an entire file as a string, split it up with
+<code>lines</code>, then apply <code>foldr step []</code> to the
+resulting list of lines. The <code>step</code> helper function operates
+on a single line.</p>
+<div class="captioned-content">
+<div class="caption">
+dlts.hs
+</div>
+<div class="sourceCode" id="cb142"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a><span class="kw">where</span> step l ds</span>
+<span id="cb142-2"><a href="#cb142-2" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="st">&quot;#define DLT_&quot;</span> <span class="ot">`isPrefixOf`</span> l <span class="ot">=</span> secondWord l <span class="op">:</span> ds</span>
+<span id="cb142-3"><a href="#cb142-3" aria-hidden="true" tabindex="-1"></a>        <span class="op">|</span> <span class="fu">otherwise</span>                     <span class="ot">=</span> ds</span>
+<span id="cb142-4"><a href="#cb142-4" aria-hidden="true" tabindex="-1"></a>      secondWord <span class="ot">=</span> <span class="fu">head</span> <span class="op">.</span> <span class="fu">tail</span> <span class="op">.</span> <span class="fu">words</span></span></code></pre></div>
+</div>
+<p>If we match a macro definition with our guard expression, we cons the
+name of the macro onto the head of the list we're returning; otherwise,
+we leave the list untouched.</p>
+<p>While the individual functions in the body of <code>secondWord</code>
+are by now familiar to us, it can take a little practice to piece
+together a chain of compositions like this. Let's walk through the
+procedure.</p>
+<p>Once again, we proceed from right to left. The first function is
+<code>words</code>.</p>
+<pre class="screen"><code>ghci&gt; :type words
+words :: String -&gt; [String]
+ghci&gt; words &quot;#define DLT_CHAOS    5&quot;
+[&quot;#define&quot;,&quot;DLT_CHAOS&quot;,&quot;5&quot;]
+</code></pre>
+<p>We then apply <code>tail</code> to the result of
+<code>words</code>.</p>
+<pre class="screen"><code>ghci&gt; :type tail
+tail :: [a] -&gt; [a]
+ghci&gt; tail [&quot;#define&quot;,&quot;DLT_CHAOS&quot;,&quot;5&quot;]
+[&quot;DLT_CHAOS&quot;,&quot;5&quot;]
+ghci&gt; :type tail . words
+tail . words :: String -&gt; [String]
+ghci&gt; (tail . words) &quot;#define DLT_CHAOS    5&quot;
+[&quot;DLT_CHAOS&quot;,&quot;5&quot;]
+</code></pre>
+<p>Finally, applying <code>head</code> to the result of
+<code>drop 1 . words</code> will give us the name of our macro.</p>
+<pre class="screen"><code>ghci&gt; :type head . tail . words
+head . tail . words :: String -&gt; String
+ghci&gt; (head . tail . words) &quot;#define DLT_CHAOS    5&quot;
+&quot;DLT_CHAOS&quot;
+</code></pre>
+<h2 data-number="10.1" id="use-your-head-wisely"><span
+class="header-section-number">10.1</span> Use your head wisely</h2>
+<p>After warning against unsafe list functions in <a
+href="4-functional-programming.org::*Safely and sanely working with crashy functions">the
+section called "Safely and sanely working with crashy functions"</a>
+here we are calling both <code>head</code> and <code>tail</code>, two of
+those unsafe list functions. What gives?</p>
+<p>In this case, we can assure ourselves by inspection that we're safe
+from a runtime failure. The pattern guard in the definition of
+<code>step</code> contains two words, so when we apply
+<code>words</code> to any string that makes it past the guard, we'll
+have a list of at least two elements, <code>"#define"</code> and some
+macro beginning with <code>"DLT_"</code>.</p>
+<p>This the kind of reasoning we ought to do to convince ourselves that
+our code won't explode when we call partial functions. Don't forget our
+earlier admonition: calling unsafe functions like this requires care,
+and can often make our code more fragile in subtle ways. If we for some
+reason modified the pattern guard to only contain one word, we could
+expose ourselves to the possibility of a crash, as the body of the
+function assumes that it will receive two words.</p>
+<h1 data-number="11" id="tips-for-writing-readable-code"><span
+class="header-section-number">11</span> Tips for writing readable
+code</h1>
+<p>So far in this chapter, we've come across two tempting looking
+features of Haskell: tail recursion and anonymous functions. As nice as
+these are, we don't often want to use them.</p>
+<p>Many list manipulation operations can be most easily expressed using
+combinations of library functions such as <code>map</code>,
+<code>take</code>, and <code>filter</code>. Without a doubt, it takes
+some practice to get used to using these. In return for our initial
+investment, we can write and read code more quickly, and with fewer
+bugs.</p>
+<p>The reason for this is simple. A tail recursive function definition
+has the same problem as a loop in an imperative language: it's
+completely general. It might perform some filtering, some mapping, or
+who knows what else. We are forced to look in detail at the entire
+definition of the function to see what it's really doing. In contrast,
+<code>map</code> and most other list manipulation functions do only
+<em>one</em> thing. We can take for granted what these simple building
+blocks do, and focus on the idea the code is trying to express, not the
+minute details of how it's manipulating its inputs.</p>
+<p>In the middle ground between tail recursive functions (with complete
+generality) and our toolbox of list manipulation functions (each of
+which does one thing) lie the folds. A fold takes more effort to
+understand than, say, a composition of <code>map</code> and
+<code>filter</code> that does the same thing, but it behaves more
+regularly and predictably than a tail recursive function. As a general
+rule, don't use a fold if you can compose some library functions, but
+otherwise try to use a fold in preference to a hand-rolled a tail
+recursive loop.</p>
+<p>As for anonymous functions, they tend to interrupt the "flow" of
+reading a piece of code. It is very often as easy to write a local
+function definition in a <code>let</code> or <code>where</code> clause,
+and use that, as it is to put an anonymous function into place. The
+relative advantages of a named function are twofold: we don't need to
+understand the function's definition when we're reading the code that
+uses it; and a well chosen function name acts as a tiny piece of local
+documentation.</p>
+<h1 data-number="12" id="space-leaks-and-strict-evaluation"><span
+class="header-section-number">12</span> Space leaks and strict
+evaluation</h1>
+<p>The <code>foldl</code> function that we discussed earlier is not the
+only place where space leaks can arise in Haskell code. We will use it
+to illustrate how non-strict evaluation can sometimes be problematic,
+and how to solve the difficulties that can arise.</p>
+<div class="TIP">
+<p>Do you need to know all of this right now?</p>
+<p>It is perfectly reasonable to skip this section until you encounter a
+space leak "in the wild". Provided you use <code>foldr</code> if you are
+generating a list, and <code>foldl'</code> instead of <code>foldl</code>
+otherwise, space leaks are unlikely to bother you in practice for a
+while.</p>
+</div>
+<h2 data-number="12.1" id="avoiding-space-leaks-with-seq"><span
+class="header-section-number">12.1</span> Avoiding space leaks with
+seq</h2>
+<p>We refer to an expression that is not evaluated lazily as
+<em>strict</em>, so <code>foldl'</code> is a strict left fold. It
+bypasses Haskell's usual non-strict evaluation through the use of a
+special function named <code>seq</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb146"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb146-1"><a href="#cb146-1" aria-hidden="true" tabindex="-1"></a>foldl&#39; _    zero []     <span class="ot">=</span> zero</span>
+<span id="cb146-2"><a href="#cb146-2" aria-hidden="true" tabindex="-1"></a>foldl&#39; step zero (x<span class="op">:</span>xs) <span class="ot">=</span></span>
+<span id="cb146-3"><a href="#cb146-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> new <span class="ot">=</span> step zero x</span>
+<span id="cb146-4"><a href="#cb146-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">in</span>  new <span class="ot">`seq`</span> foldl&#39; step new xs</span></code></pre></div>
+</div>
+<p>This <code>seq</code> function has a peculiar type, hinting that it
+is not playing by the usual rules.</p>
+<pre class="screen"><code>ghci&gt; :type seq
+seq :: a -&gt; t -&gt; t
+</code></pre>
+<p>It operates as follows: when a <code>seq</code> expression is
+evaluated, it forces its first argument to be evaluated, then returns
+its second argument. It doesn't actually do anything with the first
+argument: <code>seq</code> exists solely as a way to force that value to
+be evaluated. Let's walk through a brief application to see what
+happens.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb148"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb148-1"><a href="#cb148-1" aria-hidden="true" tabindex="-1"></a>foldl&#39; (<span class="op">+</span>) <span class="dv">1</span> (<span class="dv">2</span><span class="op">:</span>[])</span></code></pre></div>
+</div>
+<p>This expands as follows.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb149"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb149-1"><a href="#cb149-1" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span> new <span class="ot">=</span> <span class="dv">1</span> <span class="op">+</span> <span class="dv">2</span></span>
+<span id="cb149-2"><a href="#cb149-2" aria-hidden="true" tabindex="-1"></a><span class="kw">in</span> new <span class="ot">`seq`</span> foldl&#39; (<span class="op">+</span>) new []</span></code></pre></div>
+</div>
+<p>The use of <code>seq</code> forcibly evaluates <code>new</code> to
+<code>3</code>, and returns its second argument.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb150"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb150-1"><a href="#cb150-1" aria-hidden="true" tabindex="-1"></a>foldl&#39; (<span class="op">+</span>) <span class="dv">3</span> []</span></code></pre></div>
+</div>
+<p>We end up with the following result.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb151"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb151-1"><a href="#cb151-1" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span></span></code></pre></div>
+</div>
+<p>Thanks to <code>seq</code>, there are no thunks in sight.</p>
+<h2 data-number="12.2" id="learning-to-use-seq"><span
+class="header-section-number">12.2</span> Learning to use seq</h2>
+<p>Without some direction, there is an element of mystery to using
+<code>seq</code> effectively. Here are some useful rules for using it
+well.</p>
+<p>To have any effect, a <code>seq</code> expression must be the first
+thing evaluated in an expression.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb152"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb152-1"><a href="#cb152-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- incorrect: seq is hidden by the application of someFunc</span></span>
+<span id="cb152-2"><a href="#cb152-2" aria-hidden="true" tabindex="-1"></a><span class="co">-- since someFunc will be evaluated first, seq may occur too late</span></span>
+<span id="cb152-3"><a href="#cb152-3" aria-hidden="true" tabindex="-1"></a>hiddenInside x y <span class="ot">=</span> someFunc (x <span class="ot">`seq`</span> y)</span>
+<span id="cb152-4"><a href="#cb152-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb152-5"><a href="#cb152-5" aria-hidden="true" tabindex="-1"></a><span class="co">-- incorrect: a variation of the above mistake</span></span>
+<span id="cb152-6"><a href="#cb152-6" aria-hidden="true" tabindex="-1"></a>hiddenByLet x y z <span class="ot">=</span> <span class="kw">let</span> a <span class="ot">=</span> x <span class="ot">`seq`</span> someFunc y</span>
+<span id="cb152-7"><a href="#cb152-7" aria-hidden="true" tabindex="-1"></a>                    <span class="kw">in</span> anotherFunc a z</span>
+<span id="cb152-8"><a href="#cb152-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb152-9"><a href="#cb152-9" aria-hidden="true" tabindex="-1"></a><span class="co">-- correct: seq will be evaluated first, forcing evaluation of x</span></span>
+<span id="cb152-10"><a href="#cb152-10" aria-hidden="true" tabindex="-1"></a>onTheOutside x y <span class="ot">=</span> x <span class="ot">`seq`</span> someFunc y</span></code></pre></div>
+</div>
+<p>To strictly evaluate several values, chain applications of
+<code>seq</code> together.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb153"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb153-1"><a href="#cb153-1" aria-hidden="true" tabindex="-1"></a>chained x y z <span class="ot">=</span> x <span class="ot">`seq`</span> y <span class="ot">`seq`</span> someFunc z</span></code></pre></div>
+</div>
+<p>A common mistake is to try to use <code>seq</code> with two unrelated
+expressions.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb154"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb154-1"><a href="#cb154-1" aria-hidden="true" tabindex="-1"></a>badExpression step zero (x<span class="op">:</span>xs) <span class="ot">=</span></span>
+<span id="cb154-2"><a href="#cb154-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">seq</span> (step zero x)</span>
+<span id="cb154-3"><a href="#cb154-3" aria-hidden="true" tabindex="-1"></a>        (badExpression step (step zero x) xs)</span></code></pre></div>
+</div>
+<p>Here, the apparent intention is to evaluate <code>step zero x</code>
+strictly. Since the expression is duplicated in the body of the
+function, strictly evaluating the first instance of it will have no
+effect on the second. The use of <code>let</code> from the definition of
+<code>foldl'</code> above shows how to achieve this effect
+correctly.</p>
+<p>When evaluating an expression, <code>seq</code> stops as soon as it
+reaches a constructor. For simple types like numbers, this means that it
+will evaluate them completely. Algebraic data types are a different
+story. Consider the value <code>(1 + 2) : (3 + 4) : []</code>. If we
+apply <code>seq</code> to this, it will evaluate the
+<code>(1 + 2)</code> thunk. Since it will stop when it reaches the first
+<code>(:)</code> constructor, it will have no effect on the second
+thunk. The same is true for tuples:
+<code>seq ((1 + 2), (3 + 4)) True</code> will do nothing to the thunks
+inside the pair, since it immediately hits the pair's constructor.</p>
+<p>If necessary, we can use normal functional programming techniques to
+work around these limitations.</p>
+<div class="captioned-content">
+<div class="caption">
+Fold.hs
+</div>
+<div class="sourceCode" id="cb155"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb155-1"><a href="#cb155-1" aria-hidden="true" tabindex="-1"></a>strictPair (a,b) <span class="ot">=</span> a <span class="ot">`seq`</span> b <span class="ot">`seq`</span> (a,b)</span>
+<span id="cb155-2"><a href="#cb155-2" aria-hidden="true" tabindex="-1"></a>strictList (x<span class="op">:</span>xs) <span class="ot">=</span> x <span class="ot">`seq`</span> x <span class="op">:</span> strictList xs</span>
+<span id="cb155-3"><a href="#cb155-3" aria-hidden="true" tabindex="-1"></a>strictList []     <span class="ot">=</span> []</span></code></pre></div>
+</div>
+<p>It is important to understand that <code>seq</code> isn't free: it
+has to perform a check at runtime to see if an expression has been
+evaluated. Use it sparingly. For instance, while our
+<code>strictPair</code> function evaluates the contents of a pair up to
+the first constructor, it adds the overheads of pattern matching, two
+applications of <code>seq</code>, and the construction of a new tuple.
+If we were to measure its performance in the inner loop of a benchmark,
+we might find it to slow the program down.</p>
+<p>Aside from its performance cost if overused, <code>seq</code> is not
+a miracle cure-all for memory consumption problems. Just because you
+<em>can</em> evaluate something strictly doesn't mean you
+<em>should</em>. Careless use of <code>seq</code> may do nothing at all;
+move existing space leaks around; or introduce new leaks.</p>
+<p>The best guides to whether <code>seq</code> is necessary, and how
+well it is working, are performance measurement and profiling, which we
+will cover in <a href="25-profiling-and-optimization.org">Chapter 25,
+<em>Profiling and optimization</em></a>. From a base of empirical
+measurement, you will develop a reliable sense of when <code>seq</code>
+is most useful.</p>
+<h1 data-number="13" id="footnotes"><span
+class="header-section-number">13</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>Unfortunately, we do not have room to
+address that challenge in this book.<a href="#fnref1"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>The backslash was chosen for its
+visual resemblance to the Greek letter lambda, <code>λ</code>. Although
+GHC can accept Unicode input, it correctly treats <code>λ</code> as a
+letter, not as a synonym for <code>\</code>.<a href="#fnref2"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

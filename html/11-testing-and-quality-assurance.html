@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 11: Testing and Quality Assurance</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 11: Testing and Quality Assurance</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#quickcheck-type-based-testing"><span
+class="toc-section-number">1</span> QuickCheck: type-based testing</a>
+<ul>
+<li><a href="#testing-for-properties"><span
+class="toc-section-number">1.1</span> Testing for properties</a></li>
+<li><a href="#testing-against-a-model"><span
+class="toc-section-number">1.2</span> Testing against a model</a></li>
+</ul></li>
+<li><a href="#testing-case-study-specifying-a-pretty-printer"><span
+class="toc-section-number">2</span> Testing case study: specifying a
+pretty printer</a>
+<ul>
+<li><a href="#generating-test-data"><span
+class="toc-section-number">2.1</span> Generating test data</a></li>
+<li><a href="#testing-document-construction"><span
+class="toc-section-number">2.2</span> Testing document
+construction</a></li>
+<li><a href="#using-lists-as-a-model"><span
+class="toc-section-number">2.3</span> Using lists as a model</a></li>
+<li><a href="#putting-it-altogether"><span
+class="toc-section-number">2.4</span> Putting it altogether</a></li>
+</ul></li>
+<li><a href="#measuring-test-coverage-with-hpc"><span
+class="toc-section-number">3</span> Measuring test coverage with
+HPC</a></li>
+<li><a href="#footnotes"><span class="toc-section-number">4</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<p>Building real systems means caring about quality control, robustness
+and correctness. With the right quality assurance mechanisms in place,
+well-written code can feel like a precision machine, with all functions
+performing their tasks exactly as specified. There is no sloppiness
+around the edges, and the final result can be code that is
+self-explanatory, obviously correct – the kind of code that inspires
+confidence.</p>
+<p>In Haskell, we have several tools at our disposal for building such
+precise systems. The most obvious tool, and one built into the language
+itself, is the expressive type-system, which allows for complicated
+invariants to be enforced statically–making it impossible to write code
+violating chosen constraints. In addition, purity and polymorphism
+encourage a style of code that is modular, refactorable and testable.
+This is the kind of code that just doesn't go wrong.</p>
+<p>Testing plays a key role in keeping code on the straight-and-narrow
+path. The main testing mechanisms in Haskell are traditional unit
+testing (via the HUnit library), and its more powerful descendant:
+type-based "property" testing, with QuickCheck, an open source testing
+framework for Haskell. Property-based testing encourages a high level
+approach to testing in the form of abstract invariants functions should
+satisfy universally, with the actual test data generated for the
+programmer by the testing library. In this way code can be hammered with
+thousands of tests that would be infeasible to write by hand, often
+uncovering subtle corner cases that wouldn't be found otherwise.</p>
+<p>In this chapter we'll look at how to use QuickCheck to establish
+invariants in code and then re-examine the pretty printer developed in
+previous chapters, testing it with QuickCheck. We'll also see how to
+guide the testing process with GHC's code coverage tool: HPC.</p>
+<h1 data-number="1" id="quickcheck-type-based-testing"><span
+class="header-section-number">1</span> QuickCheck: type-based
+testing</h1>
+<p>To get an overview of how property-based testing works, we'll begin
+with a simple scenario: you've written a specialised sorting function
+and want to test its behaviour.</p>
+<p>First, we import the QuickCheck library, and any other modules we
+need:</p>
+<div class="captioned-content">
+<div class="caption">
+QCBasics.hs
+</div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Test.QuickCheck</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span></span></code></pre></div>
+</div>
+<p>And the function we want to test–a custom sort routine:</p>
+<div class="captioned-content">
+<div class="caption">
+QCBasics.hs
+</div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">qsort ::</span> <span class="dt">Ord</span> a <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> [a]</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>qsort []     <span class="ot">=</span> []</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>qsort (x<span class="op">:</span>xs) <span class="ot">=</span> qsort lhs <span class="op">++</span> [x] <span class="op">++</span> qsort rhs</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> lhs <span class="ot">=</span> <span class="fu">filter</span>  (<span class="op">&lt;</span> x) xs</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>          rhs <span class="ot">=</span> <span class="fu">filter</span> (<span class="op">&gt;=</span> x) xs</span></code></pre></div>
+</div>
+<p>This is the classic Haskell sort implementation: a study in
+functional programming elegance, if not efficiency (this isn't an
+inplace sort). Now, we'd like to check that this function obeys the
+basic rules a good sort should follow. One useful invariant to start
+with, and one that comes up in a lot of purely functional code, is
+/idempotency/–applying a function twice has the same result as applying
+it only once. For our sort routine, a stable sort algorithm, this should
+certainly be true, or things have gone horribly wrong! This invariant
+can be encoded as a property simply:</p>
+<div class="captioned-content">
+<div class="caption">
+QCBasics.hs
+</div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>prop_idempotent xs <span class="ot">=</span> qsort (qsort xs) <span class="op">==</span> qsort xs</span></code></pre></div>
+</div>
+<p>We'll use the QuickCheck convention of prefixing test properties with
+<code>prop_</code> to distinguish them from normal code. This
+idempotency property is written simply as a Haskell function stating an
+equality that must hold for any input data that is sorted. We can check
+this makes sense for a few simple cases by hand:</p>
+<pre class="screen"><code>ghci&gt; prop_idempotent []
+True
+ghci&gt; prop_idempotent [1,1,1,1]
+True
+ghci&gt; prop_idempotent [1..100]
+True
+ghci&gt; prop_idempotent [1,5,2,1,2,0,9]
+True
+</code></pre>
+<p>Looking good. However, writing out the input data by hand is tedious,
+and violates the moral code of the efficient functional programmer: let
+the machine do the work! To automate this the QuickCheck library comes
+with a set of data generators for all the basic Haskell data types.
+QuickCheck uses the <code>Arbitrary</code> type class to present a
+uniform interface to (pseudo-)random data generation with the type
+system used to resolve which generator to use. QuickCheck normally hides
+the data generation plumbing, however we can also run the generators by
+hand to get a sense for the distribution of data QuickCheck produces.
+For example, to generate a random list of boolean values:</p>
+<pre class="screen"><code>ghci&gt; :m +Test.QuickCheck.Arbitrary
+ghci&gt; :m +Test.QuickCheck.Gen
+ghci&gt; :m +Test.QuickCheck.Random
+ghci&gt; unGen arbitrary (mkQCGen 2) 10 :: [Bool]
+[False,True,True,True,False,True,False,False,True,False]
+</code></pre>
+<p>QuickCheck generates test data like this and passes it to the
+property of our choosing, via the <code>quickCheck</code> function. The
+type of the property itself determines which data generator is used.
+<code>quickCheck</code> then checks that for all the test data produced,
+the property is satisfied. Now, since our idempotency test is
+polymorphic in the list element type, we need to pick a particular type
+to generate test data for, which we write as a type constraint on the
+property. To run the test, we just call <code>quickCheck</code> with our
+property function, set to the required data type (otherwise the list
+element type will default to the uninteresting <code>()</code>
+type):</p>
+<pre class="screen"><code>ghci&gt; :type quickCheck
+quickCheck :: Testable prop =&gt; prop -&gt; IO ()
+ghci&gt; quickCheck (prop_idempotent :: [Integer] -&gt; Bool)
++++ OK, passed 100 tests.
+</code></pre>
+<p>For the 100 different lists generated, our property held–great! When
+developing tests, it is often useful to see the actual data generated
+for each test. To do this, we would replace <code>quickCheck</code> with
+its sibling, <code>verboseCheck</code>, to see (verbose) output for each
+test. Now, let's look at more sophisticated properties that our function
+might satisfy.</p>
+<h2 data-number="1.1" id="testing-for-properties"><span
+class="header-section-number">1.1</span> Testing for properties</h2>
+<p>Good libraries consist of a set of orthogonal primitives having
+sensible relationships to each other. We can use QuickCheck to specify
+the relationships between functions in our code, helping us find a good
+library interface by developing functions that are interrelated via
+useful properties. QuickCheck in this way acts as an API "lint" tool–it
+provides machine support for ensuring our library API makes sense.</p>
+<p>The list sorting function should certainly have a number of
+interesting properties that tie it to other list operations. For
+example: the first element in a sorted list should always be the
+smallest element of the input list. We might be tempted to specify this
+intuition in Haskell, using the <code>List</code> library's
+<code>minimum</code> function:</p>
+<div class="captioned-content">
+<div class="caption">
+QCBasics.hs
+</div>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>prop_minimum xs <span class="ot">=</span> <span class="fu">head</span> (qsort xs) <span class="op">==</span> <span class="fu">minimum</span> xs</span></code></pre></div>
+</div>
+<p>Testing this, though, reveals an error:</p>
+<pre class="screen"><code>ghci&gt; quickCheck (prop_minimum :: [Integer] -&gt; Bool)
+*** Failed! Exception: &#39;Prelude.head: empty list&#39; (after 1 test): []
+</code></pre>
+<p>The property failed when sorting an empty list–for which
+<code>head</code> and <code>minimum</code> aren't defined, as we can see
+from their definition:</p>
+<div class="captioned-content">
+<div class="caption">
+minimum.hs
+</div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span><span class="ot">       ::</span> [a] <span class="ot">-&gt;</span> a</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> (x<span class="op">:</span>_) <span class="ot">=</span> x</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span> []    <span class="ot">=</span> <span class="fu">error</span> <span class="st">&quot;Prelude.head: empty list&quot;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">minimum</span><span class="ot">    ::</span> (<span class="dt">Ord</span> a) <span class="ot">=&gt;</span> [a] <span class="ot">-&gt;</span> a</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">minimum</span> [] <span class="ot">=</span>  <span class="fu">error</span> <span class="st">&quot;Prelude.minimum: empty list&quot;</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">minimum</span> xs <span class="ot">=</span>  <span class="fu">foldl1</span> <span class="fu">min</span> xs</span></code></pre></div>
+</div>
+<p>So this property will only hold for non-empty lists. QuickCheck,
+thankfully, comes with a full property writing embedded language, so we
+can specify more precisely our invariants, filtering out values we don't
+want to consider. For the empty list case, we really want to say:
+<em>if</em> the list is non-empty, <em>then</em> the first element of
+the sorted result is the minimum. This is done by using the
+<code>(==&gt;)</code> implication function, which filters out invalid
+data before running the property:</p>
+<div class="captioned-content">
+<div class="caption">
+QCBasics.hs
+</div>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>prop_minimum&#39; xs <span class="ot">=</span> <span class="fu">not</span> (<span class="fu">null</span> xs) <span class="op">==&gt;</span> <span class="fu">head</span> (qsort xs) <span class="op">==</span> <span class="fu">minimum</span> xs</span></code></pre></div>
+</div>
+<p>The result is quite clean. By separating out the empty list case, we
+can now confirm the property does in fact hold:</p>
+<pre class="screen"><code>ghci&gt; quickCheck (prop_minimum&#39; :: [Integer] -&gt; Property)
++++ OK, passed 100 tests.
+</code></pre>
+<p>Note that we had to change the type of the property from being a
+simple <code>Bool</code> result to the more general
+<code>Property</code> type (the property itself is now a function that
+filters non-empty lists, before testing them, rather than a simple
+boolean constant).</p>
+<p>We can now complete the basic property set for the sort function with
+some other invariants that it should satisfy: that the output is ordered
+(each element should be smaller than, or equal to, its successor); that
+the output is a permutation of the input (which we achieve via the list
+difference function, <code>(\\)</code>); that the last sorted element
+should be the largest element; and if we find the smallest element of
+two different lists, that should be the first element if we append and
+sort those lists. These properties can be stated as:</p>
+<div class="captioned-content">
+<div class="caption">
+QCBasics.hs
+</div>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>prop_ordered xs <span class="ot">=</span> ordered (qsort xs)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> ordered []       <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>          ordered [x]      <span class="ot">=</span> <span class="dt">True</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>          ordered (x<span class="op">:</span>y<span class="op">:</span>xs) <span class="ot">=</span> x <span class="op">&lt;=</span> y <span class="op">&amp;&amp;</span> ordered (y<span class="op">:</span>xs)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>prop_permutation xs <span class="ot">=</span> permutation xs (qsort xs)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> permutation xs ys <span class="ot">=</span> <span class="fu">null</span> (xs \\ ys) <span class="op">&amp;&amp;</span> <span class="fu">null</span> (ys \\ xs)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>prop_maximum xs         <span class="ot">=</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">not</span> (<span class="fu">null</span> xs) <span class="op">==&gt;</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">last</span> (qsort xs) <span class="op">==</span> <span class="fu">maximum</span> xs</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>prop_append xs ys       <span class="ot">=</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">not</span> (<span class="fu">null</span> xs) <span class="op">==&gt;</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">not</span> (<span class="fu">null</span> ys) <span class="op">==&gt;</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">head</span> (qsort (xs <span class="op">++</span> ys)) <span class="op">==</span> <span class="fu">min</span> (<span class="fu">minimum</span> xs) (<span class="fu">minimum</span> ys)</span></code></pre></div>
+</div>
+<h2 data-number="1.2" id="testing-against-a-model"><span
+class="header-section-number">1.2</span> Testing against a model</h2>
+<p>Another technique for gaining confidence in some code is to test it
+against a model implementation. We can tie our implementation of list
+sort to the reference sort function in the standard list library, and,
+if they behave the same, we gain confidence that our sort does the right
+thing.</p>
+<div class="captioned-content">
+<div class="caption">
+QCBasics.hs
+</div>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>prop_sort_model xs <span class="ot">=</span> <span class="fu">sort</span> xs <span class="op">==</span> qsort xs</span></code></pre></div>
+</div>
+<p>This kind of model-based testing is extremely powerful. Often
+developers will have a reference implementation or prototype that, while
+inefficient, is correct. This can then be kept around and used to ensure
+optimised production code conforms to the reference. By building a large
+suite of these model-based tests, and running them regularly (on every
+commit, for example), we can cheaply ensure the precision of our code.
+Large Haskell projects often come bundled with property suites
+comparable in size to the project itself, with thousands of invariants
+tested on every change, keeping the code tied to the specification, and
+ensuring it behaves as required.</p>
+<h1 data-number="2"
+id="testing-case-study-specifying-a-pretty-printer"><span
+class="header-section-number">2</span> Testing case study: specifying a
+pretty printer</h1>
+<p>Testing individual functions for their natural properties is one of
+the basic building blocks that guides development of large systems in
+Haskell. We'll look now at a more complicated scenario: taking the
+pretty printing library developed in earlier chapters, and building a
+test suite for it.</p>
+<h2 data-number="2.1" id="generating-test-data"><span
+class="header-section-number">2.1</span> Generating test data</h2>
+<p>Recall that the pretty printer is built around the <code>Doc</code>,
+an algebraic data type that represents well-formed documents:</p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Doc</span> <span class="ot">=</span> <span class="dt">Empty</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>         <span class="op">|</span> <span class="dt">Char</span> <span class="dt">Char</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>         <span class="op">|</span> <span class="dt">Text</span> <span class="dt">String</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>         <span class="op">|</span> <span class="dt">Line</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>         <span class="op">|</span> <span class="dt">Concat</span> <span class="dt">Doc</span> <span class="dt">Doc</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>         <span class="op">|</span> <span class="dt">Union</span> <span class="dt">Doc</span> <span class="dt">Doc</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>         <span class="kw">deriving</span> (<span class="dt">Show</span>,<span class="dt">Eq</span>)</span></code></pre></div>
+<p>The library itself is implemented as a set of functions that build
+and transform values of this document type, before finally rendering the
+finished document to a string.</p>
+<p>QuickCheck encourages an approach to testing where the developer
+specifies invariants that should hold for any data we can throw at the
+code. To test the pretty printing library, then, we'll need a source of
+input data. To do this, we take advantage of the small combinator suite
+for building random data that QuickCheck provides via the
+<code>Arbitrary</code> class. The class provides a function,
+<code>arbitrary</code>, to generate data of each type, and with this we
+can define our data generator for our custom data types.<a href="#fn1"
+class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<div class="sourceCode" id="cb15"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Arbitrary</span> a <span class="kw">where</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  arbitrary ::</span> <span class="dt">Gen</span> a</span></code></pre></div>
+<p>One thing to notice is that the generators run in a <code>Gen</code>
+environment, indicated by the type. This is a simple state-passing monad
+that is used to hide the random number generator state that is threaded
+through the code. We'll look thoroughly at monads in later chapters, but
+for now it suffices to know that, as <code>Gen</code> is defined as a
+monad, we can use <code>do</code> syntax to write new generators that
+access the implicit random number source. To actually write generators
+for our custom type we use any of a set of functions defined in the
+library for introducing new random values and gluing them together to
+build up data structures of the type we're interested in. The types of
+the key functions are:</p>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ot">elements ::</span> [a] <span class="ot">-&gt;</span> <span class="dt">Gen</span> a</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ot">choose ::</span> <span class="dt">Random</span> a <span class="ot">=&gt;</span> (a, a) <span class="ot">-&gt;</span> <span class="dt">Gen</span> a</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="ot">oneof ::</span> [<span class="dt">Gen</span> a] <span class="ot">-&gt;</span> <span class="dt">Gen</span> a</span></code></pre></div>
+<p>The function <code>elements</code>, for example, takes a list of
+values, and returns a generator of random values from that list.
+<code>choose</code> and <code>oneof</code> we'll use later. With this,
+we can start writing generators for simple data types. For example, if
+we define a new data type for ternary logic:</p>
+<div class="captioned-content">
+<div class="caption">
+Arbitrary.hs
+</div>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Test.QuickCheck</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Ternary</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="ot">=</span> <span class="dt">Yes</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="dt">No</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">|</span> <span class="dt">Unknown</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">deriving</span> (<span class="dt">Eq</span>,<span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>we can write an <code>Arbitrary</code> instance for the
+<code>Ternary</code> type by defining a function that picks elements
+from a list of the possible values of <code>Ternary</code> type:</p>
+<div class="captioned-content">
+<div class="caption">
+Arbitrary.hs
+</div>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Arbitrary</span> <span class="dt">Ternary</span> <span class="kw">where</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  arbitrary <span class="ot">=</span> elements [<span class="dt">Yes</span>, <span class="dt">No</span>, <span class="dt">Unknown</span>]</span></code></pre></div>
+</div>
+<p>Another approach to data generation is to generate values for one of
+the basic Haskell types and then translate those values into the type
+you're actually interested in. We could have written the
+<code>Ternary</code> instance by generating integer values from 0 to 2
+instead, using <code>choose</code>, and then mapping them onto the
+ternary values:</p>
+<div class="captioned-content">
+<div class="caption">
+Arbitrary.hs
+</div>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Arbitrary</span> <span class="dt">Ternary</span> <span class="kw">where</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  arbitrary <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>      n <span class="ot">&lt;-</span> choose (<span class="dv">0</span>, <span class="dv">2</span>)<span class="ot"> ::</span> <span class="dt">Gen</span> <span class="dt">Int</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span> <span class="op">$</span> <span class="kw">case</span> n <span class="kw">of</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                    <span class="dv">0</span> <span class="ot">-&gt;</span> <span class="dt">Yes</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>                    <span class="dv">1</span> <span class="ot">-&gt;</span> <span class="dt">No</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>                    _ <span class="ot">-&gt;</span> <span class="dt">Unknown</span></span></code></pre></div>
+</div>
+<p>For simple <em>sum</em> types, this approach works nicely, as the
+integers map nicely onto the constructors of the data type. For
+<em>product</em> types (such as structures and tuples), we need to
+instead generate each component of the product separately (and
+recursively for nested types), and then combine the components. For
+example, to generate random pairs of random values:</p>
+<div class="captioned-content">
+<div class="caption">
+Arbitrary.hs
+</div>
+<div class="sourceCode" id="cb20"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> (<span class="dt">Arbitrary</span> a, <span class="dt">Arbitrary</span> b) <span class="ot">=&gt;</span> <span class="dt">Arbitrary</span> (a, b) <span class="kw">where</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  arbitrary <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>      x <span class="ot">&lt;-</span> arbitrary</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>      y <span class="ot">&lt;-</span> arbitrary</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span> (x, y)</span></code></pre></div>
+</div>
+<p>So let's now write a generator for all the different variants of the
+<code>Doc</code> type. We'll start by breaking the problem down, first
+generating random constructors for each type, then, depending on the
+result, the components of each field. We choose a random integer to
+represent which document variant to generate, and then dispatch based on
+the result. To generate concat or union document nodes, we just recurse
+on <code>arbitrary</code>, letting type inference determine which
+instance of <code>Arbitrary</code> we mean:</p>
+<div class="captioned-content">
+<div class="caption">
+QC.hs
+</div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">QC</span> <span class="kw">where</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Prettify</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.List</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Test.QuickCheck</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Arbitrary</span> <span class="dt">Doc</span> <span class="kw">where</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    arbitrary <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>        n <span class="ot">&lt;-</span> choose (<span class="dv">1</span>,<span class="dv">6</span>)<span class="ot"> ::</span> <span class="dt">Gen</span> <span class="dt">Int</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>        <span class="kw">case</span> n <span class="kw">of</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>             <span class="dv">1</span> <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="dt">Empty</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>             <span class="dv">2</span> <span class="ot">-&gt;</span> <span class="kw">do</span> x <span class="ot">&lt;-</span> arbitrary</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">return</span> (<span class="dt">Char</span> x)</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>             <span class="dv">3</span> <span class="ot">-&gt;</span> <span class="kw">do</span> x <span class="ot">&lt;-</span> arbitrary</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">return</span> (<span class="dt">Text</span> x)</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>             <span class="dv">4</span> <span class="ot">-&gt;</span> <span class="fu">return</span> <span class="dt">Line</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>             <span class="dv">5</span> <span class="ot">-&gt;</span> <span class="kw">do</span> x <span class="ot">&lt;-</span> arbitrary</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>                     y <span class="ot">&lt;-</span> arbitrary</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">return</span> (<span class="dt">Concat</span> x y)</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>             <span class="dv">6</span> <span class="ot">-&gt;</span> <span class="kw">do</span> x <span class="ot">&lt;-</span> arbitrary</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>                     y <span class="ot">&lt;-</span> arbitrary</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">return</span> (<span class="dt">Union</span> x y)</span></code></pre></div>
+</div>
+<p>That was fairly straightforward, and we can clean it up some more by
+using the <code>oneof</code> function, whose type we saw earlier, to
+pick between different generators in a list (we can also use the monadic
+combinator, <code>liftM</code> to avoid naming intermediate results from
+each generator):</p>
+<div class="captioned-content">
+<div class="caption">
+QC.hs
+</div>
+<div class="sourceCode" id="cb22"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- import Control.Monad</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">Arbitrary</span> <span class="dt">Doc</span> <span class="kw">where</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    arbitrary <span class="ot">=</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>        oneof [ <span class="fu">return</span> <span class="dt">Empty</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>              , liftM  <span class="dt">Char</span>   arbitrary</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>              , liftM  <span class="dt">Text</span>   arbitrary</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>              , <span class="fu">return</span> <span class="dt">Line</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>              , liftM2 <span class="dt">Concat</span> arbitrary arbitrary</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>              , liftM2 <span class="dt">Union</span>  arbitrary arbitrary ]</span></code></pre></div>
+</div>
+<p>The latter is more concise, just picking between a list of
+generators, but they describe the same data either way. We can check
+that the output makes sense, by generating a list of random documents
+(seeding the pseudo-random generator with an initial seed of 2):</p>
+<pre class="screen"><code>ghci&gt; unGen arbitrary (mkQCGen 2) 10 :: [Doc]
+[Empty,Union (Char &#39;t&#39;) Line,Line,Union Line Empty,Concat (Char &#39;\9930&#39;)
+(Text &quot;\DEL&quot;),Line,Text &quot;\263060\ACKJ@e&quot;,Empty,Char &#39;\367759&#39;,Concat Line
+(Text &quot;)\385036N\332758D(&quot;)]
+</code></pre>
+<p>Looking at the output we see a good mix of simple, base cases, and
+some more complicated nested documents. We'll be generating hundreds of
+these each test run, so that should do a pretty good job. We can now
+write some generic properties for our document functions.</p>
+<h2 data-number="2.2" id="testing-document-construction"><span
+class="header-section-number">2.2</span> Testing document
+construction</h2>
+<p>Two of the basic functions on documents are the null document
+constant (a nullary function), <code>empty</code>, and the append
+function.</p>
+<div class="sourceCode" id="cb24"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ot">empty ::</span> <span class="dt">Doc</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ot">(&lt;&gt;) ::</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span></span></code></pre></div>
+<p>Together, these should have a nice property: appending or prepending
+the empty list onto a second list, should leave the second list
+unchanged. We can state this invariant as a property:</p>
+<div class="captioned-content">
+<div class="caption">
+QC.hs
+</div>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>prop_empty_id x <span class="ot">=</span> empty <span class="op">&lt;&gt;</span> x <span class="op">==</span> x <span class="op">&amp;&amp;</span> x <span class="op">&lt;&gt;</span> empty <span class="op">==</span> x</span></code></pre></div>
+</div>
+<p>Confirming that this is indeed true, we're now underway with our
+testing:</p>
+<pre class="screen"><code>ghci&gt; quickCheck prop_empty_id
++++ OK, passed 100 tests.
+</code></pre>
+<p>To look at what actual test documents were generated (by replacing
+<code>quickCheck</code> with <code>verboseCheck</code>). A good mixture
+of both simple and complicated cases are being generated. We can refine
+the data generation further, with constraints on the proportion of
+generated data, if desirable.</p>
+<p>Other functions in the API are also simple enough to have their
+behaviour fully described via properties. By doing so we can maintain an
+external, checkable description of the function's behaviour, so later
+changes won't break these basic invariants.</p>
+<div class="captioned-content">
+<div class="caption">
+QC.hs
+</div>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>prop_char c <span class="ot">=</span> char c <span class="op">==</span> <span class="dt">Char</span> c</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>prop_text s <span class="ot">=</span> text s <span class="op">==</span> <span class="kw">if</span> <span class="fu">null</span> s <span class="kw">then</span> <span class="dt">Empty</span> <span class="kw">else</span> <span class="dt">Text</span> s</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>prop_line <span class="ot">=</span> line <span class="op">==</span> <span class="dt">Line</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>prop_double d <span class="ot">=</span> double d <span class="op">==</span> text (<span class="fu">show</span> d)</span></code></pre></div>
+</div>
+<ol>
+<li><p><span class="todo TODO">TODO</span> explain why
+<code>prop_line</code> only produces one test</p>
+<p>These properties are enough to fully test the structure returned by
+the basic document operators. To test the rest of the library will
+require more work.</p></li>
+</ol>
+<h2 data-number="2.3" id="using-lists-as-a-model"><span
+class="header-section-number">2.3</span> Using lists as a model</h2>
+<p>Higher order functions are the basic glue of reusable programming,
+and our pretty printer library is no exception–a custom fold function is
+used internally to implement both document concatenation and
+interleaving separators between document chunks. The <code>fold</code>
+defined for documents takes a list of document pieces, and glues them
+all together with a supplied combining function:</p>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fold ::</span> (<span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span> <span class="ot">-&gt;</span> <span class="dt">Doc</span>) <span class="ot">-&gt;</span> [<span class="dt">Doc</span>] <span class="ot">-&gt;</span> <span class="dt">Doc</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>fold f <span class="ot">=</span> <span class="fu">foldr</span> f empty</span></code></pre></div>
+<p>We can write tests in isolation for specific instances of fold
+easily. Horizontal concatenation of documents, for example, is easy to
+specify by writing a reference implementation on lists:</p>
+<div class="captioned-content">
+<div class="caption">
+QC.hs
+</div>
+<div class="sourceCode" id="cb29"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>prop_hcat xs <span class="ot">=</span> hcat xs <span class="op">==</span> glue xs</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>        glue []     <span class="ot">=</span> empty</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>        glue (d<span class="op">:</span>ds) <span class="ot">=</span> d <span class="op">&lt;&gt;</span> glue ds</span></code></pre></div>
+</div>
+<p>It is a similar story for <code>punctuate</code>, where we can model
+inserting punctuation with list interspersion (from
+<code>Data.List</code>, <code>intersperse</code> is a function that
+takes an element and interleaves it between other elements of a
+list):</p>
+<div class="captioned-content">
+<div class="caption">
+QC.hs
+</div>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>prop_punctuate s xs <span class="ot">=</span> punctuate s xs <span class="op">==</span> intersperse s xs</span></code></pre></div>
+</div>
+<p>While this looks fine, running it reveals a flaw in our
+reasoning:</p>
+<pre class="screen"><code>ghci&gt; quickCheck prop_punctuate
+*** Failed! Falsifiable (after 4 tests):
+Empty
+[Char &#39;\DC3&#39;,Empty]
+</code></pre>
+<p>The pretty printing library optimises away redundant empty documents,
+something the model implementation doesn't, so we'll need to augment our
+model to match reality. First, we can intersperse the punctuation text
+throughout the document list, then a little loop to clean up the
+<code>Empty</code> documents scattered through, like so:</p>
+<div class="captioned-content">
+<div class="caption">
+QC.hs
+</div>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>prop_punctuate&#39; s xs <span class="ot">=</span> punctuate s xs <span class="op">==</span> combine (intersperse s xs)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>        combine []           <span class="ot">=</span> []</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>        combine [x]          <span class="ot">=</span> [x]</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>        combine (x<span class="op">:</span><span class="dt">Empty</span><span class="op">:</span>ys) <span class="ot">=</span> x <span class="op">:</span> combine ys</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>        combine (<span class="dt">Empty</span><span class="op">:</span>y<span class="op">:</span>ys) <span class="ot">=</span> y <span class="op">:</span> combine ys</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>        combine (x<span class="op">:</span>y<span class="op">:</span>ys)     <span class="ot">=</span> x <span class="ot">`Concat`</span> y <span class="op">:</span> combine ys</span></code></pre></div>
+</div>
+<p>Running this in GHCi, we can confirm the result. It is reassuring to
+have the test framework spot the flaws in our reasoning about the
+code–exactly what we're looking for:</p>
+<pre class="screen"><code>ghci&gt; quickCheck prop_punctuate&#39;
++++ OK, passed 100 tests.
+</code></pre>
+<h2 data-number="2.4" id="putting-it-altogether"><span
+class="header-section-number">2.4</span> Putting it altogether</h2>
+<p>We can put all these tests together in a single file, and run them
+simply by using one of QuickCheck's driver functions. Several exist,
+including elaborate parallel ones. The basic batch driver is often good
+enough, however. All we need do is set up some default test parameters,
+and then list the functions we want to test:</p>
+<div class="captioned-content">
+<div class="caption">
+Run.hs
+</div>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">QC</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Test.QuickCheck</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span> (forM_)</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>options <span class="ot">=</span> stdArgs { maxSuccess <span class="ot">=</span> <span class="dv">200</span>, maxSize <span class="ot">=</span> <span class="dv">200</span>}</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">Run</span> <span class="ot">=</span> <span class="dt">Args</span> <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="ot">run ::</span> <span class="dt">Testable</span> prop <span class="ot">=&gt;</span> prop <span class="ot">-&gt;</span> <span class="dt">Run</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>run <span class="ot">=</span> <span class="fu">flip</span> quickCheckWith</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="ot">runTests ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Args</span> <span class="ot">-&gt;</span> [<span class="dt">Run</span>] <span class="ot">-&gt;</span> <span class="dt">IO</span> ()</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>runTests name opts tests <span class="ot">=</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">putStrLn</span> (<span class="st">&quot;Running &quot;</span> <span class="op">++</span> name <span class="op">++</span> <span class="st">&quot; tests:&quot;</span>) <span class="op">&gt;&gt;</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>        forM_ tests (\ rn <span class="ot">-&gt;</span> rn opts)</span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>    runTests <span class="st">&quot;simple&quot;</span> options</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>        [ run prop_empty_id</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>        , run prop_char</span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>        , run prop_text</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>        , run prop_line</span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>        , run prop_double</span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>        ]</span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>    runTests <span class="st">&quot;complex&quot;</span> options</span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>        [ run prop_hcat</span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>        , run prop_punctuate</span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>        ]</span></code></pre></div>
+</div>
+<p>We've structured the code here as a separate, standalone test script,
+with instances and properties in their own file, separate to the library
+source. This is typical for library projects, where the tests are kept
+apart from the library itself, and import the library via the module
+system. The test script can then be compiled and executed:</p>
+<pre class="screen"><code>ghci&gt; :l Run.hs
+[1 of 4] Compiling SimpleJSON       ( SimpleJSON.hs, interpreted )
+[2 of 4] Compiling Prettify         ( Prettify.hs, interpreted )
+[3 of 4] Compiling QC               ( QC.hs, interpreted )
+[4 of 4] Compiling Main             ( Run.hs, interpreted )
+Ok, four modules loaded.
+*Main&gt; main
+Running simple tests:
++++ OK, passed 200 tests.
++++ OK, passed 200 tests.
++++ OK, passed 200 tests.
++++ OK, passed 1 tests.
++++ OK, passed 200 tests.
+Running complex tests:
++++ OK, passed 200 tests.
++++ OK, passed 200 tests.
+</code></pre>
+<p>A total of 1201 individual tests were created, which is comforting.
+We can increase the depth easily enough, but to find out exactly how
+well the code is being tested we should turn to the built in code
+coverage tool, HPC, which can state precisely what is going on.</p>
+<h1 data-number="3" id="measuring-test-coverage-with-hpc"><span
+class="header-section-number">3</span> Measuring test coverage with
+HPC</h1>
+<p>HPC (Haskell Program Coverage) is an extension to the compiler to
+observe what parts of the code were actually executed during a given
+program run. This is useful in the context of testing, as it lets us
+observe precisely which functions, branches and expressions were
+evaluated. The result is precise knowledge about the percent of code
+tested, that's easy to obtain. HPC comes with a simple utility to
+generate useful graphs of program coverage, making it easy to zoom in on
+weak spots in the test suite.</p>
+<p>To obtain test coverage data, all we need to do is add the
+<code>-fhpc</code> flag to the command line, when compiling the
+tests:</p>
+<pre class="screen"><code>$ ghc -fhpc Run.hs --make
+</code></pre>
+<p>Then run the tests as normal;</p>
+<pre class="screen"><code>$ ./Run
+Running simple tests:
++++ OK, passed 200 tests.
++++ OK, passed 200 tests.
++++ OK, passed 200 tests.
++++ OK, passed 1 tests.
++++ OK, passed 200 tests.
+Running complex tests:
++++ OK, passed 200 tests.
++++ OK, passed 200 tests.
+</code></pre>
+<p>During the test run the trace of the program is written to .tix and
+.mix files in the current directory. Afterwards, these files are used by
+the command line tool, <code>hpc</code>, to display various statistics
+about what happened. The basic interface is textual. To begin, we can
+get a summary of the code tested during the run using the
+<code>report</code> flag to <code>hpc</code>. We'll exclude the test
+programs themselves, (using the <code>--exclude</code> flag), so as to
+concentrate only on code in the pretty printer library. Entering the
+following into the console:</p>
+<pre class="screen"><code>$ hpc report Run --exclude=Main --exclude=QC
+ 17% expressions used (30/176)
+  0% boolean coverage (0/3)
+       0% guards (0/3), 3 unevaluated
+     100% &#39;if&#39; conditions (0/0)
+     100% qualifiers (0/0)
+ 17% alternatives used (8/46)
+  0% local declarations used (0/4)
+ 30% top-level declarations used (10/33)
+</code></pre>
+<p>we see that, on the last line, 30% of top level definitions were
+evaluated during the test run. Not too bad for a first attempt. As we
+test more and more functions from the library, this figure will rise.
+The textual version is useful for a quick summary, but to really see
+what's going on it is best to look at the marked up output. To generate
+this, use the <code>markup</code> flag instead:</p>
+<pre class="screen"><code>$ hpc markup Run --exclude=Main --exclude=QC
+</code></pre>
+<p>This will generate one html file for each Haskell source file, and
+some index files. Loading the file <code>hpc_index.html</code> into a
+browser, we can see some pretty graphs of the code coverage:</p>
+<p><img src="figs/ch11-hpc-round1.png" /></p>
+<p>Not too bad. Clicking through to the <code>Prettify</code> module
+itself, we see the actual source of the program, marked up in bold
+yellow for code that wasn't tested, and code that was executed simply
+bold.</p>
+<p>It is important to remove the old .tix file after you make
+modifications or an error will occur as HPC tries to combine the
+statistics from separate runs:</p>
+<pre class="screen"><code>$ ghc -fhpc Run.hs --make -no-recomp
+$ ./Run
+in module &#39;Prettify&#39;
+Hpc failure: module mismatch with .tix/.mix file hash number
+(perhaps remove Run.tix file?)
+$ rm *.tix
+$ ./Run
+Running simple tests:
++++ OK, passed 200 tests.
++++ OK, passed 200 tests.
++++ OK, passed 200 tests.
++++ OK, passed 1 tests.
++++ OK, passed 200 tests.
+Running complex tests:
++++ OK, passed 200 tests.
++++ OK, passed 200 tests.
+</code></pre>
+<p>Another two hundred tests were added to the suite, and our coverage
+statistics improves to 52 percent of the code base:</p>
+<p><img src="figs/ch11-hpc-round2.png" /></p>
+<p>HPC ensures that we're honest in our testing, as anything less than
+100% coverage will be pointed out in glaring color. In particular, it
+ensures the programmer has to think about error cases, and complicated
+branches with obscure conditions, all forms of code smell. When combined
+with a saturating test generation system, like QuickCheck's, testing
+becomes a rewarding activity, and a core part of Haskell
+development.</p>
+<h1 data-number="4" id="footnotes"><span
+class="header-section-number">4</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>The class also defines a method,
+<code>coarbitrary</code>, which given a value of some type, yields a
+function for new generators. We can disregard for now, as it is only
+needed for generating random values of function type. One result of
+disregarding <code>coarbitrary</code> is that GHC will warn about it not
+being defined, however, it is safe to ignore these warnings.<a
+href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>

@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Chapter 16. Using Parsec</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Chapter 16. Using Parsec</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#first-steps-with-parsec-simple-csv-parsing"><span
+class="toc-section-number">1</span> First Steps with Parsec: Simple CSV
+Parsing</a></li>
+<li><a href="#the-sepby-and-endby-combinators"><span
+class="toc-section-number">2</span> The <code>sepBy</code> and
+<code>endBy</code> Combinators</a></li>
+<li><a href="#choices-and-errors"><span
+class="toc-section-number">3</span> Choices and Errors</a>
+<ul>
+<li><a href="#lookahead"><span class="toc-section-number">3.1</span>
+Lookahead</a></li>
+<li><a href="#error-handling"><span
+class="toc-section-number">3.2</span> Error Handling</a></li>
+</ul></li>
+<li><a href="#extended-example-full-csv-parser"><span
+class="toc-section-number">4</span> Extended Example: Full CSV
+Parser</a></li>
+<li><a href="#parsec-and-monadplus"><span
+class="toc-section-number">5</span> Parsec and MonadPlus</a></li>
+<li><a href="#parsing-an-url-encoded-query-string"><span
+class="toc-section-number">6</span> Parsing an URL-encoded query
+string</a></li>
+<li><a href="#supplanting-regular-expressions-for-casual-parsing"><span
+class="toc-section-number">7</span> Supplanting regular expressions for
+casual parsing</a></li>
+<li><a href="#parsing-without-variables"><span
+class="toc-section-number">8</span> Parsing without variables</a></li>
+<li><a href="#applicative-functors-for-parsing"><span
+class="toc-section-number">9</span> Applicative functors for
+parsing</a></li>
+<li><a href="#applicative-parsing-by-example"><span
+class="toc-section-number">10</span> Applicative parsing by
+example</a></li>
+<li><a href="#parsing-json-data"><span
+class="toc-section-number">11</span> Parsing JSON data</a></li>
+<li><a href="#parsing-a-http-request"><span
+class="toc-section-number">12</span> Parsing a HTTP request</a>
+<ul>
+<li><a href="#backtracking-and-its-discontents"><span
+class="toc-section-number">12.1</span> Backtracking and its
+discontents</a></li>
+<li><a href="#parsing-headers"><span
+class="toc-section-number">12.2</span> Parsing headers</a></li>
+<li><a href="#exercises"><span class="toc-section-number">12.3</span>
+Exercises</a></li>
+</ul></li>
+<li><a href="#footnotes"><span class="toc-section-number">13</span>
+Footnotes</a></li>
+</ul>
+</nav>
+<p>The task of parsing a file, or data of various types, is a common one
+for programmers. We already learned about Haskell's support for regular
+expressions back in <a
+href="8-efficient-file-processing-regular-expressions-and-file-name-matching.org::*Regular expressions in Haskell">the
+section called "Regular expressions in Haskell"</a> expressions are nice
+for many tasks, but they rapidly become unwieldy, or cannot be used at
+all, when dealing with a complex data format. For instance, we cannot
+use regular expressions to parse source code from most programming
+languages.</p>
+<p>Parsec is a useful parser combinator library, with which we combine
+small parsing functions to build more sophisticated parsers. Parsec
+provides some simple parsing functions, as well as functions to tie them
+all together. It should come as no surprise that this parser library for
+Haskell is built around the notion of functions.</p>
+<p>It's helpful to know where Parsec fits compared to the tools used for
+parsing in other languages. Parsing is sometimes divided into two
+stages: lexical analysis (the domain of tools like Flex) and parsing
+itself (performed by programs such as Bison). Parsec can perform both
+lexical analysis and parsing.</p>
+<h1 data-number="1"
+id="first-steps-with-parsec-simple-csv-parsing"><span
+class="header-section-number">1</span> First Steps with Parsec: Simple
+CSV Parsing</h1>
+<div class="WARNING">
+<p>The book uses a deprecated API of Parsec and should be updated.</p>
+</div>
+<p>Let's jump right in by writing some code for parsing a CSV file. CSV
+files are often used as a plain text representation of spreadsheets or
+databases. Each line is a record, and each field in the record is
+separated from the next by a comma. There are ways of dealing with
+fields that contain commas, but to start with, we won't worry about
+it.</p>
+<p>This first example is much longer than it really needs to be. We will
+introduce more Parsec features in a little bit that will shrink the
+parser down to only four lines!</p>
+<div class="captioned-content">
+<div class="caption">
+csv1.hs
+</div>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.ParserCombinators.Parsec</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">{- A CSV file contains 0 or more lines, each of which is terminated</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">   by the end-of-line character (eol). -}</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ot">csvFile ::</span> <span class="dt">GenParser</span> <span class="dt">Char</span> st [[<span class="dt">String</span>]]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>csvFile <span class="ot">=</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> result <span class="ot">&lt;-</span> many line</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>       eof</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>       <span class="fu">return</span> result</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">-- Each line contains 1 or more cells, separated by a comma</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ot">line ::</span> <span class="dt">GenParser</span> <span class="dt">Char</span> st [<span class="dt">String</span>]</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>line <span class="ot">=</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> result <span class="ot">&lt;-</span> cells</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>       eol                       <span class="co">-- end of line</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>       <span class="fu">return</span> result</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co">-- Build up a list of cells.  Try to parse the first cell, then figure out</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">-- what ends the cell.</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="ot">cells ::</span> <span class="dt">GenParser</span> <span class="dt">Char</span> st [<span class="dt">String</span>]</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>cells <span class="ot">=</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> first <span class="ot">&lt;-</span> cellContent</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>       next <span class="ot">&lt;-</span> remainingCells</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>       <span class="fu">return</span> (first <span class="op">:</span> next)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co">-- The cell either ends with a comma, indicating that 1 or more cells follow,</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co">-- or it doesn&#39;t, indicating that we&#39;re at the end of the cells for this line</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="ot">remainingCells ::</span> <span class="dt">GenParser</span> <span class="dt">Char</span> st [<span class="dt">String</span>]</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>remainingCells <span class="ot">=</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    (char <span class="ch">&#39;,&#39;</span> <span class="op">&gt;&gt;</span> cells)            <span class="co">-- Found comma?  More cells coming</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;|&gt;</span> (<span class="fu">return</span> [])                <span class="co">-- No comma?  Return [], no more cells</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co">-- Each cell contains 0 or more characters, which must not be a comma or</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co">-- EOL</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="ot">cellContent ::</span> <span class="dt">GenParser</span> <span class="dt">Char</span> st <span class="dt">String</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>cellContent <span class="ot">=</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    many (noneOf <span class="st">&quot;,\n&quot;</span>)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="co">-- The end of line character is \n</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="ot">eol ::</span> <span class="dt">GenParser</span> <span class="dt">Char</span> st <span class="dt">Char</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>eol <span class="ot">=</span> char <span class="ch">&#39;\n&#39;</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="ot">parseCSV ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">ParseError</span> [[<span class="dt">String</span>]]</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>parseCSV input <span class="ot">=</span> parse csvFile <span class="st">&quot;(unknown)&quot;</span> input</span></code></pre></div>
+</div>
+<p>Let's take a look at the code for this example. We didn't use many
+shortcuts here, so remember that this will get shorter and simpler!</p>
+<p>We've built it from the top down, so our first function is
+<code>csvFile</code>. The type of this function is
+<code>GenParser Char st [[String]]</code>. This means that the type of
+the input is a sequence of characters, which is exactly what a Haskell
+string is, since <code>String</code> is the same as <code>[Char]</code>.
+It also means that we will return a value of type
+<code>[[String]]</code>: a list of a list of strings. The
+<code>st</code> can be ignored for now.</p>
+<p>Parsec programmers often omit type declarations, since we write so
+many small functions. Haskell's type inference can figure it out. We've
+listed the types for the first example here so you can get a better idea
+of what's going on. You can always use <code>:t</code> in
+<code>ghci</code> to inspect types as well.</p>
+<p>The <code>csvFile</code> uses a <code>do</code> block. As this
+implies, Parsec is a monadic library: it defines its own special parsing
+monad, <code>GenParser</code>.</p>
+<p>We start by running <code>many line</code>. <code>many</code> is a
+function that takes a function as an argument. It tries to repeatedly
+parse the input using the function passed to it. It gathers up the
+results from all that repeated parsing and returns a list of them. So,
+here, we are storing the results of parsing all lines in
+<code>result</code>. Then we look for the end-of-file indicator, called
+<code>eof</code>. Finally, we return the <code>result</code>. So, a CSV
+file is made up of many lines, then the end of file. We can often read
+out Parsec functions in plain English just like this.</p>
+<p>Now we must answer the question: what is a line? We define the
+<code>line</code> function to do just that. Reading the function, we can
+see that a line consists of cells followed by the end of line
+character.</p>
+<p>So what are cells? We defined them in the <code>cells</code>
+function. The cells of a line start with the content of the first cell,
+then continue with the content of the remaining cells, if any. The
+result is simply the first cell and the remaining cells assembled into a
+list.</p>
+<p>Let's skip over <code>remainingCells</code> for a minute and look at
+<code>cellContent</code>. A cell contains any number of characters, but
+each character must not be a comma or end of line character. The
+<code>noneOf</code> function matches one item, so long as it isn't in
+the list of items that we pass. So, saying
+<code>many (noneOf ",\n")</code> defines a cell the way we want it.</p>
+<p>Back in <code>remainingCells</code>, we have the first example of a
+choice in Parsec. The choice operator is <code>&lt;|&gt;</code>. This
+operator behaves like this: it will first try the parser on the left. If
+it consumed no input<a href="#fn1" class="footnote-ref" id="fnref1"
+role="doc-noteref"><sup>1</sup></a>, it will try the parser on the
+right.</p>
+<p>So, in <code>remainingCells</code>, our task is to come up with all
+the cells after the first. Recall that <code>cellContent</code> uses
+<code>noneOf ",\n"</code>. So it will not consume the comma or
+end-of-line character from the input. If we see a comma after parsing a
+cell, it means that at least one more cell follows. Otherwise, we're
+done. So, our first choice in <code>remainingCells</code> is
+<code>char ','</code>. This parser simply matches the passed character
+in the input. If we found a comma, we want this function to return the
+remaining cells on the line. At this point, the "remaining cells" looks
+exactly like the start of the line, so we call <code>cells</code>
+recursively to parse them. If we didn't find a comma, we return the
+empty list, signifying no remaining cells on the line.</p>
+<p>Finally, we must define what the end-of-line indicator is. We set it
+to <code>char '\n'</code>, which will suit our purposes fine for
+now.</p>
+<p>At the very end of the program, we define a function
+<code>parseCSV</code> that takes a <code>String</code> and parses it as
+a CSV file. This function is just a shortcut that calls Parsec's
+<code>parse</code> function, filling in a few parameters.
+<code>parse</code> returns <code>Either ParseError [[String]]</code> for
+the CSV file. If there was an error, the return value will be
+<code>Left</code> with the error; otherwise, it will be
+<code>Right</code> with the result.</p>
+<p>Now that we understand this code, let's play with it a bit and see
+what it does.</p>
+<pre class="screen"><code>ghci&gt; :l csv1.hs
+[1 of 1] Compiling Main             ( csv1.hs, interpreted )
+Ok, modules loaded: Main.
+ghci&gt; parseCSV &quot;&quot;
+Right []
+</code></pre>
+<p>That makes sense: parsing the empty string returns an empty list.
+Let's try parsing a single cell.</p>
+<pre class="screen"><code>ghci&gt; parseCSV &quot;hi&quot;
+Left &quot;(unknown)&quot; (line 1, column 3):
+unexpected end of input
+expecting &quot;,&quot; or &quot;\n&quot;
+</code></pre>
+<p>Look at that. Recall how we defined that each line must end with the
+end-of-line character, and we didn't give it. Parsec's error message
+helpfully indicated the line number and column number of the problem,
+and even told us what it was expecting! Let's give it an end-of-line
+character and continue experimenting.</p>
+<pre class="screen"><code>ghci&gt; parseCSV &quot;hi\n&quot;
+Right [[&quot;hi&quot;]]
+ghci&gt; parseCSV &quot;line1\nline2\nline3\n&quot;
+Right [[&quot;line1&quot;],[&quot;line2&quot;],[&quot;line3&quot;]]
+ghci&gt; parseCSV &quot;cell1,cell2,cell3\n&quot;
+Right [[&quot;cell1&quot;,&quot;cell2&quot;,&quot;cell3&quot;]]
+ghci&gt; parseCSV &quot;l1c1,l1c2\nl2c1,l2c2\n&quot;
+Right [[&quot;l1c1&quot;,&quot;l1c2&quot;],[&quot;l2c1&quot;,&quot;l2c2&quot;]]
+ghci&gt; parseCSV &quot;Hi,\n\n,Hello\n&quot;
+Right [[&quot;Hi&quot;,&quot;&quot;],[&quot;&quot;],[&quot;&quot;,&quot;Hello&quot;]]
+</code></pre>
+<p>You can see that <code>parseCSV</code> is doing exactly what we
+wanted it to do. It's even handling empty cells and empty lines
+properly.</p>
+<h1 data-number="2" id="the-sepby-and-endby-combinators"><span
+class="header-section-number">2</span> The <code>sepBy</code> and
+<code>endBy</code> Combinators</h1>
+<p>We promised you earlier that we could simplify our CSV parser
+significantly by using a few Parsec helper functions. There are two that
+will dramatically simplify this code.</p>
+<p>The first tool is the <code>sepBy</code> function. This function
+takes two functions as arguments: the first function parses some sort of
+content, while the second function parses a separator.
+<code>sepBy</code> starts by trying to parse content, then separators,
+and alternates back and forth until it can't parse a separator. It
+returns a list of all the content that it was able to parse.</p>
+<p>The second tool is <code>endBy</code>. It's similar to
+<code>sepBy</code>, but expects the very last item to be followed by the
+separator. That is, it continues parsing until it can't parse any more
+content.</p>
+<p>So, we can use <code>endBy</code> to parse lines, since every line
+must end with the end-of-line character. We can use <code>sepBy</code>
+to parse cells, since the last cell will not end with a comma. Take a
+look at how much simpler our parser is now:</p>
+<div class="captioned-content">
+<div class="caption">
+csv2.hs
+</div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.ParserCombinators.Parsec</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>csvFile <span class="ot">=</span> endBy line eol</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>line <span class="ot">=</span> sepBy cell (char <span class="ch">&#39;,&#39;</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>cell <span class="ot">=</span> many (noneOf <span class="st">&quot;,\n&quot;</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>eol <span class="ot">=</span> char <span class="ch">&#39;\n&#39;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="ot">parseCSV ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">ParseError</span> [[<span class="dt">String</span>]]</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>parseCSV input <span class="ot">=</span> parse csvFile <span class="st">&quot;(unknown)&quot;</span> input</span></code></pre></div>
+</div>
+<p>This program behaves exactly the same as the first one. We can verify
+this by using <code>ghci</code> to re-run our examples from the earlier
+example. We'll get the same result from every one. Yet the program is
+much shorter and more readable. It won't be long before you can
+translate Parsec code like this into a file format definition in plain
+English. As you read over this code, you can see that:</p>
+<ul>
+<li>A CSV file contains 0 or more lines, each of which is terminated by
+the end-of-line character.</li>
+<li>A line contains 1 or more cells, separated by a comma.</li>
+<li>A cell contains 0 or more characters, which must be neither the
+comma nor the end-of-line character.</li>
+<li>The end-of-line character is the newline, <code>\n</code>.</li>
+</ul>
+<h1 data-number="3" id="choices-and-errors"><span
+class="header-section-number">3</span> Choices and Errors</h1>
+<p>Different operating systems use different characters to mark the
+end-of-line. Most Unix-like systems, plus Windows in text mode, use
+simply <code>"\n"</code>. DOS and Windows systems use
+<code>"\r\n"</code>, and macOS traditionally used <code>"\r"</code>. We
+could add in support for <code>"\n\r"</code> too, just in case anybody
+uses that.</p>
+<p>We could easily adapt our example to be able to handle all these
+types of line endings in a single file. We would need to make two
+modifications: adjust <code>eol</code> to recognize the different
+endings, and adjust the <code>noneOf</code> pattern in <code>cell</code>
+to ignore <code>\r</code>.</p>
+<p>This must be done carefully. Recall that our earlier definition of
+<code>eol</code> was simply <code>char '\n'</code>. There is a parser
+called <code>string</code> that we can use to match the multi-character
+patterns. Let's start by thinking of how we would add support for
+<code>\n\r</code>.</p>
+<p>Our first attempt might look like this:</p>
+<div class="captioned-content">
+<div class="caption">
+csv3.hs
+</div>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.ParserCombinators.Parsec</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ot">eol ::</span> <span class="dt">Parser</span> <span class="dt">String</span> <span class="co">-- To avoid the monomorphic restriction</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- This function is not correct!</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>eol <span class="ot">=</span> string <span class="st">&quot;\n&quot;</span> <span class="op">&lt;|&gt;</span> string <span class="st">&quot;\n\r&quot;</span></span></code></pre></div>
+</div>
+<p>This isn't quite right. Recall that the <code>&lt;|&gt;</code>
+operator always tries the left alternative first. Looking for the single
+character <code>\n</code> will match both types of line endings, so it
+will look to the system that the following line begins with
+<code>\r</code>. Not what we want. Try it in <code>ghci</code>:</p>
+<pre class="screen"><code>ghci&gt; :l csv3.hs
+ghci&gt; parse eol &quot;&quot; &quot;\n&quot;
+Right &quot;\n&quot;
+ghci&gt; parse eol &quot;&quot; &quot;\n\r&quot;
+Right &quot;\n&quot;
+</code></pre>
+<p>It may seem like the parser worked for both endings, but actually
+looking at it this way, we can't tell. If it left something un-parsed,
+we don't know, because we're not trying to consume anything else from
+the input. So let's look for the end-of-file after our end of line:</p>
+<pre class="screen"><code>ghci&gt; parse (eol &gt;&gt; eof) &quot;&quot; &quot;\n\r&quot;
+Left (line 2, column 1):
+unexpected &#39;\r&#39;
+expecting end of input
+ghci&gt; parse (eol &gt;&gt; eof) &quot;&quot; &quot;\n&quot;
+Right ()
+</code></pre>
+<p>As expected, we got an error from the <code>\n\r</code> ending. So
+the next temptation may be to try it this way:</p>
+<div class="captioned-content">
+<div class="caption">
+csv4.hs
+</div>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.ParserCombinators.Parsec</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ot">eol ::</span> <span class="dt">Parser</span> <span class="dt">String</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">-- This function is not correct!</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>eol <span class="ot">=</span> string <span class="st">&quot;\n\r&quot;</span> <span class="op">&lt;|&gt;</span> string <span class="st">&quot;\n&quot;</span></span></code></pre></div>
+</div>
+<p>This also isn't right. Recall that <code>&lt;|&gt;</code> only
+attempts the option on the right if the option on the left consumed no
+input. But by the time we are able to see if there is a <code>\r</code>
+after the <code>\n</code>, we've already consumed the <code>\n</code>.
+This time, we fail on the other case in <code>ghci</code>:</p>
+<pre class="screen"><code>ghci&gt; :l csv4.hs
+ghci&gt; parse (eol &gt;&gt; eof) &quot;&quot; &quot;\n\r&quot;
+Right ()
+ghci&gt; parse (eol &gt;&gt; eof) &quot;&quot; &quot;\n&quot;
+Left (line 1, column 1):
+unexpected end of input
+expecting &quot;\n\r&quot;
+</code></pre>
+<p>We've stumbled upon the lookahead problem. It turns out that, when
+writing parsers, it's often very convenient to be able to "look ahead"
+at the data that's coming in. Parsec supports this, but before showing
+you how to use it, let's see how you would have to write this to get
+along without it. You'd have to manually expand all the options after
+the <code>\n</code> like this:</p>
+<div class="captioned-content">
+<div class="caption">
+csv5.hs
+</div>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.ParserCombinators.Parsec</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="ot">eol ::</span> <span class="dt">Parser</span> <span class="dt">Char</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>eol <span class="ot">=</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> char <span class="ch">&#39;\n&#39;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>       char <span class="ch">&#39;\r&#39;</span> <span class="op">&lt;|&gt;</span> <span class="fu">return</span> <span class="ch">&#39;\n&#39;</span></span></code></pre></div>
+</div>
+<p>This function first looks for <code>\n</code>. If it is found, then
+it will look for <code>\r</code>, consuming it if possible. Since the
+return type of <code>char '\r'</code> is a <code>Char</code>, the
+alternative action is to simply return a <code>Char</code> without
+attempting to parse anything. Parsec has a function <code>option</code>
+that can also express this idiom as
+<code>option '\n' (char '\r')</code>. Let's test this with
+<code>ghci</code>.</p>
+<pre class="screen"><code>ghci&gt; :l csv5.hs
+[1 of 1] Compiling Main             ( csv5.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; parse (eol &gt;&gt; eof) &quot;&quot; &quot;\n\r&quot;
+Right ()
+ghci&gt; parse (eol &gt;&gt; eof) &quot;&quot; &quot;\n&quot;
+Right ()
+</code></pre>
+<p>This time, we got the right result! But we could have done it easier
+with Parsec's lookahead support.</p>
+<h2 data-number="3.1" id="lookahead"><span
+class="header-section-number">3.1</span> Lookahead</h2>
+<p>Parsec has a function called <code>try</code> that is used to express
+lookaheads. <code>try</code> takes one function, a parser. It applies
+that parser. If the parser doesn't succeed, <code>try</code> behaves as
+if it hadn't consumed any input at all. So, when you use
+<code>try</code> on the left side of <code>&lt;|&gt;</code>, Parsec will
+try the option on the right even if the left side failed after consuming
+some input. <code>try</code> only has an effect if it is on the left of
+a <code>&lt;|&gt;</code>. Keep in mind, though, that many functions use
+<code>&lt;|&gt;</code> internally. Here's a way to add expanded
+end-of-line support to our CSV parser using <code>try</code>:</p>
+<div class="captioned-content">
+<div class="caption">
+csv6.hs
+</div>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.ParserCombinators.Parsec</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>csvFile <span class="ot">=</span> endBy line eol</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>line <span class="ot">=</span> sepBy cell (char <span class="ch">&#39;,&#39;</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>cell <span class="ot">=</span> many (noneOf <span class="st">&quot;,\n\r&quot;</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>eol <span class="ot">=</span>   try (string <span class="st">&quot;\n\r&quot;</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;|&gt;</span> try (string <span class="st">&quot;\r\n&quot;</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;|&gt;</span> string <span class="st">&quot;\n&quot;</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;|&gt;</span> string <span class="st">&quot;\r&quot;</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="ot">parseCSV ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">ParseError</span> [[<span class="dt">String</span>]]</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>parseCSV input <span class="ot">=</span> parse csvFile <span class="st">&quot;(unknown)&quot;</span> input</span></code></pre></div>
+</div>
+<p>Here we put both of the two-character endings first, and run both
+tests under <code>try</code>. Both of them occur to the left of a
+<code>&lt;|&gt;</code>, so they will do the right thing. We could have
+put <code>string "\n"</code> within a <code>try</code>, but it wouldn't
+have altered any behavior since they look at only one character anyway.
+We can load this up and test the <code>eol</code> function in
+<code>ghci</code>.</p>
+<pre class="screen"><code>ghci&gt; :l csv6.hs
+[1 of 1] Compiling Main             ( csv6.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; parse (eol &gt;&gt; eof) &quot;&quot; &quot;\n\r&quot;
+Right ()
+ghci&gt; parse (eol &gt;&gt; eof) &quot;&quot; &quot;\n&quot;
+Right ()
+ghci&gt; parse (eol &gt;&gt; eof) &quot;&quot; &quot;\r\n&quot;
+Right ()
+ghci&gt; parse (eol &gt;&gt; eof) &quot;&quot; &quot;\r&quot;
+Right ()
+</code></pre>
+<p>All four endings were handled properly. You can also test the full
+CSV parser with some different endings like this:</p>
+<pre class="screen"><code>ghci&gt; parseCSV &quot;line1\r\nline2\nline3\n\rline4\rline5\n&quot;
+Right [[&quot;line1&quot;],[&quot;line2&quot;],[&quot;line3&quot;],[&quot;line4&quot;],[&quot;line5&quot;]]
+</code></pre>
+<p>As you can see, this program even supports different line endings
+within a single file.</p>
+<h2 data-number="3.2" id="error-handling"><span
+class="header-section-number">3.2</span> Error Handling</h2>
+<p>At the beginning of this chapter, you saw how Parsec could generate
+error messages that list the location where the error occurred as well
+as what was expected. As parsers get more complex, the list of what was
+expected can become cumbersome. Parsec provides a way for you to specify
+custom error messages in the event of parse failures.</p>
+<p>Let's look at what happens when our current CSV parser encounters an
+error:</p>
+<pre class="screen"><code>ghci&gt; parseCSV &quot;line1&quot;
+Left &quot;(unknown)&quot; (line 1, column 6):
+unexpected end of input
+expecting &quot;,&quot;, &quot;\n\r&quot;, &quot;\r\n&quot;, &quot;\n&quot; or &quot;\r&quot;
+</code></pre>
+<p>That's a pretty long, and technical, error message. We could make an
+attempt to resolve this by using the monad <code>fail</code> function
+like so:</p>
+<div class="captioned-content">
+<div class="caption">
+csv6.hs
+</div>
+<div class="sourceCode" id="cb17"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;|&gt;</span> <span class="fu">fail</span> <span class="st">&quot;Couldn&#39;t find EOL&quot;</span></span></code></pre></div>
+</div>
+<p>Under <code>ghci</code>, we can see the result:</p>
+<pre class="screen"><code>ghci&gt; :r
+[1 of 1] Compiling Main             ( csv7.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; parseCSV &quot;line1&quot;
+Left &quot;(unknown)&quot; (line 1, column 6):
+unexpected end of input
+expecting &quot;,&quot;, &quot;\n\r&quot;, &quot;\r\n&quot;, &quot;\n&quot; or &quot;\r&quot;
+Couldn&#39;t find EOL
+</code></pre>
+<p>We added to the error result, but didn't really help clean up the
+output. Parsec has an <code>&lt;?&gt;</code> operator that is designed
+for just these situations. It is similar to <code>&lt;|&gt;</code> in
+that it first tries the parser on its left. Instead of trying another
+parser in the event of a failure, it presents an error message. Here's
+how we'd use it:</p>
+<div class="captioned-content">
+<div class="caption">
+csv6.hs
+</div>
+<div class="sourceCode" id="cb19"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- &lt;|&gt; fail &quot;Couldn&#39;t find EOL&quot;</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;?&gt;</span> <span class="st">&quot;end of line&quot;</span></span></code></pre></div>
+</div>
+<p>Now, when you generate an error, you'll get more helpful output:</p>
+<pre class="screen"><code>ghci&gt; :r
+[1 of 1] Compiling Main             ( csv8.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; parseCSV &quot;line1&quot;
+Left &quot;(unknown)&quot; (line 1, column 6):
+unexpected end of input
+expecting &quot;,&quot; or end of line
+</code></pre>
+<p>That's pretty helpful! The general rule of thumb is that you put a
+human description of what you're looking for to the right of
+<code>&lt;?&gt;</code>.</p>
+<h1 data-number="4" id="extended-example-full-csv-parser"><span
+class="header-section-number">4</span> Extended Example: Full CSV
+Parser</h1>
+<p>Our earlier CSV examples have had an important flaw: they weren't
+able to handle cells that contain a comma. CSV generating programs
+typically put quotation marks around such data. But then you have
+another problem: what to do if a cell contains a quotation mark and a
+comma. In these cases, the embedded quotation marks are doubled up.</p>
+<p>Here is a full CSV parser. You can use this from <code>ghci</code>,
+or if you compile it to a standalone program, it will parse a CSV file
+on standard input and convert it to a different format on output.</p>
+<div class="captioned-content">
+<div class="caption">
+csv7.hs
+</div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.ParserCombinators.Parsec</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>csvFile <span class="ot">=</span> endBy line eol</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>line <span class="ot">=</span> sepBy cell (char <span class="ch">&#39;,&#39;</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>cell <span class="ot">=</span> quotedCell <span class="op">&lt;|&gt;</span> many (noneOf <span class="st">&quot;,\n\r&quot;</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>quotedCell <span class="ot">=</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> char <span class="ch">&#39;&quot;&#39;</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>       content <span class="ot">&lt;-</span> many quotedChar</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>       char <span class="ch">&#39;&quot;&#39;</span> <span class="op">&lt;?&gt;</span> <span class="st">&quot;quote at end of cell&quot;</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>       <span class="fu">return</span> content</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>quotedChar <span class="ot">=</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>        noneOf <span class="st">&quot;\&quot;&quot;</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;|&gt;</span> try (string <span class="st">&quot;\&quot;\&quot;&quot;</span> <span class="op">&gt;&gt;</span> <span class="fu">return</span> <span class="ch">&#39;&quot;&#39;</span>)</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>eol <span class="ot">=</span>   try (string <span class="st">&quot;\n\r&quot;</span>)</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;|&gt;</span> try (string <span class="st">&quot;\r\n&quot;</span>)</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;|&gt;</span> string <span class="st">&quot;\n&quot;</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;|&gt;</span> string <span class="st">&quot;\r&quot;</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">&lt;?&gt;</span> <span class="st">&quot;end of line&quot;</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="ot">parseCSV ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Either</span> <span class="dt">ParseError</span> [[<span class="dt">String</span>]]</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>parseCSV input <span class="ot">=</span> parse csvFile <span class="st">&quot;(unknown)&quot;</span> input</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>main <span class="ot">=</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">do</span> c <span class="ot">&lt;-</span> <span class="fu">getContents</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>       <span class="kw">case</span> parse csvFile <span class="st">&quot;(stdin)&quot;</span> c <span class="kw">of</span></span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>            <span class="dt">Left</span> e <span class="ot">-&gt;</span> <span class="kw">do</span> <span class="fu">putStrLn</span> <span class="st">&quot;Error parsing input:&quot;</span></span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">print</span> e</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>            <span class="dt">Right</span> r <span class="ot">-&gt;</span> <span class="fu">mapM_</span> <span class="fu">print</span> r</span></code></pre></div>
+</div>
+<p>That's a full-featured CSV parser in just 21 lines of code, plus an
+additional 10 lines for the <code>parseCSV</code> and <code>main</code>
+utility functions.</p>
+<p>Let's look at the changes in this program from the previous versions.
+First, a cell may now be either a bare cell or a "quoted" cell. We give
+the <code>quotedCell</code> option first, because we want to follow that
+path if the first character in a cell is the quote mark.</p>
+<p>The <code>quotedCell</code> begins and ends with a quote mark, and
+contains zero or more characters. These characters can't be copied
+directly, though, because they may contain embedded, doubled-up, quote
+marks themselves. So we define a custom <code>quotedChar</code> to
+process them.</p>
+<p>When we're processing characters inside a quoted cell, we first say
+<code>noneOf "\""</code>. This will match and return any single
+character as long as it's not the quote mark. Otherwise, if it is the
+quote mark, we see if we have two of them in a row. If so, we return a
+single quote mark to go on our result string.</p>
+<p>Notice that <code>try</code> in <code>quotedChar</code> on the
+<em>right</em> side of <code>&lt;|&gt;</code>. Recall that I said that
+<code>try</code> only has an effect if it is on the left side of
+<code>&lt;|&gt;</code>. This <code>try</code> does occur on the left
+side of a <code>&lt;|&gt;</code>, but on the left of one that must be
+within the implementation of <code>many</code>.</p>
+<p>This <code>try</code> is important. Let's say we are parsing a quoted
+cell, and are getting towards the end of it. There will be another cell
+following. So we will expect to see a quote to end the current cell,
+followed by a comma. When we hit <code>quotedChar</code>, we will fail
+the <code>noneOf</code> test and proceed to the test that looks for two
+quotes in a row. We'll also fail that one because we'll have a quote,
+then a comma. If we hadn't used <code>try</code>, we'd crash with an
+error at this point, saying that it was expecting the second quote,
+because the first quote was already consumed. Since we use
+<code>try</code>, this is properly recognized as not a character that's
+part of the cell, so it terminates the <code>many quotedChar</code>
+expression as expected. Lookahead has once again proven very useful, and
+the fact that it is so easy to add makes it a remarkable tool in
+Parsec.</p>
+<p>We can test this program with <code>ghci</code> over some quoted
+cells.</p>
+<pre class="screen"><code>ghci&gt; :l csv7.hs
+[1 of 1] Compiling Main             ( csv9.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; parseCSV &quot;\&quot;This, is, one, big, cell\&quot;\n&quot;
+Right [[&quot;This, is, one, big, cell&quot;]]
+ghci&gt; parseCSV &quot;\&quot;Cell without an end\n&quot;
+Left &quot;(unknown)&quot; (line 2, column 1):
+unexpected end of input
+expecting &quot;\&quot;\&quot;&quot; or quote at end of cell
+</code></pre>
+<p>Let's run it over a real CSV file. Here's one generated by a
+spreadsheet program:</p>
+<pre class="example"><code>&quot;Product&quot;,&quot;Price&quot;
+&quot;O&#39;Reilly Socks&quot;,10
+&quot;Shirt with &quot;&quot;Haskell&quot;&quot; text&quot;,20
+&quot;Shirt, &quot;&quot;O&#39;Reilly&quot;&quot; version&quot;,20
+&quot;Haskell Caps&quot;,15
+</code></pre>
+<p>Now, we can run this under our test program and watch:</p>
+<pre class="screen"><code>$ runhaskell csv7.hs &lt; test.csv
+[&quot;Product&quot;,&quot;Price&quot;]
+[&quot;O&#39;Reilly Socks&quot;,&quot;10&quot;]
+[&quot;Shirt with \&quot;Haskell\&quot; text&quot;,&quot;20&quot;]
+[&quot;Shirt, \&quot;O&#39;Reilly\&quot; version&quot;,&quot;20&quot;]
+[&quot;Haskell Caps&quot;,&quot;15&quot;]
+</code></pre>
+<h1 data-number="5" id="parsec-and-monadplus"><span
+class="header-section-number">5</span> Parsec and MonadPlus</h1>
+<p>Parsec's <code>GenParser</code> monad is an instance of the
+<code>MonadPlus</code> type class that we introduced in <a
+href="16-programming-with-monads.org::*Looking for alternatives">the
+section called "Looking for alternatives"</a> represents a parse
+failure, while <code>mplus</code> combines two alternative parses into
+one, using <code>(&lt;|&gt;)</code>.</p>
+<div class="sourceCode" id="cb25"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">MonadPlus</span> (<span class="dt">GenParser</span> tok st) <span class="kw">where</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    mzero <span class="ot">=</span> <span class="fu">fail</span> <span class="st">&quot;mzero&quot;</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    mplus <span class="ot">=</span> (<span class="op">&lt;|&gt;</span>)</span></code></pre></div>
+<h1 data-number="6" id="parsing-an-url-encoded-query-string"><span
+class="header-section-number">6</span> Parsing an URL-encoded query
+string</h1>
+<p>When we introduced <code>application/x-www-form-urlencoded</code>
+text in <a
+href="16-programming-with-monads.org::*Golfing%20practice:%20association%20lists">the
+section called "Golfing practice: association lists"</a>, we mentioned
+that we'd write a parser for these strings. We can quickly and easily do
+this using Parsec.</p>
+<p>Each key-value pair is separated by the <code>&amp;</code>
+character.</p>
+<div class="captioned-content">
+<div class="caption">
+FormParse.hs
+</div>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Numeric</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.ParserCombinators.Parsec</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="ot">p_query ::</span> <span class="dt">CharParser</span> () [(<span class="dt">String</span>, <span class="dt">Maybe</span> <span class="dt">String</span>)]</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>p_query <span class="ot">=</span> p_pair <span class="ot">`sepBy`</span> char <span class="ch">&#39;&amp;&#39;</span></span></code></pre></div>
+</div>
+<p>Notice that in the type signature, we're using <code>Maybe</code> to
+represent a value: the HTTP specification is unclear about whether a key
+<em>must</em> have an associated value, and we'd like to be able to
+distinguish between "no value" and "empty value".</p>
+<div class="captioned-content">
+<div class="caption">
+FormParse.hs
+</div>
+<div class="sourceCode" id="cb27"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ot">p_pair ::</span> <span class="dt">CharParser</span> () (<span class="dt">String</span>, <span class="dt">Maybe</span> <span class="dt">String</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>p_pair <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  name <span class="ot">&lt;-</span> many1 p_char</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  value <span class="ot">&lt;-</span> optionMaybe (char <span class="ch">&#39;=&#39;</span> <span class="op">&gt;&gt;</span> many p_char)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> (name, value)</span></code></pre></div>
+</div>
+<p>The <code>many1</code> function is similar to <code>many</code>: it
+applies its parser repeatedly, returning a list of their results. While
+<code>many</code> will succeed and return an empty list if its parser
+never succeeds, <code>many1</code> will fail if its parser never
+succeeds, and will otherwise return a list of at least one element.</p>
+<p>The <code>optionMaybe</code> function modifies the behaviour of a
+parser. If the parser fails, <code>optionMaybe</code> doesn't fail: it
+returns <code>Nothing</code>. Otherwise, it wraps the parser's
+successful result with <code>Just</code>. This gives us the ability to
+distinguish between "no value" and "empty value", as we mentioned
+above.</p>
+<p>Individual characters can be encoded in one of several ways.</p>
+<div class="captioned-content">
+<div class="caption">
+FormParse.hs
+</div>
+<div class="sourceCode" id="cb28"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="ot">p_char ::</span> <span class="dt">CharParser</span> () <span class="dt">Char</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>p_char <span class="ot">=</span> oneOf urlBaseChars</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>     <span class="op">&lt;|&gt;</span> (char <span class="ch">&#39;+&#39;</span> <span class="op">&gt;&gt;</span> <span class="fu">return</span> <span class="ch">&#39; &#39;</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>     <span class="op">&lt;|&gt;</span> p_hex</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>urlBaseChars <span class="ot">=</span> [<span class="ch">&#39;a&#39;</span><span class="op">..</span><span class="ch">&#39;z&#39;</span>]<span class="op">++</span>[<span class="ch">&#39;A&#39;</span><span class="op">..</span><span class="ch">&#39;Z&#39;</span>]<span class="op">++</span>[<span class="ch">&#39;0&#39;</span><span class="op">..</span><span class="ch">&#39;9&#39;</span>]<span class="op">++</span><span class="st">&quot;$-_.!*&#39;(),&quot;</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a><span class="ot">p_hex ::</span> <span class="dt">CharParser</span> () <span class="dt">Char</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>p_hex <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  char <span class="ch">&#39;%&#39;</span></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> hexDigit</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> hexDigit</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> ((d, _)<span class="op">:</span>_) <span class="ot">=</span> <span class="fu">readHex</span> [a,b]</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> <span class="op">.</span> <span class="fu">toEnum</span> <span class="op">$</span> d</span></code></pre></div>
+</div>
+<p>Some characters can be represented literally. Spaces are treated
+specially, using a <code>+</code> character. Other characters must be
+encoded as a <code>%</code> character followed by two hexadecimal
+digits. The <code>Numeric</code> module's <code>readHex</code> parses a
+hex string as a number.</p>
+<pre class="screen"><code>ghci&gt; parseTest p_query &quot;foo=bar&amp;a%21=b+c&quot;
+[(&quot;foo&quot;,Just &quot;bar&quot;),(&quot;a!&quot;,Just &quot;b c&quot;)]
+</code></pre>
+<p>As appealing and readable as this parser is, we can profit from
+stepping back and taking another look at some of our building
+blocks.</p>
+<h1 data-number="7"
+id="supplanting-regular-expressions-for-casual-parsing"><span
+class="header-section-number">7</span> Supplanting regular expressions
+for casual parsing</h1>
+<p>In many popular languages, people tend to put regular expressions to
+work for "casual" parsing. They're notoriously tricky for this purpose:
+hard to write, difficult to debug, nearly incomprehensible after a few
+months of neglect, and provide no error messages on failure.</p>
+<p>If we can write compact Parsec parsers, we'll gain in readability,
+expressiveness, and error reporting. Our parsers won't be as short as
+regular expressions, but they'll be close enough to negate much of the
+temptation of regexps.</p>
+<h1 data-number="8" id="parsing-without-variables"><span
+class="header-section-number">8</span> Parsing without variables</h1>
+<p>A few of our parsers above use <code>do</code> notation and bind the
+result of an intermediate parse to a variable, for later use. One such
+function is <code>p_pair</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+FormParse.hs
+</div>
+<div class="sourceCode" id="cb30"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ot">p_pair ::</span> <span class="dt">CharParser</span> () (<span class="dt">String</span>, <span class="dt">Maybe</span> <span class="dt">String</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>p_pair <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  name <span class="ot">&lt;-</span> many1 p_char</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  value <span class="ot">&lt;-</span> optionMaybe (char <span class="ch">&#39;=&#39;</span> <span class="op">&gt;&gt;</span> many p_char)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> (name, value)</span></code></pre></div>
+</div>
+<p>We can get rid of the need for explicit variables by using the
+<code>liftM2</code> combinator from <code>Control.Monad</code>.</p>
+<div class="captioned-content">
+<div class="caption">
+FormParse.hs
+</div>
+<div class="sourceCode" id="cb31"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">-- Import Control.Monad at the beginning of the file</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>p_pair_app1 <span class="ot">=</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    liftM2 (,) (many1 p_char) (optionMaybe (char <span class="ch">&#39;=&#39;</span> <span class="op">&gt;&gt;</span> many p_char))</span></code></pre></div>
+</div>
+<p>This parser has exactly the same type and behaviour as
+<code>p_pair</code>, but it's one line long. Instead of writing our
+parser in a "procedural" style, we've simply switched to a programming
+style that emphasises that we're <em>applying</em> parsers and
+<em>combining</em> their results.</p>
+<p>We can take this applicative style of writing a parser much further.
+In most cases, the extra compactness that we will gain will <em>not</em>
+come at any cost in readability, beyond the initial effort of coming to
+grips with the idea.</p>
+<h1 data-number="9" id="applicative-functors-for-parsing"><span
+class="header-section-number">9</span> Applicative functors for
+parsing</h1>
+<p>The standard Haskell libraries include a module named
+<code>Control.Applicative</code>, which defines a type class named
+<code>Applicative</code>, which represents an <em>applicative
+functor</em>. Because every applicative functor is also a functor they
+are represented as a hierarchy.</p>
+<div class="sourceCode" id="cb32"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="dt">Functor</span> f <span class="ot">=&gt;</span> <span class="dt">Applicative</span> f <span class="kw">where</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  pure ::</span> a <span class="ot">-&gt;</span> f a</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="ot">  (&lt;*&gt;) ::</span> f (a <span class="ot">-&gt;</span> b) <span class="ot">-&gt;</span> f a <span class="ot">-&gt;</span> f b</span></code></pre></div>
+<p>The <code>pure</code> function lifts a value into an applicative
+functor and <code>&lt;*&gt;</code> is like <code>fmap</code> but the
+function to be applied is in a functor so <code>&lt;*&gt;</code> takes
+care of applying it.</p>
+<pre class="screen"><code>ghci&gt; :type fmap
+fmap :: Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+ghci&gt; :type (&lt;*&gt;)
+(&lt;*&gt;) :: Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</code></pre>
+<p>As usual, we think that the best way to introduce applicative
+functors is by putting them to work.</p>
+<h1 data-number="10" id="applicative-parsing-by-example"><span
+class="header-section-number">10</span> Applicative parsing by
+example</h1>
+<p>We'll begin by rewriting our existing form parser from the bottom up,
+beginning with <code>p_hex</code>, which parses a hexadecimal escape
+sequence. Here's the code in normal <code>do</code> notation style.</p>
+<div class="captioned-content">
+<div class="caption">
+FormApp.hs
+</div>
+<div class="sourceCode" id="cb34"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Numeric</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.ParserCombinators.Parsec</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="ot">p_hex ::</span> <span class="dt">CharParser</span> () <span class="dt">Char</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>p_hex <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  char <span class="ch">&#39;%&#39;</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> hexDigit</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  b <span class="ot">&lt;-</span> hexDigit</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span> ((d, _)<span class="op">:</span>_) <span class="ot">=</span> <span class="fu">readHex</span> [a,b]</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> <span class="op">.</span> <span class="fu">toEnum</span> <span class="op">$</span> d</span></code></pre></div>
+</div>
+<p>Because Parsec includes an applicative instance it is easy to write
+our applicative version.</p>
+<div class="captioned-content">
+<div class="caption">
+FormApp.hs
+</div>
+<div class="sourceCode" id="cb35"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ot">hexify ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">Char</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>hexify a b <span class="ot">=</span> <span class="fu">toEnum</span> <span class="op">.</span> <span class="fu">fst</span> <span class="op">.</span> <span class="fu">head</span> <span class="op">.</span><span class="fu">readHex</span> <span class="op">$</span> [a, b]</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="ot">a_hex ::</span> <span class="dt">Parser</span> <span class="dt">Char</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>a_hex <span class="ot">=</span> hexify <span class="op">&lt;$&gt;</span> (char <span class="ch">&#39;%&#39;</span> <span class="op">*&gt;</span> hexDigit) <span class="op">&lt;*&gt;</span> hexDigit</span></code></pre></div>
+</div>
+<p>Although the individual parsers are mostly untouched, the combinators
+that we're gluing them together with have changed. The familiar ones are
+<code>(&lt;$&gt;)</code>, which we already know is a synonym for
+<code>fmap</code> and <code>(&lt;*&gt;)</code> which is plain old
+<code>fmap</code> lifted to applicative functors so it applies the
+parser on its left, then the parser on its right, and applies the
+function that's the result of the left parse to the value that's the
+result of the right.</p>
+<p>The unfamiliar combinator is <code>(*&gt;)</code>, which applies its
+first argument, throws away its result, then applies the second and
+returns its result. In other words, it's similar to
+<code>(&gt;&gt;)</code>.</p>
+<div class="TIP">
+<p>A handy tip about angle brackets</p>
+<p>Before we continue, here's a useful aid for remembering what all the
+angle brackets are for in the combinators from
+<code>Control.Applicative</code>: if there's an angle bracket pointing
+to some side, the result from that side should be used.</p>
+<p>For example, <code>(*&gt;)</code> returns the result on its right;
+<code>(&lt;*&gt;)</code> returns results from both sides; and
+<code>(&lt;*)</code>, which we have not yet seen, returns the result on
+its left.</p>
+</div>
+<p>Parsec's <code>hexDigit</code> parser parses a single hexadecimal
+digit.</p>
+<pre class="screen"><code>ghci&gt; :type hexDigit
+hexDigit :: (Stream s m Char) =&gt; ParsecT s u m Char
+</code></pre>
+<p>Therefore, <code>char '%' *&gt; hexDigit</code> has the same type,
+since <code>(*&gt;)</code> returns the result on its right.</p>
+<pre class="screen"><code>ghci&gt; :type char &#39;%&#39; *&gt; hexDigit
+char &#39;%&#39; *&gt; hexDigit :: (Stream s m Char) =&gt; ParsecT s u m Char
+</code></pre>
+<p>The expression
+<code>hexify &lt;$&gt; (char '%' *&gt; hexDigit)</code> is a parser that
+matches a "%" character followed by hex digit, and whose result is a
+function.</p>
+<pre class="screen"><code>ghci&gt; :l FormApp.hs
+[1 of 1] Compiling Main             ( FormApp.hs, interpreted )
+Ok, one module loaded.
+ghci&gt; :type hexify &lt;$&gt; (char &#39;%&#39; *&gt; hexDigit)
+hexify &lt;$&gt; (char &#39;%&#39; *&gt; hexDigit)
+  :: Stream s m Char =&gt;
+     ParsecT s u m (Char -&gt; Char)
+</code></pre>
+<p>Next, we'll consider the <code>p_char</code> parser.</p>
+<div class="captioned-content">
+<div class="caption">
+FormApp.hs
+</div>
+<div class="sourceCode" id="cb39"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ot">p_char ::</span> <span class="dt">CharParser</span> () <span class="dt">Char</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>p_char <span class="ot">=</span> oneOf urlBaseChars</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>     <span class="op">&lt;|&gt;</span> (char <span class="ch">&#39;+&#39;</span> <span class="op">&gt;&gt;</span> <span class="fu">return</span> <span class="ch">&#39; &#39;</span>)</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>     <span class="op">&lt;|&gt;</span> p_hex</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>urlBaseChars <span class="ot">=</span> [<span class="ch">&#39;a&#39;</span><span class="op">..</span><span class="ch">&#39;z&#39;</span>]<span class="op">++</span>[<span class="ch">&#39;A&#39;</span><span class="op">..</span><span class="ch">&#39;Z&#39;</span>]<span class="op">++</span>[<span class="ch">&#39;0&#39;</span><span class="op">..</span><span class="ch">&#39;9&#39;</span>]<span class="op">++</span><span class="st">&quot;$-_.!*&#39;(),&quot;</span></span></code></pre></div>
+</div>
+<p>This remains almost the same in an applicative style, save for one
+piece of convenient notation.</p>
+<div class="captioned-content">
+<div class="caption">
+FormApp.hs
+</div>
+<div class="sourceCode" id="cb40"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>a_char <span class="ot">=</span> oneOf urlBaseChars</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>     <span class="op">&lt;|&gt;</span> (<span class="ch">&#39; &#39;</span> <span class="op">&lt;$</span> char <span class="ch">&#39;+&#39;</span>)</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>     <span class="op">&lt;|&gt;</span> a_hex</span></code></pre></div>
+</div>
+<p>Here, the <code>(&lt;$)</code> combinator uses the value on the left
+if the parser on the right succeeds.</p>
+<p>Finally, the equivalent of <code>p_pair_app1</code> is almost
+identical.</p>
+<div class="captioned-content">
+<div class="caption">
+FormParse.hs
+</div>
+<div class="sourceCode" id="cb41"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>p_pair_app1 <span class="ot">=</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    liftM2 (,) (many1 p_char) (optionMaybe (char <span class="ch">&#39;=&#39;</span> <span class="op">&gt;&gt;</span> many p_char))</span></code></pre></div>
+</div>
+<p>All we've changed is the combinator we use for lifting: the
+<code>liftA</code> functions act in the same ways as their
+<code>liftM</code> cousins.</p>
+<div class="captioned-content">
+<div class="caption">
+FormApp.hs
+</div>
+<div class="sourceCode" id="cb42"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ot">a_pair ::</span> <span class="dt">CharParser</span> () (<span class="dt">String</span>, <span class="dt">Maybe</span> <span class="dt">String</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>a_pair <span class="ot">=</span> liftA2 (,) (many1 a_char) (optionMaybe (char <span class="ch">&#39;=&#39;</span> <span class="op">*&gt;</span> many a_char))</span></code></pre></div>
+</div>
+<h1 data-number="11" id="parsing-json-data"><span
+class="header-section-number">11</span> Parsing JSON data</h1>
+<p>To give ourselves a better feel for parsing with applicative
+functors, and to explore a few more corners of Parsec, we'll write a
+JSON parser that follows the definition in RFC 4627.</p>
+<p>At the top level, a JSON value must be either an object or an
+array.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONParsec.hs
+</div>
+<div class="sourceCode" id="cb43"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE FlexibleContexts #-}</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span> (mzero)</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">JSONClass</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Numeric</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.ParserCombinators.Parsec</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a><span class="ot">p_text ::</span> <span class="dt">CharParser</span> () <span class="dt">JValue</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>p_text <span class="ot">=</span> spaces <span class="op">*&gt;</span> text</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>     <span class="op">&lt;?&gt;</span> <span class="st">&quot;JSON text&quot;</span></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> text <span class="ot">=</span> <span class="dt">JObject</span> <span class="op">&lt;$&gt;</span> p_object</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>             <span class="op">&lt;|&gt;</span> <span class="dt">JArray</span> <span class="op">&lt;$&gt;</span> p_array</span></code></pre></div>
+</div>
+<p>These are structurally similar, with an opening character, followed
+by one or more items separated by commas, followed by a closing
+character. We capture this similarity by writing a small helper
+function.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONParsec.hs
+</div>
+<div class="sourceCode" id="cb44"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ot">p_series ::</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">CharParser</span> () a <span class="ot">-&gt;</span> <span class="dt">Char</span> <span class="ot">-&gt;</span> <span class="dt">CharParser</span> () [a]</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>p_series left parser right <span class="ot">=</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    between (char left <span class="op">&lt;*</span> spaces) (char right) <span class="op">$</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>            (parser <span class="op">&lt;*</span> spaces) <span class="ot">`sepBy`</span> (char <span class="ch">&#39;,&#39;</span> <span class="op">&lt;*</span> spaces)</span></code></pre></div>
+</div>
+<p>Here, we finally have a use for the <code>(&lt;*)</code> combinator
+that we introduced earlier. We use it to skip over any white space that
+might follow certain tokens. With this <code>p_series</code> function,
+parsing an array is simple.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONParsec.hs
+</div>
+<div class="sourceCode" id="cb45"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="ot">p_array ::</span> <span class="dt">CharParser</span> () (<span class="dt">JAry</span> <span class="dt">JValue</span>)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>p_array <span class="ot">=</span> <span class="dt">JAry</span> <span class="op">&lt;$&gt;</span> p_series <span class="ch">&#39;[&#39;</span> p_value <span class="ch">&#39;]&#39;</span></span></code></pre></div>
+</div>
+<p>Dealing with a JSON object is hardly more complicated, requiring just
+a little additional effort to produce a name/value pair for each of the
+object's fields.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONParsec.hs
+</div>
+<div class="sourceCode" id="cb46"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="ot">p_object ::</span> <span class="dt">CharParser</span> () (<span class="dt">JObj</span> <span class="dt">JValue</span>)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>p_object <span class="ot">=</span> <span class="dt">JObj</span> <span class="op">&lt;$&gt;</span> p_series <span class="ch">&#39;{&#39;</span> p_field <span class="ch">&#39;}&#39;</span></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> p_field <span class="ot">=</span> (,) <span class="op">&lt;$&gt;</span> (p_string <span class="op">&lt;*</span> char <span class="ch">&#39;:&#39;</span> <span class="op">&lt;*</span> spaces) <span class="op">&lt;*&gt;</span> p_value</span></code></pre></div>
+</div>
+<p>Parsing an individual value is a matter of calling an existing
+parser, then wrapping its result with the appropriate
+<code>JValue</code> constructor.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONParsec.hs
+</div>
+<div class="sourceCode" id="cb47"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ot">p_value ::</span> <span class="dt">CharParser</span> () <span class="dt">JValue</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>p_value <span class="ot">=</span> value <span class="op">&lt;*</span> spaces</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> value <span class="ot">=</span> <span class="dt">JString</span> <span class="op">&lt;$&gt;</span> p_string</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>            <span class="op">&lt;|&gt;</span> <span class="dt">JNumber</span> <span class="op">&lt;$&gt;</span> p_number</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>            <span class="op">&lt;|&gt;</span> <span class="dt">JObject</span> <span class="op">&lt;$&gt;</span> p_object</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">&lt;|&gt;</span> <span class="dt">JArray</span> <span class="op">&lt;$&gt;</span> p_array</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">&lt;|&gt;</span> <span class="dt">JBool</span> <span class="op">&lt;$&gt;</span> p_bool</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">&lt;|&gt;</span> <span class="dt">JNull</span> <span class="op">&lt;$</span> string <span class="st">&quot;null&quot;</span></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">&lt;?&gt;</span> <span class="st">&quot;JSON value&quot;</span></span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a><span class="ot">p_bool ::</span> <span class="dt">CharParser</span> () <span class="dt">Bool</span></span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>p_bool <span class="ot">=</span> <span class="dt">True</span> <span class="op">&lt;$</span> string <span class="st">&quot;true&quot;</span></span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>     <span class="op">&lt;|&gt;</span> <span class="dt">False</span> <span class="op">&lt;$</span> string <span class="st">&quot;false&quot;</span></span></code></pre></div>
+</div>
+<p>The <code>choice</code> combinator allows us to represent this kind
+of ladder-of-alternatives as a list. It returns the result of the first
+parser to succeed.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONParsec.hs
+</div>
+<div class="sourceCode" id="cb48"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>p_value_choice <span class="ot">=</span> value <span class="op">&lt;*</span> spaces</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> value <span class="ot">=</span> choice [ <span class="dt">JString</span> <span class="op">&lt;$&gt;</span> p_string</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>                       , <span class="dt">JNumber</span> <span class="op">&lt;$&gt;</span> p_number</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>                       , <span class="dt">JObject</span> <span class="op">&lt;$&gt;</span> p_object</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>                       , <span class="dt">JArray</span> <span class="op">&lt;$&gt;</span> p_array</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>                       , <span class="dt">JBool</span> <span class="op">&lt;$&gt;</span> p_bool</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>                       , <span class="dt">JNull</span> <span class="op">&lt;$</span> string <span class="st">&quot;null&quot;</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>                       ]</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>                <span class="op">&lt;?&gt;</span> <span class="st">&quot;JSON value&quot;</span></span></code></pre></div>
+</div>
+<p>This leads us to the two most interesting parsers, for numbers and
+strings. We'll deal with numbers first, since they're simpler.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONParsec.hs
+</div>
+<div class="sourceCode" id="cb49"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="ot">p_number ::</span> <span class="dt">CharParser</span> () <span class="dt">Double</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>p_number <span class="ot">=</span> <span class="kw">do</span> s <span class="ot">&lt;-</span> getInput</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>              <span class="kw">case</span> <span class="fu">readSigned</span> <span class="fu">readFloat</span> s <span class="kw">of</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>                [(n, s&#39;)] <span class="ot">-&gt;</span> n <span class="op">&lt;$</span> setInput s&#39;</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>                _         <span class="ot">-&gt;</span> empty</span></code></pre></div>
+</div>
+<p>The only piece of functionality that applicative functors are
+missing, compared to monads, is the ability to bind a value to a
+variable, which we need here in order to be able to validate the value
+we're trying to decode.</p>
+<p>Our trick here is to take advantage of Haskell's standard number
+parsing library functions, which are defined in the <code>Numeric</code>
+module. The <code>readFloat</code> function reads an unsigned floating
+point number, and <code>readSigned</code> takes a parser for an unsigned
+number and turns it into a parser for possibly signed numbers.</p>
+<p>Since these functions know nothing about Parsec, we have to work with
+them specially. Parsec's <code>getInput</code> function gives us direct
+access to Parsec's unconsumed input stream. If
+<code>readSigned readFloat</code> succeeds, it returns both the parsed
+number and the rest of the unparsed input. We then use
+<code>setInput</code> to give this back to Parsec as its new unconsumed
+input stream.</p>
+<p>Parsing a string isn't difficult, merely detailed.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONParsec.hs
+</div>
+<div class="sourceCode" id="cb50"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="ot">p_string ::</span> <span class="dt">CharParser</span> () <span class="dt">String</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>p_string <span class="ot">=</span> between (char <span class="ch">&#39;\&quot;&#39;</span>) (char <span class="ch">&#39;\&quot;&#39;</span>) (many jchar)</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> jchar <span class="ot">=</span> char <span class="ch">&#39;\\&#39;</span> <span class="op">*&gt;</span> (p_escape <span class="op">&lt;|&gt;</span> p_unicode)</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>              <span class="op">&lt;|&gt;</span> satisfy (<span class="ot">`notElem`</span> <span class="st">&quot;\&quot;\\&quot;</span>)</span></code></pre></div>
+</div>
+<p>We can parse and decode an escape sequence with the help of the
+<code>choice</code> combinator that we just met.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONParsec.hs
+</div>
+<div class="sourceCode" id="cb51"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>p_escape <span class="ot">=</span> choice (<span class="fu">zipWith</span> decode <span class="st">&quot;bnfrt\\\&quot;/&quot;</span> <span class="st">&quot;\b\n\f\r\t\\\&quot;/&quot;</span>)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> decode c r <span class="ot">=</span> r <span class="op">&lt;$</span> char c</span></code></pre></div>
+</div>
+<p>Finally, JSON lets us encode a Unicode character in a string as
+"<code>\u</code>" followed by four hexadecimal digits.</p>
+<div class="captioned-content">
+<div class="caption">
+JSONParsec.hs
+</div>
+<div class="sourceCode" id="cb52"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="ot">p_unicode ::</span> <span class="dt">CharParser</span> () <span class="dt">Char</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>p_unicode <span class="ot">=</span> char <span class="ch">&#39;u&#39;</span> <span class="op">*&gt;</span> (decode <span class="op">&lt;$&gt;</span> count <span class="dv">4</span> hexDigit)</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">where</span> decode x <span class="ot">=</span> <span class="fu">toEnum</span> code</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>              <span class="kw">where</span> ((code,_)<span class="op">:</span>_) <span class="ot">=</span> <span class="fu">readHex</span> x</span></code></pre></div>
+</div>
+<h1 data-number="12" id="parsing-a-http-request"><span
+class="header-section-number">12</span> Parsing a HTTP request</h1>
+<p>As another example of applicative parsing, we will develop a basic
+parser for HTTP requests.</p>
+<div class="captioned-content">
+<div class="caption">
+HttpRequestParser.hs
+</div>
+<div class="sourceCode" id="cb53"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">HttpRequestParser</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>    (</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>      <span class="dt">HttpRequest</span>(<span class="op">..</span>)</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>    , <span class="dt">Method</span>(<span class="op">..</span>)</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>    , p_request</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>    ) <span class="kw">where</span></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Numeric</span> (readHex)</span>
+<span id="cb53-9"><a href="#cb53-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Monad</span> (liftM4)</span>
+<span id="cb53-10"><a href="#cb53-10" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.ParserCombinators.Parsec</span></span>
+<span id="cb53-11"><a href="#cb53-11" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.IO</span> (<span class="dt">Handle</span>)</span></code></pre></div>
+</div>
+<p>An HTTP request consists of a method, an identifier, a series of
+headers, and an optional body. For simplicity, we'll focus on just two
+of the six method types specified by the HTTP 1.1 standard. A
+<code>POST</code> method has a body; a <code>GET</code> has none.</p>
+<div class="captioned-content">
+<div class="caption">
+HttpRequestParser.hs
+</div>
+<div class="sourceCode" id="cb54"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Method</span> <span class="ot">=</span> <span class="dt">Get</span> <span class="op">|</span> <span class="dt">Post</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>          <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Ord</span>, <span class="dt">Show</span>)</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">HttpRequest</span> <span class="ot">=</span> <span class="dt">HttpRequest</span> {</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="ot">      reqMethod ::</span> <span class="dt">Method</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>    ,<span class="ot"> reqURL ::</span> <span class="dt">String</span></span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>    ,<span class="ot"> reqHeaders ::</span> [(<span class="dt">String</span>, <span class="dt">String</span>)]</span>
+<span id="cb54-8"><a href="#cb54-8" aria-hidden="true" tabindex="-1"></a>    ,<span class="ot"> reqBody ::</span> <span class="dt">Maybe</span> <span class="dt">String</span></span>
+<span id="cb54-9"><a href="#cb54-9" aria-hidden="true" tabindex="-1"></a>    } <span class="kw">deriving</span> (<span class="dt">Eq</span>, <span class="dt">Show</span>)</span></code></pre></div>
+</div>
+<p>Because we're writing in an applicative style, our parser can be both
+brief and readable. Readable, that is, if you're becoming used to the
+applicative parsing notation.</p>
+<div class="captioned-content">
+<div class="caption">
+HttpRequestParser.hs
+</div>
+<div class="sourceCode" id="cb55"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="ot">p_request ::</span> <span class="dt">CharParser</span> () <span class="dt">HttpRequest</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>p_request <span class="ot">=</span> q <span class="st">&quot;GET&quot;</span> <span class="dt">Get</span> (<span class="fu">pure</span> <span class="dt">Nothing</span>)</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>        <span class="op">&lt;|&gt;</span> q <span class="st">&quot;POST&quot;</span> <span class="dt">Post</span> (<span class="dt">Just</span> <span class="op">&lt;$&gt;</span> many anyChar)</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> q name ctor body <span class="ot">=</span> liftM4 <span class="dt">HttpRequest</span> req url p_headers body</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>            <span class="kw">where</span> req <span class="ot">=</span> ctor <span class="op">&lt;$</span> string name <span class="op">&lt;*</span> char <span class="ch">&#39; &#39;</span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>        url <span class="ot">=</span> optional (char <span class="ch">&#39;/&#39;</span>) <span class="op">*&gt;</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>              manyTill notEOL (try <span class="op">$</span> string <span class="st">&quot; HTTP/1.&quot;</span> <span class="op">&lt;*</span> oneOf <span class="st">&quot;01&quot;</span>)</span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>              <span class="op">&lt;*</span> crlf</span></code></pre></div>
+</div>
+<p>Briefly, the <code>q</code> helper function accepts a method name,
+the type constructor to apply to it, and a parser for a request's
+optional body. The <code>url</code> helper does not attempt to validate
+a URL, because the HTTP specification does not specify what characters
+an URL contain. The function just consumes input until either the line
+ends or it reaches a HTTP version identifier.</p>
+<h2 data-number="12.1" id="backtracking-and-its-discontents"><span
+class="header-section-number">12.1</span> Backtracking and its
+discontents</h2>
+<p>The <code>try</code> combinator has to hold onto input in case it
+needs to restore it, so that an alternative parser can be used. This
+practice is referred to as <em>backtracking</em>. Because
+<code>try</code> must save input, it is expensive to use. Sprinkling a
+parser with unnecessary uses of <code>try</code> is a very effective way
+to slow it down, sometimes to the point of unacceptable performance.</p>
+<p>The standard way to avoid the need for backtracking is to tidy up a
+parser so that we can decide whether it will succeed or fail using only
+a single token of input. In this case, the two parsers consume the same
+initial tokens, so we turn them into a single parser.</p>
+<pre class="screen"><code>ghci&gt; :set -XFlexibleContexts
+ghci&gt; :m Text.ParserCombinators.Parsec
+ghci&gt; parser = (++) &lt;$&gt; string &quot;HT&quot; &lt;*&gt; (string &quot;TP&quot; &lt;|&gt; string &quot;ML&quot;)
+ghci&gt; parseTest parser &quot;HTTP&quot;
+&quot;HTTP&quot;
+ghci&gt; parseTest parser &quot;HTML&quot;
+&quot;HTML&quot;
+</code></pre>
+<p>Even better, Parsec gives us an improved error message if we feed it
+non-matching input.</p>
+<pre class="screen"><code>ghci&gt; parseTest parser &quot;HTXY&quot;
+parse error at (line 1, column 3):
+unexpected &quot;X&quot;
+expecting &quot;TP&quot; or &quot;ML&quot;
+</code></pre>
+<h2 data-number="12.2" id="parsing-headers"><span
+class="header-section-number">12.2</span> Parsing headers</h2>
+<p>Following the first line of a HTTP request is a series of zero or
+more headers. A header begins with a field name, followed by a colon,
+followed by the content. If the lines that follow begin with spaces,
+they are treated as <em>continuations</em> of the current content.</p>
+<div class="captioned-content">
+<div class="caption">
+HttpRequestParser.hs
+</div>
+<div class="sourceCode" id="cb58"><pre
+class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="ot">p_headers ::</span> <span class="dt">CharParser</span> st [(<span class="dt">String</span>, <span class="dt">String</span>)]</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>p_headers <span class="ot">=</span> header <span class="ot">`manyTill`</span> crlf</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span> header <span class="ot">=</span> liftA2 (,) fieldName (char <span class="ch">&#39;:&#39;</span> <span class="op">*&gt;</span> spaces <span class="op">*&gt;</span> contents)</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>        contents <span class="ot">=</span> liftA2 (<span class="op">++</span>) (many1 notEOL <span class="op">&lt;*</span> crlf)</span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>                               (continuation <span class="op">&lt;|&gt;</span> <span class="fu">pure</span> [])</span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>        continuation <span class="ot">=</span> liftA2 (<span class="op">:</span>) (<span class="ch">&#39; &#39;</span> <span class="op">&lt;$</span> many1 (oneOf <span class="st">&quot; \t&quot;</span>)) contents</span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>        fieldName <span class="ot">=</span> (<span class="op">:</span>) <span class="op">&lt;$&gt;</span> letter <span class="op">&lt;*&gt;</span> many fieldChar</span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a>        fieldChar <span class="ot">=</span> letter <span class="op">&lt;|&gt;</span> digit <span class="op">&lt;|&gt;</span> oneOf <span class="st">&quot;-_&quot;</span></span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a><span class="ot">crlf ::</span> <span class="dt">CharParser</span> st ()</span>
+<span id="cb58-11"><a href="#cb58-11" aria-hidden="true" tabindex="-1"></a>crlf <span class="ot">=</span> (() <span class="op">&lt;$</span> string <span class="st">&quot;\r\n&quot;</span>) <span class="op">&lt;|&gt;</span> (() <span class="op">&lt;$</span> newline)</span>
+<span id="cb58-12"><a href="#cb58-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-13"><a href="#cb58-13" aria-hidden="true" tabindex="-1"></a><span class="ot">notEOL ::</span> <span class="dt">CharParser</span> st <span class="dt">Char</span></span>
+<span id="cb58-14"><a href="#cb58-14" aria-hidden="true" tabindex="-1"></a>notEOL <span class="ot">=</span> noneOf <span class="st">&quot;\r\n&quot;</span></span></code></pre></div>
+</div>
+<h2 data-number="12.3" id="exercises"><span
+class="header-section-number">12.3</span> Exercises</h2>
+<p>Our HTTP request parser is too simple to be useful in real
+deployments. It is missing vital functionality, and is not resistant to
+even the most basic denial of service attacks.</p>
+<ol>
+<li><p>Make the parser honour the <code>Content-Length</code> field
+properly, if it is present.</p></li>
+<li><p>A popular denial of service attack against naive web servers is
+simply to send unreasonably long headers. A single header might contain
+tens or hundreds of megabytes of garbage text, causing a server to run
+out of memory.</p>
+<p>Restructure the header parser so that it will fail if any line is
+longer than 4096 characters. It must fail immediately when this occurs;
+it cannot wait until the end of a line eventually shows up.</p></li>
+<li><p>Add the ability to honour the <code>Transfer-Encoding</code>:
+chunked header if it is present. See <a
+href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.6.1">section
+3.6.1 of RFC 2616</a> for details.</p></li>
+<li><p>Another popular attack is to open a connection and either leave
+it idle or send data extremely slowly. Write a wrapper in the
+<code>IO</code> monad that will invoke the parser. Use the
+<code>System.Timeout</code> module to close the connection if the parser
+has not completed within 30 seconds.</p></li>
+</ol>
+<h1 data-number="13" id="footnotes"><span
+class="header-section-number">13</span> Footnotes</h1>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>For information on dealing with
+choices that may consume some input before failing, see <a
+href="14-using-parsec.org::*Lookahead">the section called
+"Lookahead"</a><a href="#fnref1" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>
